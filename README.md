@@ -15,3 +15,5 @@
 
 ## Technologies
 
+## Todos
+(aka tech debt aka improvements)

@@ -1,0 +1,55 @@
+@startuml
+/'
+I know classes aren't really a thing in Rust
+but it helps me to think about the structure.
+This is really not data-driven.
+I'll try and update this as I go
+'/
+
+enum TaskStatus {
+  Queued
+  Running
+  Success
+  Failure
+}
+
+interface TaskDefinition {
+  run()
+  requires()
+  complete()
+  inputs()
+  get_instance()
+  get_params()
+  on_success()
+  on_failure()
+}
+interface TaskRunner
+class TaskInstance {
+  TaskStatus status
+  DateTime date_started
+  DateTime date_finished
+}
+
+' TaskDefinition implementations
+class TaskPython
+class TaskBash
+interface TaskDataTransfer
+class TaskPostgresToCsv
+
+TaskPython -up-> TaskDefinition
+TaskBash -up-> TaskDefinition
+TaskDataTransfer -up-> TaskDefinition
+TaskPostgresToCsv -up-> TaskDataTransfer
+
+' TaskRunner implementations
+class LocalRunner
+class RemoteRunner
+LocalRunner -up-> TaskRunner
+RemoteRunner -up-> TaskRunner
+
+TaskDefinition -right-> TaskRunner
+TaskRunner -right-> TaskInstance
+
+TaskStatus .down.> TaskInstance
+
+@enduml
