@@ -12,3 +12,14 @@ readme = "README.md"
 # add crates.io badges
 
 [dependencies]
+chrono = "0.4"
+
+[lib]
+name = "yoshi"
+path = "src/lib.rs"
+crate-type = ["lib"]
+edition = "2018"
+test = true
+doctest = true
+bench = true
+doc = true

@@ -17,3 +17,14 @@
 
 ## Todos
 (aka tech debt aka improvements)
+
+* TaskDefinition
+  * add supports for success&failure callbacks
+  * PythonTaskDefinition
+    * add tests in case of virtualenv
+* TaskRunner
+* DagBuilder
+* DagRunner
+* Others
+  * add test coverage
+  * add logger

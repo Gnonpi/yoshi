@@ -5,10 +5,11 @@
 set -e
 
 cargoSubcommand() {
-    echo "> Running 'cargo"${1}"'"
+    echo "> Running 'cargo "${1}"'"
     cargo ${1}
 }
 
+cargoSubcommand build
 cargoSubcommand check
 cargoSubcommand test
 cargoSubcommand clippy
