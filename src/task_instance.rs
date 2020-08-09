@@ -17,10 +17,10 @@ pub enum TaskOutput {
 
 /// The result of a Task that ran through a Runner
 pub struct TaskInstance {
-    id_task_definition: TaskId,
-    id_task_runner: RunnerId,
-    date_started: DateTimeUtc,
-    date_finished: DateTimeUtc,
+    pub id_task_definition: TaskId,
+    pub id_task_runner: RunnerId,
+    pub date_started: DateTimeUtc,
+    pub date_finished: DateTimeUtc,
     pub status: TaskStatus,
-    pub output: TaskOutput,
+    pub got_output: TaskOutput,
 }
