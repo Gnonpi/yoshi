@@ -4,8 +4,15 @@ use std::boxed::Box;
 use std::fs::{remove_file, File};
 use std::io::prelude::*;
 
+// todo: move this to test utils module and reuse?
+fn init_logger() {
+    let _ = env_logger::builder().is_test(true).try_init();
+}
+
 #[test]
 fn it_can_run_basic_script() {
+    init_logger();
+
     let script_path = FilePath::from("script.py");
     let mut file = File::create(script_path.clone()).unwrap();
     file.write_all(b"import sys; a = sys.argv[1]; print(f'all good {a}')")

@@ -4,6 +4,8 @@
 
 set -e
 
+export RUST_LOG=debug
+
 cargoSubcommand() {
     echo "> Running 'cargo "${1}"'"
     cargo ${1}

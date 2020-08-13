@@ -3,6 +3,7 @@ use crate::errors::YoshiError;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
 use std::process::Command;
+use log::{info, debug, error};
 
 /// A Bash task that runs a Bash command
 #[derive(Clone)]
@@ -16,7 +17,7 @@ impl TaskDefinition for BashTaskDefinition {
         self.task_def_id
     }
     fn run(&self) -> Result<(), YoshiError> {
-        println!("Running {:?}", self.command);
+        info!("Starting Bash command {:?}", self.command);
         let bash_command = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
             .spawn()
@@ -24,14 +25,20 @@ impl TaskDefinition for BashTaskDefinition {
         let bash_result = bash_command
             .wait_with_output()
             .expect("failed to wait on Bash command");
-        println!("bash stdout: {:?}", bash_result.stdout);
+        debug!("bash stdout: {:?}", bash_result.stdout);
         if !bash_result.status.success() {
-            panic!("god please god no");
+            error!("Bash command crashed");
+            let err = YoshiError {
+                message: "Bash command was not a success".to_owned(),
+                origin: "BashTaskDefinition::run".to_owned()
+            };
+            return Err(err)
         }
         Ok(())
     }
 
     fn get_params(&self) -> HashMap<String, String> {
+        debug!("Getting bash command parameters");
         let mut params: HashMap<String, String> = HashMap::new();
         let mut total_command = self.command[0].clone();
         for (i, cmd) in self.command.iter().enumerate() {
@@ -47,6 +54,7 @@ impl TaskDefinition for BashTaskDefinition {
 
 impl BashTaskDefinition {
     fn new(command: Vec<String>) -> Self {
+        debug!("Creating Bash task definition");
         BashTaskDefinition {
             task_def_id: generate_task_definition_id(),
             command,
