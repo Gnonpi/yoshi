@@ -4,6 +4,8 @@ use crate::type_definition::TaskId;
 use std::collections::HashMap;
 use std::process::Command;
 
+/// A Bash task that runs a Bash command
+#[derive(Clone)]
 struct BashTaskDefinition {
     task_def_id: TaskId,
     command: Vec<String>,

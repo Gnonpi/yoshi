@@ -4,6 +4,8 @@ use crate::type_definition::{FilePath, TaskId};
 use std::collections::HashMap;
 use std::process::Command;
 
+/// A Python task that runs a Python script
+#[derive(Clone)]
 struct PythonTaskDefinition {
     // python_bin_path: Filepath
     task_def_id: TaskId,

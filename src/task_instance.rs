@@ -1,7 +1,7 @@
 use crate::type_definition::{DateTimeUtc, FilePath, RunnerId, TaskId};
 
 /// Status of a TaskInstance
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum TaskStatus {
     Defined,
     Queued,
@@ -9,13 +9,19 @@ pub enum TaskStatus {
     Failure,
 }
 
+// todo: define psql connection
+type PostgresConn = String;
+
+/// Possible output to recover from a TaskDefinition
 #[derive(Clone)]
 pub enum TaskOutput {
-    ArtifactPath(Box<FilePath>),
     Text(String),
+    LocalFile(Box<FilePath>),
+    PostgresTable(PostgresConn, String),
 }
 
 /// The result of a Task that ran through a Runner
+#[derive(Clone)]
 pub struct TaskInstance {
     pub id_task_definition: TaskId,
     pub id_task_runner: RunnerId,
