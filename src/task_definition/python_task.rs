@@ -1,13 +1,8 @@
+use super::task_def::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
 use crate::type_definition::{FilePath, TaskId};
 use std::collections::HashMap;
 use std::process::Command;
-
-pub trait TaskDefinition {
-    fn task_definition_id(&self) -> TaskId;
-    fn run(&self) -> Result<(), YoshiError>;
-    fn get_params(&self) -> HashMap<String, String>;
-}
 
 struct PythonTaskDefinition {
     // python_bin_path: Filepath
@@ -29,8 +24,11 @@ impl TaskDefinition for PythonTaskDefinition {
             .args(self.args.clone())
             .spawn()
             .expect("failed to execute Python script");
-        let py_result = py_command.wait_with_output().expect("failed to wait on Python script");
-        println!("{:?}", py_result.stdout);
+        // todo: stdout is shown but not captured
+        let py_result = py_command
+            .wait_with_output()
+            .expect("failed to wait on Python script");
+        println!("python stdout: {:?}", py_result.stdout);
         if !py_result.status.success() {
             panic!("god please god no");
         }
@@ -55,15 +53,14 @@ impl TaskDefinition for PythonTaskDefinition {
 
 impl PythonTaskDefinition {
     fn new(script_path: FilePath, args: Vec<String>) -> Self {
-        // todo: implement uuid v4 id        
         PythonTaskDefinition {
-            task_def_id: 0,
+            task_def_id: generate_task_definition_id(),
             script_path: Box::new(script_path),
-            args
+            args,
         }
     }
 }
 
 #[cfg(test)]
-#[path = "./task_definition_test.rs"]
-mod task_definition_test;
+#[path = "./python_task_test.rs"]
+mod python_task_test;
