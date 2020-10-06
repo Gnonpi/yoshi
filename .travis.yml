@@ -1,0 +1,38 @@
+language: rust
+rust: 
+  # - stable
+  # let's try only nightly for the moment
+  - nightly
+
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  directories:
+    - /home/travis/.cargo
+
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
+
+install:
+  - rustup component add rustfmt --toolchain nightly
+  - rustup component add clippy-preview
+
+before_script:
+  # show info about bash and python as we use them
+  # to execute nodes
+  - bash --version
+  - python3 --version
+    
+script:
+  - cargo build
+  - cargo check
+  - RUST_LOG=debug cargo test
+  - cargo clippy
+  - cargo fmt
+
+branches:
+  only:
+    # Push and PR to master branch
+    - master
+

@@ -15,7 +15,7 @@ fn it_can_run_basic_script() {
 
     let script_path = FilePath::from("script.py");
     let mut file = File::create(script_path.clone()).unwrap();
-    file.write_all(b"import sys; a = sys.argv[1]; print(f'all good {a}')")
+    file.write_all(b"import sys; a = sys.argv[1]; print('all good {}'.format(a))")
         .unwrap();
     let args = vec!["one".to_string()];
     let ptd = PythonTaskDefinition {
