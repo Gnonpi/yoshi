@@ -14,17 +14,15 @@ cache:
 before_cache:
   - rm -rf /home/travis/.cargo/registry
 
-install:
-  - CFG_RELEASE_CHANNEL=nightly cargo +nightly install --force rustfmt-nightly
-  - cargo +nightly install clippy
-
 before_script:
   # show info about bash and python as we use them
   # to execute nodes
   - bash --version
   - python3 --version
-
+    
 script:
+  - CFG_RELEASE_CHANNEL=nightly cargo +nightly install --force rustfmt-nightly
+  - cargo +nightly install clippy
   - cargo build
   - cargo check
   - RUST_LOG=debug cargo test
