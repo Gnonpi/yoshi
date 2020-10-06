@@ -1,14 +1,19 @@
 language: rust
 rust: 
-  - stable
+  # - stable
+  # let's try only nightly for the moment
   - nightly
 
 cache: cargo
 
 script:
-  - cargo build --verbose
+  # show info about bash and python as we use them
+  # to execute nodes
+  - bash --version
+  - python3 --version
+  - cargo build
   - cargo check
-  - cargo test --verbose
+  - RUST_LOG=debug cargo test
   - cargo clippy
   - cargo fmt
 
