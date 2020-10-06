@@ -14,6 +14,10 @@ cache:
 before_cache:
   - rm -rf /home/travis/.cargo/registry
 
+install:
+  - rustup component add rustfmt --toolchain nightly
+  - rustup component add clippy-preview
+
 before_script:
   # show info about bash and python as we use them
   # to execute nodes
@@ -21,8 +25,6 @@ before_script:
   - python3 --version
     
 script:
-  - CFG_RELEASE_CHANNEL=nightly CFG_RELEASE=nightly cargo +nightly install --force rustfmt-nightly
-  - cargo +nightly install clippy
   - cargo build
   - cargo check
   - RUST_LOG=debug cargo test
