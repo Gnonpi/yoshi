@@ -6,6 +6,10 @@ rust:
 
 cache: cargo
 
+env:
+  - CFG_RELEASE_CHANNEL=nightly
+  - CFG_RELEASE=nightly
+
 before_script:
   # show info about bash and python as we use them
   # to execute nodes
