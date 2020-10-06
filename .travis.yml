@@ -6,11 +6,15 @@ rust:
 
 cache: cargo
 
-script:
+before_script:
   # show info about bash and python as we use them
   # to execute nodes
   - bash --version
   - python3 --version
+  - cargo +nightly install --force rustfmt-nightly
+  - cargo +nightly install clippy
+
+script:
   - cargo build
   - cargo check
   - RUST_LOG=debug cargo test
