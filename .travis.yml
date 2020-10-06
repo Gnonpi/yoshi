@@ -1,0 +1,19 @@
+language: rust
+rust: 
+  - stable
+  - nightly
+
+cache: cargo
+
+script:
+  - cargo build --verbose
+  - cargo check
+  - cargo test --verbose
+  - cargo clippy
+  - cargo fmt
+
+branches:
+  only:
+    # Push and PR to master branch
+    - master
+
