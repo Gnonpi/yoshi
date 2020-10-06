@@ -21,7 +21,7 @@ before_script:
   - python3 --version
     
 script:
-  - CFG_RELEASE_CHANNEL=nightly cargo +nightly install --force rustfmt-nightly
+  - CFG_RELEASE_CHANNEL=nightly CFG_RELEASE=nightly cargo +nightly install --force rustfmt-nightly
   - cargo +nightly install clippy
   - cargo build
   - cargo check
