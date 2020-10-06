@@ -41,7 +41,10 @@ impl TaskNode {
         let date_started = Utc::now();
         let _run_out = self.definition.run().unwrap();
         let date_finished = Utc::now();
-        info!("Task node {:?} finished, storing task instance", self.id_node);
+        info!(
+            "Task node {:?} finished, storing task instance",
+            self.id_node
+        );
         let instance = TaskInstance {
             id_task_definition: self.definition.task_definition_id(),
             id_task_runner: self.runner,
@@ -70,7 +73,10 @@ impl TaskNode {
     }
 
     fn add_child(&mut self, new_child: TaskNode) {
-        debug!("Adding {:?} as child to node {:?}", new_child.id_node, self.id_node);
+        debug!(
+            "Adding {:?} as child to node {:?}",
+            new_child.id_node, self.id_node
+        );
         self.children.push(new_child)
     }
 }

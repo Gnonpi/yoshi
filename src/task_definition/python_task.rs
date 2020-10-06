@@ -1,9 +1,9 @@
 use super::task_def::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
 use crate::type_definition::{FilePath, TaskId};
+use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
-use log::{info, debug, error};
 
 /// A Python task that runs a Python script
 #[derive(Clone)]
@@ -20,7 +20,10 @@ impl TaskDefinition for PythonTaskDefinition {
     }
 
     fn run(&self) -> Result<(), YoshiError> {
-        info!("Starting Python script {:?}..{:?}", self.script_path, self.args);
+        info!(
+            "Starting Python script {:?}..{:?}",
+            self.script_path, self.args
+        );
         let script_path = (*self.script_path).clone();
         let py_command = Command::new("python3")
             .arg(script_path.into_string().unwrap())
@@ -36,9 +39,9 @@ impl TaskDefinition for PythonTaskDefinition {
             error!("Python script crashed");
             let err = YoshiError {
                 message: "Python script was not a success".to_owned(),
-                origin: "PythonTaskDefinition::run".to_owned()
+                origin: "PythonTaskDefinition::run".to_owned(),
             };
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }

@@ -1,9 +1,9 @@
 use super::task_def::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
 use crate::type_definition::TaskId;
+use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
-use log::{info, debug, error};
 
 /// A Bash task that runs a Bash command
 #[derive(Clone)]
@@ -30,9 +30,9 @@ impl TaskDefinition for BashTaskDefinition {
             error!("Bash command crashed");
             let err = YoshiError {
                 message: "Bash command was not a success".to_owned(),
-                origin: "BashTaskDefinition::run".to_owned()
+                origin: "BashTaskDefinition::run".to_owned(),
             };
-            return Err(err)
+            return Err(err);
         }
         Ok(())
     }
