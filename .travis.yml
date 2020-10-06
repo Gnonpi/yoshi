@@ -4,19 +4,25 @@ rust:
   # let's try only nightly for the moment
   - nightly
 
-cache: cargo
+# Need to cache the whole `.cargo` directory to keep .crates.toml for
+# cargo-update to work
+cache:
+  directories:
+    - /home/travis/.cargo
 
-env:
-  - CFG_RELEASE_CHANNEL=nightly
-  - CFG_RELEASE=nightly
+# But don't cache the cargo registry
+before_cache:
+  - rm -rf /home/travis/.cargo/registry
+
+install:
+  - CFG_RELEASE_CHANNEL=nightly cargo +nightly install --force rustfmt-nightly
+  - cargo +nightly install clippy
 
 before_script:
   # show info about bash and python as we use them
   # to execute nodes
   - bash --version
   - python3 --version
-  - cargo +nightly install --force rustfmt-nightly
-  - cargo +nightly install clippy
 
 script:
   - cargo build
