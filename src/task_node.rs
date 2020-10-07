@@ -20,14 +20,13 @@ pub struct TaskNode {
 
 impl TaskNode {
     fn new(
-        parents: Vec<Box<TaskNode>>,
         children: Vec<TaskNode>,
         definition: Box<dyn TaskDefinition>,
     ) -> Self {
         debug!("Creating task node");
         TaskNode {
             id_node: NodeId::new_v4(),
-            parents,
+            parents: Vec::new(),
             children,
             definition,
             instance: None,
@@ -80,3 +79,7 @@ impl TaskNode {
         self.children.push(new_child)
     }
 }
+
+#[cfg(test)]
+#[path = "./task_node_test.rs"]
+mod task_node_test;

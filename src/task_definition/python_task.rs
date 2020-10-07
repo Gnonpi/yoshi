@@ -7,7 +7,7 @@ use std::process::Command;
 
 /// A Python task that runs a Python script
 #[derive(Clone)]
-struct PythonTaskDefinition {
+pub struct PythonTaskDefinition {
     // python_bin_path: Filepath
     task_def_id: TaskId,
     script_path: Box<FilePath>,

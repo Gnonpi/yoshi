@@ -7,7 +7,7 @@ use std::process::Command;
 
 /// A Bash task that runs a Bash command
 #[derive(Clone)]
-struct BashTaskDefinition {
+pub struct BashTaskDefinition {
     task_def_id: TaskId,
     command: Vec<String>,
 }
@@ -53,7 +53,7 @@ impl TaskDefinition for BashTaskDefinition {
 }
 
 impl BashTaskDefinition {
-    fn new(command: Vec<String>) -> Self {
+    pub fn new(command: Vec<String>) -> Self {
         debug!("Creating Bash task definition");
         BashTaskDefinition {
             task_def_id: generate_task_definition_id(),
