@@ -9,13 +9,13 @@ use log::{debug, info};
 /// Contains the info about its place in the dag
 /// as well as the info about the task to do
 #[derive(Clone)]
-struct TaskNode {
-    id_node: NodeId,
-    parents: Vec<Box<TaskNode>>,
-    children: Vec<TaskNode>,
-    definition: Box<dyn TaskDefinition>,
-    instance: Option<TaskInstance>,
-    runner: RunnerId, // todo: implement runner part
+pub struct TaskNode {
+    pub id_node: NodeId,
+    pub parents: Vec<Box<TaskNode>>,
+    pub children: Vec<TaskNode>,
+    pub definition: Box<dyn TaskDefinition>,
+    pub instance: Option<TaskInstance>,
+    pub runner: RunnerId, // todo: implement runner part
 }
 
 impl TaskNode {
@@ -35,7 +35,7 @@ impl TaskNode {
         }
     }
 
-    fn run(&mut self) -> Result<(), YoshiError> {
+    pub fn run(&mut self) -> Result<(), YoshiError> {
         // todo: move datetime handling to its own module
         info!("Starting task node {:?}", self.id_node);
         let date_started = Utc::now();
@@ -57,7 +57,7 @@ impl TaskNode {
         Ok(())
     }
 
-    fn complete(&self) -> bool {
+    pub fn complete(&self) -> bool {
         debug!("Checking if task node {:?} is complete", self.id_node);
         if let Some(instance) = &self.instance {
             return instance.status == TaskStatus::Success;
@@ -78,44 +78,5 @@ impl TaskNode {
             new_child.id_node, self.id_node
         );
         self.children.push(new_child)
-    }
-}
-
-/// The set of TaskNode we want to run
-struct Dag {
-    start_node: TaskNode,
-}
-
-impl Dag {
-    // shitty implementation first
-    fn run(&mut self) -> Result<(), YoshiError> {
-        info!("Starting dag");
-        let mut bag_of_nodes = vec![self.start_node.clone()];
-        let mut bag_of_instances = vec![];
-
-        while bag_of_nodes.len() > 0 {
-            if let Some(mut node) = bag_of_nodes.pop() {
-                debug!("Treating node {:?}", node.id_node);
-                if !node.complete() {
-                    node.run();
-                }
-                match node.instance {
-                    Some(task_instance) => {
-                        debug!("Storing task instance");
-                        bag_of_instances.push(task_instance);
-                    }
-                    None => {
-                        panic!("Complete node with no instance");
-                    }
-                }
-
-                for child_node in node.children {
-                    debug!("Adding child {:?} to things to run", child_node.id_node);
-                    bag_of_nodes.push(child_node);
-                }
-            }
-        }
-        info!("Done!");
-        Ok(())
     }
 }
