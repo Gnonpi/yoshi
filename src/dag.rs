@@ -46,7 +46,7 @@ impl Dag {
 
                 for child_node in node.children {
                     debug!("Adding child {:?} to things to run", child_node.id_node);
-                    bag_of_nodes.push(child_node);
+                    bag_of_nodes.push(*child_node);
                 }
             }
         }

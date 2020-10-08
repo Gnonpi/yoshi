@@ -4,6 +4,8 @@ use crate::task_instance::{TaskInstance, TaskOutput, TaskStatus};
 use crate::type_definition::{NodeId, RunnerId};
 use chrono::prelude::*;
 use log::{debug, info};
+use std::rc::Rc;
+use std::cell::RefCell;
 
 /// One node in the DAG
 /// Contains the info about its place in the dag
@@ -11,8 +13,8 @@ use log::{debug, info};
 #[derive(Clone)]
 pub struct TaskNode {
     pub id_node: NodeId,
-    pub parents: Vec<Box<TaskNode>>,
-    pub children: Vec<TaskNode>,
+    pub parents: Vec<Rc<RefCell<Box<TaskNode>>>>,
+    pub children: Vec<Box<TaskNode>>,
     pub definition: Box<dyn TaskDefinition>,
     pub instance: Option<TaskInstance>,
     pub runner: RunnerId, // todo: implement runner part
@@ -20,7 +22,7 @@ pub struct TaskNode {
 
 impl TaskNode {
     fn new(
-        children: Vec<TaskNode>,
+        children: Vec<Box<TaskNode>>,
         definition: Box<dyn TaskDefinition>,
     ) -> Self {
         debug!("Creating task node");
@@ -71,12 +73,14 @@ impl TaskNode {
         None
     }
 
-    fn add_child(&mut self, new_child: TaskNode) {
+    fn add_child(&mut self, new_child: Box<TaskNode>) {
         debug!(
             "Adding {:?} as child to node {:?}",
             new_child.id_node, self.id_node
         );
-        self.children.push(new_child)
+        let mut new_child_borrow = *new_child;
+        new_child_borrow.parents.push(Box::new(*self));
+        self.children.push(new_child);
     }
 }
 
