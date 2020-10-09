@@ -6,6 +6,7 @@ use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 
 /// The set of TaskNode we want to run
+/// Handle the stories of parents/children nodes
 struct Dag {
     start_node: Option<NodeId>,
     graph_nodes: DiGraphMap<NodeId, ()>,
@@ -27,6 +28,7 @@ impl Dag {
             we add its children to the list
     */
 
+    /// Create a new dag
     fn new() -> Self {
         Dag {
             start_node: None,
@@ -35,14 +37,17 @@ impl Dag {
         }
     }
 
+    /// Get a reference to a node given its id
     fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
         self.map_nodes.get(node_id)
     }
 
+    /// Whether or not an id refer to a node in the dag
     fn contains_node(&self, node_id: &NodeId) -> bool {
         self.map_nodes.contains_key(node_id)
     }
 
+    /// Add a node to the DAG with possibly the parents and children
     fn insert_node(&mut self, node: TaskNode, parent_ids: Vec<&NodeId>, children_ids: Vec<&NodeId>) {
         for parent_id in parent_ids.iter() {
             if !self.contains_node(parent_id) {
@@ -67,12 +72,14 @@ impl Dag {
         }
     }
 
+    /// Set the node from which the execution start
     fn set_starting_node(&mut self, node_id: NodeId) {
         info!("Setting starting node {}", node_id);
         if !self.contains_node(&node_id) {
             panic!("Cannot set starting unexistent node {}", node_id);
         }
         self.start_node = Some(node_id)
+        // todo: if there is start_node when starting to run, find sources nodes
     }
 
     /*

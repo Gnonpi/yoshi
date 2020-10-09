@@ -6,8 +6,8 @@ use chrono::prelude::*;
 use log::{debug, info};
 
 /// One node in the DAG
-/// Contains the info about its place in the dag
-/// as well as the info about the task to do
+/// Contains only the info about the linked task
+/// And how to execute it
 #[derive(Clone)]
 pub struct TaskNode {
     pub id_node: NodeId,
@@ -17,6 +17,7 @@ pub struct TaskNode {
 }
 
 impl TaskNode {
+    /// Create a new node
     fn new(
         definition: Box<dyn TaskDefinition>
     ) -> Self {
@@ -29,6 +30,7 @@ impl TaskNode {
         }
     }
 
+    /// Run the task
     pub fn run(&mut self) -> Result<(), YoshiError> {
         // todo: move datetime handling to its own module
         info!("Starting task node {:?}", self.id_node);
@@ -51,6 +53,7 @@ impl TaskNode {
         Ok(())
     }
 
+    /// Can we build on this task?
     pub fn complete(&self) -> bool {
         debug!("Checking if task node {:?} is complete", self.id_node);
         if let Some(instance) = &self.instance {
@@ -59,6 +62,7 @@ impl TaskNode {
         false
     }
 
+    /// Once the task has run, this return the output if any
     fn output(&self) -> Option<TaskOutput> {
         if let Some(instance) = &self.instance {
             return Some(instance.got_output.clone());
