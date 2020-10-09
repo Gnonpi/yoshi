@@ -74,7 +74,6 @@ impl PythonTaskDefinition {
     }
 }
 
-
 #[cfg(test)]
 #[path = "./python_task_test.rs"]
 mod python_task_test;

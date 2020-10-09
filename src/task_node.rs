@@ -5,7 +5,6 @@ use crate::type_definition::{NodeId, RunnerId};
 use chrono::prelude::*;
 use log::{debug, info};
 
-
 /// One node in the DAG
 /// Contains only the info about the linked task
 /// And how to execute it
@@ -19,9 +18,7 @@ pub struct TaskNode {
 
 impl TaskNode {
     /// Create a new node
-    pub fn new(
-        definition: Box<dyn TaskDefinition>
-    ) -> Self {
+    pub fn new(definition: Box<dyn TaskDefinition>) -> Self {
         debug!("Creating task node");
         TaskNode {
             id_node: NodeId::new_v4(),
@@ -75,34 +72,27 @@ impl TaskNode {
 impl PartialEq for TaskNode {
     fn eq(&self, other: &Self) -> bool {
         if self.id_node != other.id_node {
-            return false
+            return false;
         }
         let mut comp_instance = false;
         match (self.instance.as_ref(), other.instance.as_ref()) {
-            (Some(lhs), Some(rhs)) => { 
-                comp_instance = lhs == rhs 
-            },
-            (None, None) => { 
-                comp_instance = true 
-            },
-            _ => { 
-                comp_instance = false 
-            }
+            (Some(lhs), Some(rhs)) => comp_instance = lhs == rhs,
+            (None, None) => comp_instance = true,
+            _ => comp_instance = false,
         }
         if comp_instance == false {
-            return false
+            return false;
         }
         if self.runner != other.runner {
-            return false
+            return false;
         }
         // todo: not the best thing but it'll have to do
         // i tried implementing a partialeq on taskdefinition
-        // but it made problems about 
+        // but it made problems about
         // trait into objects, not sized, not the right types
-        return self.definition.get_params() == other.definition.get_params()
+        return self.definition.get_params() == other.definition.get_params();
     }
 }
-
 
 #[cfg(test)]
 #[path = "./task_node_test.rs"]

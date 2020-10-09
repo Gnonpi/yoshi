@@ -1,15 +1,15 @@
-use crate::type_definition::NodeId;
 use crate::task_node::TaskNode;
-use std::collections::HashMap;
+use crate::type_definition::NodeId;
 use log::info;
 use petgraph::graphmap::DiGraphMap;
+use std::collections::HashMap;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
 pub struct Dag {
     pub start_node: Option<NodeId>,
     pub(crate) graph_nodes: DiGraphMap<NodeId, ()>,
-    pub(crate) map_nodes: HashMap<NodeId, Box<TaskNode>>
+    pub(crate) map_nodes: HashMap<NodeId, Box<TaskNode>>,
 }
 
 impl Dag {
@@ -32,7 +32,7 @@ impl Dag {
         Dag {
             start_node: None,
             graph_nodes: DiGraphMap::new(),
-            map_nodes: HashMap::new()
+            map_nodes: HashMap::new(),
         }
     }
 
@@ -47,11 +47,19 @@ impl Dag {
     }
 
     /// Add a node to the DAG with possibly the parents and children
-    fn add_task(&mut self, node: TaskNode, parent_ids: Option<Vec<&NodeId>>, children_ids: Option<Vec<&NodeId>>) {
+    fn add_task(
+        &mut self,
+        node: TaskNode,
+        parent_ids: Option<Vec<&NodeId>>,
+        children_ids: Option<Vec<&NodeId>>,
+    ) {
         if let Some(some_parent_ids) = parent_ids.clone() {
             for parent_id in some_parent_ids.iter() {
                 if !self.contains_node(parent_id) {
-                    panic!("Trying to add node with unexistent parent {}", parent_id.to_string());
+                    panic!(
+                        "Trying to add node with unexistent parent {}",
+                        parent_id.to_string()
+                    );
                 }
             }
         }
@@ -69,12 +77,14 @@ impl Dag {
 
         if let Some(some_parent_ids) = parent_ids {
             for parent_id in some_parent_ids.iter() {
-                self.graph_nodes.add_edge((*parent_id).clone(), new_node_id, ());
+                self.graph_nodes
+                    .add_edge((*parent_id).clone(), new_node_id, ());
             }
         }
         if let Some(some_children_ids) = children_ids {
             for child_id in some_children_ids.iter() {
-                self.graph_nodes.add_edge(new_node_id, (*child_id).clone(), ());
+                self.graph_nodes
+                    .add_edge(new_node_id, (*child_id).clone(), ());
             }
         }
     }

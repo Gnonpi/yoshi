@@ -7,5 +7,4 @@ fn can_mount_simple_dag() {
     // Create bash task
     // let bash_task = TaskNode::new(vec![], );
     // Create a Dag
-
 }
