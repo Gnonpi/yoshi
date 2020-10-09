@@ -13,7 +13,7 @@ pub enum TaskStatus {
 type PostgresConn = String;
 
 /// Possible output to recover from a TaskDefinition
-#[derive(Clone, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum TaskOutput {
     Text(String),
     LocalFile(Box<FilePath>),
@@ -21,7 +21,7 @@ pub enum TaskOutput {
 }
 
 /// The result of a Task that ran through a Runner
-#[derive(Clone, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct TaskInstance {
     pub id_task_definition: TaskId,
     pub id_task_runner: RunnerId,

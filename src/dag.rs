@@ -1,16 +1,15 @@
-use crate::errors::YoshiError;
 use crate::type_definition::NodeId;
 use crate::task_node::TaskNode;
 use std::collections::HashMap;
-use log::{debug, info};
+use log::info;
 use petgraph::graphmap::DiGraphMap;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
-struct Dag {
-    start_node: Option<NodeId>,
-    graph_nodes: DiGraphMap<NodeId, ()>,
-    map_nodes: HashMap<NodeId, Box<TaskNode>>
+pub struct Dag {
+    pub start_node: Option<NodeId>,
+    pub(crate) graph_nodes: DiGraphMap<NodeId, ()>,
+    pub(crate) map_nodes: HashMap<NodeId, Box<TaskNode>>
 }
 
 impl Dag {
@@ -48,15 +47,19 @@ impl Dag {
     }
 
     /// Add a node to the DAG with possibly the parents and children
-    fn insert_node(&mut self, node: TaskNode, parent_ids: Vec<&NodeId>, children_ids: Vec<&NodeId>) {
-        for parent_id in parent_ids.iter() {
-            if !self.contains_node(parent_id) {
-                panic!("Trying to add node with unexistent parent {}", parent_id.to_string());
+    fn add_task(&mut self, node: TaskNode, parent_ids: Option<Vec<&NodeId>>, children_ids: Option<Vec<&NodeId>>) {
+        if let Some(some_parent_ids) = parent_ids.clone() {
+            for parent_id in some_parent_ids.iter() {
+                if !self.contains_node(parent_id) {
+                    panic!("Trying to add node with unexistent parent {}", parent_id.to_string());
+                }
             }
         }
-        for child_id in children_ids.iter() {
-            if !self.contains_node(child_id) {
-                panic!("Trying to add node with unexistent child {}", child_id);
+        if let Some(some_children_ids) = children_ids.clone() {
+            for child_id in some_children_ids.iter() {
+                if !self.contains_node(child_id) {
+                    panic!("Trying to add node with unexistent child {}", child_id);
+                }
             }
         }
         let new_node_id = node.id_node.clone();
@@ -64,11 +67,15 @@ impl Dag {
         self.graph_nodes.add_node(new_node_id);
         self.map_nodes.insert(new_node_id, Box::new(node));
 
-        for parent_id in parent_ids.iter() {
-            self.graph_nodes.add_edge((*parent_id).clone(), new_node_id, ());
+        if let Some(some_parent_ids) = parent_ids {
+            for parent_id in some_parent_ids.iter() {
+                self.graph_nodes.add_edge((*parent_id).clone(), new_node_id, ());
+            }
         }
-        for child_id in children_ids.iter() {
-            self.graph_nodes.add_edge(new_node_id, (*child_id).clone(), ());
+        if let Some(some_children_ids) = children_ids {
+            for child_id in some_children_ids.iter() {
+                self.graph_nodes.add_edge(new_node_id, (*child_id).clone(), ());
+            }
         }
     }
 
@@ -116,3 +123,7 @@ impl Dag {
     }
     */
 }
+
+#[cfg(test)]
+#[path = "./dag_test.rs"]
+mod dag_test;

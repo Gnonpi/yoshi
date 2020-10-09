@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::process::Command;
 
 /// A Python task that runs a Python script
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct PythonTaskDefinition {
     // python_bin_path: Filepath
     task_def_id: TaskId,
@@ -73,6 +73,7 @@ impl PythonTaskDefinition {
         }
     }
 }
+
 
 #[cfg(test)]
 #[path = "./python_task_test.rs"]

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::process::Command;
 
 /// A Bash task that runs a Bash command
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct BashTaskDefinition {
     task_def_id: TaskId,
     command: Vec<String>,
