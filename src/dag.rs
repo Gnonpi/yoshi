@@ -1,10 +1,15 @@
 use crate::errors::YoshiError;
+use crate::type_definition::NodeId;
 use crate::task_node::TaskNode;
+use std::collections::HashMap;
 use log::{debug, info};
+use petgraph::graphmap::DiGraphMap;
 
 /// The set of TaskNode we want to run
 struct Dag {
-    start_node: TaskNode,
+    start_node: Option<NodeId>,
+    graph_nodes: DiGraphMap<NodeId, ()>,
+    map_nodes: HashMap<NodeId, Box<TaskNode>>
 }
 
 impl Dag {
@@ -22,6 +27,55 @@ impl Dag {
             we add its children to the list
     */
 
+    fn new() -> Self {
+        Dag {
+            start_node: None,
+            graph_nodes: DiGraphMap::new(),
+            map_nodes: HashMap::new()
+        }
+    }
+
+    fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
+        self.map_nodes.get(node_id)
+    }
+
+    fn contains_node(&self, node_id: &NodeId) -> bool {
+        self.map_nodes.contains_key(node_id)
+    }
+
+    fn insert_node(&mut self, node: TaskNode, parent_ids: Vec<&NodeId>, children_ids: Vec<&NodeId>) {
+        for parent_id in parent_ids.iter() {
+            if !self.contains_node(parent_id) {
+                panic!("Trying to add node with unexistent parent {}", parent_id.to_string());
+            }
+        }
+        for child_id in children_ids.iter() {
+            if !self.contains_node(child_id) {
+                panic!("Trying to add node with unexistent child {}", child_id);
+            }
+        }
+        let new_node_id = node.id_node.clone();
+        info!("Adding node {}", new_node_id);
+        self.graph_nodes.add_node(new_node_id);
+        self.map_nodes.insert(new_node_id, Box::new(node));
+
+        for parent_id in parent_ids.iter() {
+            self.graph_nodes.add_edge((*parent_id).clone(), new_node_id, ());
+        }
+        for child_id in children_ids.iter() {
+            self.graph_nodes.add_edge(new_node_id, (*child_id).clone(), ());
+        }
+    }
+
+    fn set_starting_node(&mut self, node_id: NodeId) {
+        info!("Setting starting node {}", node_id);
+        if !self.contains_node(&node_id) {
+            panic!("Cannot set starting unexistent node {}", node_id);
+        }
+        self.start_node = Some(node_id)
+    }
+
+    /*
     fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
         let mut bag_of_nodes = vec![self.start_node.clone()];
@@ -53,4 +107,5 @@ impl Dag {
         info!("Done!");
         Ok(())
     }
+    */
 }
