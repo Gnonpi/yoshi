@@ -1,4 +1,4 @@
-use crate::task_definition::{BashTaskDefinition, generate_task_definition_id};
+use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_instance::TaskStatus;
 use crate::task_node::TaskNode;
 use chrono::prelude::*;

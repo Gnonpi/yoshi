@@ -13,7 +13,6 @@ pub struct Dag {
 }
 
 impl Dag {
-    
     /// Create a new dag
     fn new() -> Self {
         Dag {
@@ -22,17 +21,17 @@ impl Dag {
             map_nodes: HashMap::new(),
         }
     }
-    
+
     /// Get a reference to a node given its id
     fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
         self.map_nodes.get(node_id)
     }
-    
+
     /// Whether or not an id refer to a node in the dag
     fn contains_node(&self, node_id: &NodeId) -> bool {
         self.map_nodes.contains_key(node_id)
     }
-    
+
     /// Add a node to the DAG with possibly the parents and children
     fn add_task(
         &mut self,
@@ -64,22 +63,22 @@ impl Dag {
         info!("Adding node {}", new_node_id);
         self.graph_nodes.add_node(new_node_id);
         self.map_nodes.insert(new_node_id, Box::new(node));
-        
+
         // Linking parents and children
         if let Some(some_parent_ids) = parent_ids {
             for parent_id in some_parent_ids.iter() {
                 self.graph_nodes
-                .add_edge((*parent_id).clone(), new_node_id, ());
+                    .add_edge((*parent_id).clone(), new_node_id, ());
             }
         }
         if let Some(some_children_ids) = children_ids {
             for child_id in some_children_ids.iter() {
                 self.graph_nodes
-                .add_edge(new_node_id, (*child_id).clone(), ());
+                    .add_edge(new_node_id, (*child_id).clone(), ());
             }
         }
     }
-    
+
     /// Set the node from which the execution start
     fn set_starting_node(&mut self, node_id: NodeId) {
         info!("Setting starting node {}", node_id);
@@ -89,7 +88,7 @@ impl Dag {
         self.start_node = Some(node_id)
         // todo: if there is start_node when starting to run, find sources nodes
     }
-    
+
     // shitty implementation first
     /*
     When we mount the Dag,

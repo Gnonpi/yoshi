@@ -1,5 +1,5 @@
 use crate::dag::Dag;
-use crate::task_definition::{BashTaskDefinition, generate_task_definition_id};
+use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {
