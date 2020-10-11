@@ -1,4 +1,4 @@
-use super::task_def::{generate_task_definition_id, TaskDefinition};
+use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
