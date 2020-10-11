@@ -6,35 +6,29 @@ use chrono::prelude::*;
 use log::{debug, info};
 
 /// One node in the DAG
-/// Contains the info about its place in the dag
-/// as well as the info about the task to do
-#[derive(Clone)]
+/// Contains only the info about the linked task
+/// And how to execute it
+#[derive(Clone, Debug)]
 pub struct TaskNode {
     pub id_node: NodeId,
-    pub parents: Vec<Box<TaskNode>>,
-    pub children: Vec<TaskNode>,
     pub definition: Box<dyn TaskDefinition>,
     pub instance: Option<TaskInstance>,
     pub runner: RunnerId, // todo: implement runner part
 }
 
 impl TaskNode {
-    fn new(
-        parents: Vec<Box<TaskNode>>,
-        children: Vec<TaskNode>,
-        definition: Box<dyn TaskDefinition>,
-    ) -> Self {
+    /// Create a new node
+    pub fn new(definition: Box<dyn TaskDefinition>) -> Self {
         debug!("Creating task node");
         TaskNode {
             id_node: NodeId::new_v4(),
-            parents,
-            children,
             definition,
             instance: None,
             runner: 0,
         }
     }
 
+    /// Run the task
     pub fn run(&mut self) -> Result<(), YoshiError> {
         // todo: move datetime handling to its own module
         info!("Starting task node {:?}", self.id_node);
@@ -57,6 +51,7 @@ impl TaskNode {
         Ok(())
     }
 
+    /// Can we build on this task?
     pub fn complete(&self) -> bool {
         debug!("Checking if task node {:?} is complete", self.id_node);
         if let Some(instance) = &self.instance {
@@ -65,18 +60,40 @@ impl TaskNode {
         false
     }
 
+    /// Once the task has run, this return the output if any
     fn output(&self) -> Option<TaskOutput> {
         if let Some(instance) = &self.instance {
             return Some(instance.got_output.clone());
         }
         None
     }
+}
 
-    fn add_child(&mut self, new_child: TaskNode) {
-        debug!(
-            "Adding {:?} as child to node {:?}",
-            new_child.id_node, self.id_node
-        );
-        self.children.push(new_child)
+impl PartialEq for TaskNode {
+    fn eq(&self, other: &Self) -> bool {
+        if self.id_node != other.id_node {
+            return false;
+        }
+        let mut comp_instance = false;
+        match (self.instance.as_ref(), other.instance.as_ref()) {
+            (Some(lhs), Some(rhs)) => comp_instance = lhs == rhs,
+            (None, None) => comp_instance = true,
+            _ => comp_instance = false,
+        }
+        if comp_instance == false {
+            return false;
+        }
+        if self.runner != other.runner {
+            return false;
+        }
+        // todo: not the best thing but it'll have to do
+        // i tried implementing a partialeq on taskdefinition
+        // but it made problems about
+        // trait into objects, not sized, not the right types
+        return self.definition.get_params() == other.definition.get_params();
     }
 }
+
+#[cfg(test)]
+#[path = "./task_node_test.rs"]
+mod task_node_test;

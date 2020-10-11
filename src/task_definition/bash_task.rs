@@ -1,13 +1,13 @@
-use super::task_def::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
+use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
 
 /// A Bash task that runs a Bash command
-#[derive(Clone)]
-struct BashTaskDefinition {
+#[derive(Clone, Debug)]
+pub struct BashTaskDefinition {
     task_def_id: TaskId,
     command: Vec<String>,
 }
@@ -53,7 +53,7 @@ impl TaskDefinition for BashTaskDefinition {
 }
 
 impl BashTaskDefinition {
-    fn new(command: Vec<String>) -> Self {
+    pub fn new(command: Vec<String>) -> Self {
         debug!("Creating Bash task definition");
         BashTaskDefinition {
             task_def_id: generate_task_definition_id(),

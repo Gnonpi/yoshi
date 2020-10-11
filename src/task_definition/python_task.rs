@@ -1,13 +1,13 @@
-use super::task_def::{generate_task_definition_id, TaskDefinition};
 use crate::errors::YoshiError;
+use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
 
 /// A Python task that runs a Python script
-#[derive(Clone)]
-struct PythonTaskDefinition {
+#[derive(Clone, Debug)]
+pub struct PythonTaskDefinition {
     // python_bin_path: Filepath
     task_def_id: TaskId,
     script_path: Box<FilePath>,
