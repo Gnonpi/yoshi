@@ -1,6 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::TaskDefinition;
-use crate::task_instance::{TaskInstance, TaskOutput, TaskStatus};
+use crate::task_instance::{TaskInstance, TaskStatus};
+use crate::task_output::TaskOutput;
 use crate::type_definition::{NodeId, RunnerId};
 use chrono::prelude::*;
 use log::{debug, info};
@@ -40,6 +41,7 @@ impl TaskNode {
             self.id_node
         );
         let instance = TaskInstance {
+            id_node: self.id_node.clone(),
             id_task_definition: self.definition.task_definition_id(),
             id_task_runner: self.runner,
             date_started,

@@ -23,6 +23,8 @@ env_logger = "0.7.1"
 uuid = { version = "0.8", features = ["serde", "v4"] }
 # graph data structure
 petgraph = "0.5.1"
+# channels for message passing
+crossbeam-channel = "0.5.0"
 
 [lib]
 name = "yoshi"

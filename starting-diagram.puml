@@ -6,6 +6,38 @@ This is really not data-driven.
 I'll try and update this as I go
 '/
 
+class Dag {
+  TaskNode start_node
+  {field} Graph<TaskNode> graph_nodes
+  NodeId get_node(node_id)
+  bool contains_node(node_id)
+  add_task(task_node, parents, children)
+  set_starting_node(node_id)
+}
+
+class TaskNode {
+  NodeId id_node
+  TaskDefinition definition
+  TaskInstance instance
+  TaskRunner runner
+  {method} Result<(), Error> run()
+  bool complete()
+  {method} Option<TaskOutput> output()
+}
+
+interface TaskDefinition {
+  TaskId task_definition_id()
+  {method} Result<TaskOutput, Error> run()
+  {method} HashMap<String, String> get_params()
+}
+
+interface TaskRunner {
+  RunnerId get_runner_id()
+  Channels start_task(node_id, task_definition)
+  TaskStatus get_status()
+  TaskInstance get_instance()
+}
+
 enum TaskStatus {
   Queued
   Running
@@ -13,21 +45,20 @@ enum TaskStatus {
   Failure
 }
 
-interface TaskDefinition {
-  run()
-  requires()
-  complete()
-  inputs()
-  get_instance()
-  get_params()
-  on_success()
-  on_failure()
+enum TaskOutput {
+  Text
+  LocalFile
+  StandardOutput
 }
-interface TaskRunner
+
 class TaskInstance {
-  TaskStatus status
-  DateTime date_started
-  DateTime date_finished
+     NodeId id_node
+     TaskId id_task_definition
+     RunnerId id_task_runner
+     DateTimeUtc date_started
+     DateTimeUtc date_finished
+     TaskStatus status
+     TaskOutput got_output
 }
 
 ' TaskDefinition implementations
@@ -36,10 +67,10 @@ class TaskBash
 interface TaskDataTransfer
 class TaskPostgresToCsv
 
-TaskPython -up-> TaskDefinition
-TaskBash -up-> TaskDefinition
-TaskDataTransfer -up-> TaskDefinition
-TaskPostgresToCsv -up-> TaskDataTransfer
+TaskPython -down-> TaskDefinition
+TaskBash -down-> TaskDefinition
+TaskDataTransfer -down-> TaskDefinition
+TaskPostgresToCsv -down-> TaskDataTransfer
 
 ' TaskRunner implementations
 class LocalRunner
@@ -47,9 +78,18 @@ class RemoteRunner
 LocalRunner -up-> TaskRunner
 RemoteRunner -up-> TaskRunner
 
-TaskDefinition -right-> TaskRunner
-TaskRunner -right-> TaskInstance
+' TaskNode links
+TaskNode -> Dag
+TaskDefinition -> TaskNode
+TaskRunner -> TaskNode
+TaskInstance --> TaskNode
 
-TaskStatus .down.> TaskInstance
+' TaskRunner links
+TaskDefinition ..> TaskRunner
+TaskRunner --> TaskInstance
+
+TaskDefinition ..> TaskOutput
+TaskStatus ..> TaskRunner
+TaskOutput -> TaskInstance
 
 @enduml

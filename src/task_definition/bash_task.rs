@@ -1,5 +1,6 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
+use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
@@ -16,15 +17,12 @@ impl TaskDefinition for BashTaskDefinition {
     fn task_definition_id(&self) -> TaskId {
         self.task_def_id
     }
-    fn run(&self) -> Result<(), YoshiError> {
+    fn run(&self) -> Result<TaskOutput, YoshiError> {
         info!("Starting Bash command {:?}", self.command);
-        let bash_command = Command::new(self.command[0].clone())
+        let bash_result = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
-            .spawn()
+            .output()
             .expect("bash command failed to start");
-        let bash_result = bash_command
-            .wait_with_output()
-            .expect("failed to wait on Bash command");
         debug!("bash stdout: {:?}", bash_result.stdout);
         if !bash_result.status.success() {
             error!("Bash command crashed");
@@ -34,7 +32,11 @@ impl TaskDefinition for BashTaskDefinition {
             };
             return Err(err);
         }
-        Ok(())
+        let output = TaskOutput::StandardOutput {
+            stdout: bash_result.stdout,
+            stderr: bash_result.stderr,
+        };
+        Ok(output)
     }
 
     fn get_params(&self) -> HashMap<String, String> {
