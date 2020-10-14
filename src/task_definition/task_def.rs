@@ -1,5 +1,6 @@
 use crate::errors::YoshiError;
 use crate::type_definition::TaskId;
+use crate::task_output::TaskOutput;
 use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -8,7 +9,7 @@ use std::fmt::Debug;
 /// basically what's to be done
 pub trait TaskDefinition: DynClone + Debug {
     fn task_definition_id(&self) -> TaskId;
-    fn run(&self) -> Result<(), YoshiError>;
+    fn run(&self) -> Result<TaskOutput, YoshiError>;
     fn get_params(&self) -> HashMap<String, String>;
 }
 

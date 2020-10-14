@@ -1,6 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::type_definition::TaskId;
+use crate::task_output::TaskOutput;
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
@@ -16,8 +17,9 @@ impl TaskDefinition for BashTaskDefinition {
     fn task_definition_id(&self) -> TaskId {
         self.task_def_id
     }
-    fn run(&self) -> Result<(), YoshiError> {
+    fn run(&self) -> Result<TaskOutput, YoshiError> {
         info!("Starting Bash command {:?}", self.command);
+        /*
         let bash_command = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
             .spawn()
@@ -25,6 +27,11 @@ impl TaskDefinition for BashTaskDefinition {
         let bash_result = bash_command
             .wait_with_output()
             .expect("failed to wait on Bash command");
+        */
+        let bash_result = Command::new(self.command[0].clone())
+            .args(&self.command[1..self.command.len()])
+            .output()
+            .expect("bash command failed to start");
         debug!("bash stdout: {:?}", bash_result.stdout);
         if !bash_result.status.success() {
             error!("Bash command crashed");
@@ -34,7 +41,11 @@ impl TaskDefinition for BashTaskDefinition {
             };
             return Err(err);
         }
-        Ok(())
+        let output = TaskOutput::StandardOutput {
+            stdout: bash_result.stdout,
+            stderr: bash_result.stderr
+        };
+        Ok(output)
     }
 
     fn get_params(&self) -> HashMap<String, String> {

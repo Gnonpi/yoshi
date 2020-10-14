@@ -26,6 +26,18 @@ fn it_can_run_basic_script() {
     let res = ptd.run();
     assert!(res.is_ok());
 
+    if let Ok(py_output) = res {
+        match py_output {
+            TaskOutput::StandardOutput {stdout, stderr} => {
+                let result_str = std::str::from_utf8(&stdout).unwrap();
+                assert_eq!(result_str, "all good one\n");
+            },
+            _ => {
+                panic!("py_output should be a TaskOutput::StandardOuput");
+            }
+        }
+    }
+
     remove_file(script_path).unwrap();
 }
 
