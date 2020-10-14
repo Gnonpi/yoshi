@@ -27,12 +27,15 @@ class TaskNode {
 
 interface TaskDefinition {
   TaskId task_definition_id()
-  {method} Result<(), Error> run()
+  {method} Result<TaskOutput, Error> run()
   {method} HashMap<String, String> get_params()
 }
 
 interface TaskRunner {
-  RunnerId 
+  RunnerId get_runner_id()
+  Channels start_task(node_id, task_definition)
+  TaskStatus get_status()
+  TaskInstance get_instance()
 }
 
 enum TaskStatus {
@@ -42,9 +45,21 @@ enum TaskStatus {
   Failure
 }
 
-interface TaskRunner
+enum TaskOutput {
+  Text
+  LocalFile
+  StandardOutput
+}
 
-class TaskInstance
+class TaskInstance {
+     NodeId id_node
+     TaskId id_task_definition
+     RunnerId id_task_runner
+     DateTimeUtc date_started
+     DateTimeUtc date_finished
+     TaskStatus status
+     TaskOutput got_output
+}
 
 ' TaskDefinition implementations
 class TaskPython
@@ -52,10 +67,10 @@ class TaskBash
 interface TaskDataTransfer
 class TaskPostgresToCsv
 
-TaskPython -up-> TaskDefinition
-TaskBash -up-> TaskDefinition
-TaskDataTransfer -up-> TaskDefinition
-TaskPostgresToCsv -up-> TaskDataTransfer
+TaskPython -down-> TaskDefinition
+TaskBash -down-> TaskDefinition
+TaskDataTransfer -down-> TaskDefinition
+TaskPostgresToCsv -down-> TaskDataTransfer
 
 ' TaskRunner implementations
 class LocalRunner
@@ -63,11 +78,18 @@ class RemoteRunner
 LocalRunner -up-> TaskRunner
 RemoteRunner -up-> TaskRunner
 
-' TaskDefinition -right-> TaskRunner
-' TaskRunner -right-> TaskInstance
-
-' TaskStatus .down.> TaskInstance
+' TaskNode links
 TaskNode -> Dag
 TaskDefinition -> TaskNode
+TaskRunner -> TaskNode
+TaskInstance --> TaskNode
+
+' TaskRunner links
+TaskDefinition ..> TaskRunner
+TaskRunner --> TaskInstance
+
+TaskDefinition ..> TaskOutput
+TaskStatus ..> TaskRunner
+TaskOutput -> TaskInstance
 
 @enduml
