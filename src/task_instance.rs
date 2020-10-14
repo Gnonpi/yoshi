@@ -1,6 +1,5 @@
-use crate::type_definition::{DateTimeUtc, NodeId, RunnerId, TaskId};
 use crate::task_output::TaskOutput;
-
+use crate::type_definition::{DateTimeUtc, NodeId, RunnerId, TaskId};
 
 /// Status of a TaskInstance
 #[derive(Clone, PartialEq, Debug)]
@@ -9,9 +8,8 @@ pub enum TaskStatus {
     Queued,
     Success,
     Failure,
-    Cancelled
+    Cancelled,
 }
-
 
 /// The result of a Task that ran through a Runner
 #[derive(Clone, PartialEq, Debug)]

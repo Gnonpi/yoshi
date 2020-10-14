@@ -1,6 +1,6 @@
 use crate::errors::YoshiError;
-use crate::type_definition::TaskId;
 use crate::task_output::TaskOutput;
+use crate::type_definition::TaskId;
 use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;

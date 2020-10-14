@@ -1,7 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
-use crate::type_definition::{FilePath, TaskId};
 use crate::task_output::TaskOutput;
+use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
@@ -26,7 +26,7 @@ impl TaskDefinition for PythonTaskDefinition {
             self.script_path, self.args
         );
         let script_path = (*self.script_path).clone();
-        let py_result =  Command::new("python3")
+        let py_result = Command::new("python3")
             .arg(script_path.into_string().unwrap())
             .args(self.args.clone())
             .output()
@@ -42,7 +42,7 @@ impl TaskDefinition for PythonTaskDefinition {
         }
         let output = TaskOutput::StandardOutput {
             stdout: py_result.stdout,
-            stderr: py_result.stderr
+            stderr: py_result.stderr,
         };
         Ok(output)
     }

@@ -17,10 +17,10 @@ fn it_can_run_basic_command() {
 
     if let Ok(bash_output) = result {
         match bash_output {
-            TaskOutput::StandardOutput {stdout, stderr} => {
+            TaskOutput::StandardOutput { stdout, stderr } => {
                 let result_str = std::str::from_utf8(&stdout).unwrap();
                 assert_eq!(result_str, "'Hello'\n");
-            },
+            }
             _ => {
                 panic!("bash_output should be a TaskOutput::StandardOuput");
             }

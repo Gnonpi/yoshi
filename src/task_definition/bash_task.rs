@@ -1,7 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
-use crate::type_definition::TaskId;
 use crate::task_output::TaskOutput;
+use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
@@ -34,7 +34,7 @@ impl TaskDefinition for BashTaskDefinition {
         }
         let output = TaskOutput::StandardOutput {
             stdout: bash_result.stdout,
-            stderr: bash_result.stderr
+            stderr: bash_result.stderr,
         };
         Ok(output)
     }

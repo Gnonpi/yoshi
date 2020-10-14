@@ -1,6 +1,5 @@
 use crate::type_definition::FilePath;
 
-
 // todo: define psql connection
 type PostgresConn = String;
 
@@ -9,9 +8,6 @@ type PostgresConn = String;
 pub enum TaskOutput {
     Text(String),
     LocalFile(Box<FilePath>),
-    StandardOutput {
-        stdout: Vec<u8>,
-        stderr: Vec<u8>
-    },
+    StandardOutput { stdout: Vec<u8>, stderr: Vec<u8> },
     PostgresTable(PostgresConn, String),
 }
