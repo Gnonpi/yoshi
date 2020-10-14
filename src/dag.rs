@@ -1,6 +1,8 @@
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
-use log::info;
+use crate::task_runner::MessageFromRunner::{Done, Failure};
+use crate::errors::YoshiError;
+use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
 
@@ -30,6 +32,16 @@ impl Dag {
     /// Whether or not an id refer to a node in the dag
     fn contains_node(&self, node_id: &NodeId) -> bool {
         self.map_nodes.contains_key(node_id)
+    }
+
+    /// Given the id of a node, if the node is in the graph, returns the children of that node
+    fn get_children_of_node(&self, node_id: &NodeId) -> Option<Vec<NodeId>> {
+        if !self.contains_node(node_id) {
+            return None
+        }
+        // if graph is directed, neighbors is outgoing nodes
+        let neighbors = self.graph_nodes.neighbors(node_id.clone());
+        Some(neighbors.collect())
     }
 
     /// Add a node to the DAG with possibly the parents and children
@@ -102,18 +114,38 @@ impl Dag {
             when a node is done,
             we add its children to the list
     */
-    /*
     fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
-        let mut bag_of_nodes = vec![self.start_node.clone()];
+        if self.start_node.is_none() {
+            // todo: when no starting_node is set, find one candidate then crash
+            panic!("Dag cannot start without starting node");
+        }
+        let mut bag_of_nodes = vec![self.start_node.unwrap().clone()];
         let mut bag_of_instances = vec![];
 
         while bag_of_nodes.len() > 0 {
-            if let Some(mut node) = bag_of_nodes.pop() {
+            if let Some(id_node) = bag_of_nodes.pop() {
+                let node = self.get_node(&id_node).unwrap();
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
                     // todo: replace with dag runner system
-                    node.run();
+                    let node_runner = node.runner;
+                    let (sender, receiver) = node_runner.start_task(node.id_node, *node.definition);
+                    // todo: replace with true spawning&waiting 
+                    for i in 0..100 {
+                        let received_msg = receiver.recv().unwrap();
+                        match received_msg {
+                            Done { start_time, end_time } => {
+                                info!("Got message that {:?} is done", node);
+                            },
+                            Failure { start_time, reason, failure_time } => {
+                                panic!("{:?} failed to run", node);
+                            },
+                            _ => {
+                                debug!("lol");
+                            }
+                        }
+                    }
                 }
                 match node.instance {
                     Some(task_instance) => {
@@ -125,16 +157,18 @@ impl Dag {
                     }
                 }
 
-                for child_node in node.children {
-                    debug!("Adding child {:?} to things to run", child_node.id_node);
-                    bag_of_nodes.push(*child_node);
+                if let Some(children) = self.get_children_of_node(&id_node) {
+                    for child_id_node in children {
+                        debug!("Adding child {:?} to things to run", child_id_node);
+                        bag_of_nodes.push(child_id_node);
+                    }
+
                 }
             }
         }
         info!("Done!");
         Ok(())
     }
-    */
 }
 
 #[cfg(test)]
