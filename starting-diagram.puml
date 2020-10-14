@@ -6,6 +6,35 @@ This is really not data-driven.
 I'll try and update this as I go
 '/
 
+class Dag {
+  TaskNode start_node
+  {field} Graph<TaskNode> graph_nodes
+  NodeId get_node(node_id)
+  bool contains_node(node_id)
+  add_task(task_node, parents, children)
+  set_starting_node(node_id)
+}
+
+class TaskNode {
+  NodeId id_node
+  TaskDefinition definition
+  TaskInstance instance
+  TaskRunner runner
+  {method} Result<(), Error> run()
+  bool complete()
+  {method} Option<TaskOutput> output()
+}
+
+interface TaskDefinition {
+  TaskId task_definition_id()
+  {method} Result<(), Error> run()
+  {method} HashMap<String, String> get_params()
+}
+
+interface TaskRunner {
+  RunnerId 
+}
+
 enum TaskStatus {
   Queued
   Running
@@ -13,22 +42,9 @@ enum TaskStatus {
   Failure
 }
 
-interface TaskDefinition {
-  run()
-  requires()
-  complete()
-  inputs()
-  get_instance()
-  get_params()
-  on_success()
-  on_failure()
-}
 interface TaskRunner
-class TaskInstance {
-  TaskStatus status
-  DateTime date_started
-  DateTime date_finished
-}
+
+class TaskInstance
 
 ' TaskDefinition implementations
 class TaskPython
@@ -47,9 +63,11 @@ class RemoteRunner
 LocalRunner -up-> TaskRunner
 RemoteRunner -up-> TaskRunner
 
-TaskDefinition -right-> TaskRunner
-TaskRunner -right-> TaskInstance
+' TaskDefinition -right-> TaskRunner
+' TaskRunner -right-> TaskInstance
 
-TaskStatus .down.> TaskInstance
+' TaskStatus .down.> TaskInstance
+TaskNode -> Dag
+TaskDefinition -> TaskNode
 
 @enduml
