@@ -19,15 +19,6 @@ impl TaskDefinition for BashTaskDefinition {
     }
     fn run(&self) -> Result<TaskOutput, YoshiError> {
         info!("Starting Bash command {:?}", self.command);
-        /*
-        let bash_command = Command::new(self.command[0].clone())
-            .args(&self.command[1..self.command.len()])
-            .spawn()
-            .expect("bash command failed to start");
-        let bash_result = bash_command
-            .wait_with_output()
-            .expect("failed to wait on Bash command");
-        */
         let bash_result = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
             .output()

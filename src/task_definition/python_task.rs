@@ -26,17 +26,6 @@ impl TaskDefinition for PythonTaskDefinition {
             self.script_path, self.args
         );
         let script_path = (*self.script_path).clone();
-        /*
-        let py_command = Command::new("python3")
-            .arg(script_path.into_string().unwrap())
-            .args(self.args.clone())
-            .spawn()
-            .expect("failed to execute Python script");
-        // todo: stdout is shown but not captured
-        let py_result = py_command
-            .wait_with_output()
-            .expect("failed to wait on Python script");
-        */
         let py_result =  Command::new("python3")
             .arg(script_path.into_string().unwrap())
             .args(self.args.clone())
