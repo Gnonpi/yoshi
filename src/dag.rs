@@ -123,16 +123,18 @@ impl Dag {
         let mut bag_of_nodes = vec![self.start_node.unwrap().clone()];
         let mut bag_of_instances = vec![];
 
+        // While there are nodes in the bag
         while bag_of_nodes.len() > 0 {
             if let Some(id_node) = bag_of_nodes.pop() {
                 let node = self.get_node(&id_node).unwrap();
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
                     // todo: replace with dag runner system
-                    let node_runner = node.runner;
-                    let (sender, receiver) = node_runner.start_task(node.id_node, *node.definition);
+                    // todo: is the clone here really necessary?
+                    let node_runner = node.runner.clone();
+                    let (sender, receiver) = node_runner.start_task(node.id_node, &*node.definition);
                     // todo: replace with true spawning&waiting 
-                    for i in 0..100 {
+                    for _ in 0..100 {
                         let received_msg = receiver.recv().unwrap();
                         match received_msg {
                             Done { start_time, end_time } => {
@@ -147,16 +149,18 @@ impl Dag {
                         }
                     }
                 }
-                match node.instance {
+                // Add the instance to the instance bag
+                match node.instance.clone() {
                     Some(task_instance) => {
                         debug!("Storing task instance");
-                        bag_of_instances.push(task_instance);
+                        bag_of_instances.push(task_instance.clone());
                     }
                     None => {
                         panic!("Complete node with no instance");
                     }
                 }
 
+                // Add the children to next bag
                 if let Some(children) = self.get_children_of_node(&id_node) {
                     for child_id_node in children {
                         debug!("Adding child {:?} to things to run", child_id_node);
