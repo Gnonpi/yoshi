@@ -2,7 +2,7 @@ use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
 use crate::type_definition::NodeId;
-use crate::task_runner::{TaskRunner, FakeTaskRunner};
+use crate::runners::{TaskRunner, FakeTaskRunner};
 use log::debug;
 
 /// One node in the DAG

@@ -1,6 +1,6 @@
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
-use crate::task_runner::MessageFromRunner::{Done, Failure};
+use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::errors::YoshiError;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;

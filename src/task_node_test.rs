@@ -1,7 +1,7 @@
 use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_instance::{TaskStatus, TaskInstance};
 use crate::task_node::TaskNode;
-use crate::task_runner::{TaskRunner, FakeTaskRunner};
+use crate::runners::{TaskRunner, FakeTaskRunner};
 use crate::task_output::TaskOutput;
 use chrono::prelude::*;
 
