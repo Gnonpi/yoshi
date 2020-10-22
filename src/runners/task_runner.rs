@@ -43,17 +43,17 @@ pub enum MessageToRunner {
 pub trait TaskRunner: DynClone + Debug {
     /// Get an identifier of the Runner
     fn get_runner_id(&self) -> RunnerId;
-    
+
     /// Start the task and gives 2 channels to communicate while it's running
     fn start_task(
         &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
     ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>);
-    
+
     /// Get the status while it's running
     fn get_status(&self) -> TaskStatus;
-    
+
     /// Get the resulting TaskInstance if it's done
     fn get_task_instance(&self) -> Option<TaskInstance>;
 }
