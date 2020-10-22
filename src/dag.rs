@@ -1,7 +1,7 @@
+use crate::errors::YoshiError;
+use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
-use crate::runners::MessageFromRunner::{Done, Failure};
-use crate::errors::YoshiError;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
@@ -37,7 +37,7 @@ impl Dag {
     /// Given the id of a node, if the node is in the graph, returns the children of that node
     fn get_children_of_node(&self, node_id: &NodeId) -> Option<Vec<NodeId>> {
         if !self.contains_node(node_id) {
-            return None
+            return None;
         }
         // if graph is directed, neighbors is outgoing nodes
         let neighbors = self.graph_nodes.neighbors(node_id.clone());
@@ -132,17 +132,25 @@ impl Dag {
                     // todo: replace with dag runner system
                     // todo: is the clone here really necessary?
                     let node_runner = node.runner.clone();
-                    let (sender, receiver) = node_runner.start_task(node.id_node, &*node.definition);
-                    // todo: replace with true spawning&waiting 
+                    let (sender, receiver) =
+                        node_runner.start_task(node.id_node, &*node.definition);
+                    // todo: replace with true spawning&waiting
                     for _ in 0..100 {
                         let received_msg = receiver.recv().unwrap();
                         match received_msg {
-                            Done { start_time, end_time } => {
+                            Done {
+                                start_time,
+                                end_time,
+                            } => {
                                 info!("Got message that {:?} is done", node);
-                            },
-                            Failure { start_time, reason, failure_time } => {
+                            }
+                            Failure {
+                                start_time,
+                                reason,
+                                failure_time,
+                            } => {
                                 panic!("{:?} failed to run", node);
-                            },
+                            }
                             _ => {
                                 debug!("lol");
                             }
@@ -166,7 +174,6 @@ impl Dag {
                         debug!("Adding child {:?} to things to run", child_id_node);
                         bag_of_nodes.push(child_id_node);
                     }
-
                 }
             }
         }
