@@ -135,10 +135,6 @@ impl Dag {
                     let (sender, receiver) =
                         node_runner.start_task(node.id_node, &*node.definition);
                     // todo: replace with true spawning&waiting
-                    let node_runner = node.runner.clone();
-                    let (sender, receiver) =
-                        node_runner.start_task(node.id_node, &*node.definition);
-                    // todo: replace with true spawning&waiting
                     for _ in 0..100 {
                         let received_msg = receiver.recv().unwrap();
                         match received_msg {
