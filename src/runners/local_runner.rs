@@ -1,44 +1,90 @@
-use crate::runners::{TaskRunner, MessageToRunner, MessageFromRunner};
+use crate::runners::{TaskRunner, MessageToRunner, MessageFromRunner, FailureReason};
 use crate::task_output::TaskOutput;
 use crate::task_instance::{TaskStatus, TaskInstance};
 use crate::task_definition::TaskDefinition;
 use crate::type_definition::{NodeId, RunnerId, DateTimeUtc};
+use crate::errors::YoshiError;
 use crossbeam_channel::{unbounded, Sender, Receiver};
 use chrono::prelude::*;
+use log::warn;
 
 
 #[derive(Debug, Clone)]
 pub struct LocalTaskRunner {    
-    date_started: Option<DateTimeUtc>,
-    date_finished: Option<DateTimeUtc>
+    current_status: TaskStatus,
+    stored_instance: Option<TaskInstance>
 }
 
 impl TaskRunner for LocalTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
         return 1
     }
+
+    /// Start a task, blocking the thread
     fn start_task(
-        &self,
+        &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
     ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
-        let (s, _) = unbounded::<MessageToRunner>(); 
-        let (_, r) = unbounded::<MessageFromRunner>(); 
-        (s, r)
+        let (send_to_runner, recv_to_runner) = unbounded::<MessageToRunner>(); 
+        let (send_from_runner, recv_from_runner) = unbounded::<MessageFromRunner>(); 
+    
+        let start_time = Utc::now();
+        let task_result = task_def.run();
+        let end_time = Utc::now();
+        match task_result {
+            Ok(output) => {
+                let msg_success = MessageFromRunner::Done {
+                    start_time,
+                    end_time
+                };
+                let inst = TaskInstance {
+                    id_node: node_id,
+                    id_task_definition: task_def.task_definition_id(),
+                    id_task_runner: self.get_runner_id(),
+                    date_started: start_time,
+                    date_finished: end_time,
+                    status: TaskStatus::Success,
+                    output: output
+                };
+                self.current_status = TaskStatus::Success;
+                self.stored_instance = Some(inst);
+                send_from_runner.send(msg_success);
+            },
+            Err(err) => {
+                warn!("Task failed {:?} {:?}", task_def, self);
+                let err_msg = format!("{:?}", err);
+                let msg_failure = MessageFromRunner::Failure {
+                    start_time: start_time,
+                    reason: FailureReason::GotError(err_msg),
+                    failure_time: end_time
+                };
+                self.current_status = TaskStatus::Failure;
+                send_from_runner.send(msg_failure);
+            }
+        }
+
+        (send_to_runner, recv_from_runner)
     }
+
     fn get_status(&self) -> TaskStatus {
-        TaskStatus::Success
+        self.current_status.clone()
     }
+
     fn get_task_instance(&self) -> Option<TaskInstance> {
-        let inst = TaskInstance {
-            id_node: NodeId::new_v4(),
-            id_task_definition: NodeId::new_v4(),
-            id_task_runner: self.get_runner_id(),
-            date_started: Utc::now(),
-            date_finished: Utc::now(),
-            status: TaskStatus::Success,
-            output: TaskOutput::Text("ok".to_string())
-        };
-        Some(inst)
+        self.stored_instance.clone()
     }
 }
+
+impl LocalTaskRunner {
+    fn new() -> Self {
+        LocalTaskRunner {
+            current_status: TaskStatus::Undefined,
+            stored_instance: None 
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "./local_runner_test.rs"]
+mod dag_test;

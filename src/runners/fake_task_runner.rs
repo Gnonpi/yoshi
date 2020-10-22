@@ -15,7 +15,7 @@ impl TaskRunner for FakeTaskRunner {
         return 0
     }
     fn start_task(
-        &self,
+        &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
     ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
