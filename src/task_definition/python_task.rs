@@ -45,8 +45,8 @@ impl TaskDefinition for PythonTaskDefinition {
                     stdout: py_result.stdout,
                     stderr: py_result.stderr,
                 };
-                return Ok(output)
-            },
+                return Ok(output);
+            }
             Err(err) => {
                 error!("Python script crashed: {}", err);
                 let msg_err = format!("Python script error: {:?}", err);

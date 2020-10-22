@@ -21,5 +21,5 @@ pub struct TaskInstance {
     pub date_started: DateTimeUtc,
     pub date_finished: DateTimeUtc,
     pub status: TaskStatus,
-    pub output: TaskOutput
+    pub output: TaskOutput,
 }

@@ -1,8 +1,8 @@
+use crate::runners::{FakeTaskRunner, TaskRunner};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
 use crate::type_definition::NodeId;
-use crate::runners::{TaskRunner, FakeTaskRunner};
 use log::debug;
 
 /// One node in the DAG
@@ -13,7 +13,7 @@ pub struct TaskNode {
     pub id_node: NodeId,
     pub definition: Box<dyn TaskDefinition>,
     pub instance: Option<TaskInstance>,
-    pub runner: Box<dyn TaskRunner>
+    pub runner: Box<dyn TaskRunner>,
 }
 
 impl TaskNode {
@@ -24,7 +24,7 @@ impl TaskNode {
             id_node: NodeId::new_v4(),
             definition,
             instance: None,
-            runner
+            runner,
         }
     }
 

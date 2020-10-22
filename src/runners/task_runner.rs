@@ -37,8 +37,8 @@ pub enum MessageToRunner {
     Cancel,
 }
 
-/// Struct in charge of taking a TaskDefinition 
-/// and run it somewhere 
+/// Struct in charge of taking a TaskDefinition
+/// and run it somewhere
 /// and create the TaskInstance when it finishes
 pub trait TaskRunner: DynClone + Debug {
     /// Get an identifier of the Runner

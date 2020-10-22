@@ -22,7 +22,7 @@ impl TaskDefinition for BashTaskDefinition {
         let bash_proc = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
             .output();
-            // .expect("bash command failed to start");
+        // .expect("bash command failed to start");
         match bash_proc {
             Ok(bash_result) => {
                 debug!("bash stdout: {:?}", bash_result.stdout);
@@ -39,7 +39,7 @@ impl TaskDefinition for BashTaskDefinition {
                     stderr: bash_result.stderr,
                 };
                 Ok(output)
-            },
+            }
             Err(err) => {
                 error!("Bash command crashed: {:?}", err);
                 let msg_err = format!("Bash cmd error: {:?}", err);

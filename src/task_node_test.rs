@@ -1,7 +1,7 @@
+use crate::runners::{FakeTaskRunner, TaskRunner};
 use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
-use crate::task_instance::{TaskStatus, TaskInstance};
+use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_node::TaskNode;
-use crate::runners::{TaskRunner, FakeTaskRunner};
 use crate::task_output::TaskOutput;
 use chrono::prelude::*;
 
@@ -19,10 +19,7 @@ fn _produce_task_node() -> TaskNode {
 fn it_can_create_new_node() {
     let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
     let t_run = FakeTaskRunner {};
-    let new_node = TaskNode::new(
-        Box::new(t_def),
-        Box::new(t_run.clone())
-    );
+    let new_node = TaskNode::new(Box::new(t_def), Box::new(t_run.clone()));
     assert!(new_node.instance.is_none());
     assert_eq!(new_node.runner.get_runner_id(), t_run.get_runner_id());
 }
@@ -30,8 +27,8 @@ fn it_can_create_new_node() {
 #[test]
 fn it_says_complete_after_success() {
     let mut node = _produce_task_node();
-    assert!( !node.complete() );
-    
+    assert!(!node.complete());
+
     let instance = TaskInstance {
         id_node: node.id_node.clone(),
         id_task_definition: node.definition.task_definition_id().clone(),
@@ -39,16 +36,16 @@ fn it_says_complete_after_success() {
         date_started: Utc::now(),
         date_finished: Utc::now(),
         status: TaskStatus::Success,
-        output: TaskOutput::Text("ok".to_string())
+        output: TaskOutput::Text("ok".to_string()),
     };
     node.instance = Some(instance);
-    assert!( node.complete() );
-    
+    assert!(node.complete());
+
     match node.instance.as_mut() {
         Some(i) => i.status = TaskStatus::Failure,
         None => panic!("Panik"),
     }
-    assert!( !node.complete() );
+    assert!(!node.complete());
 }
 
 #[test]
