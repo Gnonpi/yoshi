@@ -22,7 +22,6 @@ impl TaskDefinition for BashTaskDefinition {
         let bash_proc = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
             .output();
-        // .expect("bash command failed to start");
         match bash_proc {
             Ok(bash_result) => {
                 debug!("bash stdout: {:?}", bash_result.stdout);
