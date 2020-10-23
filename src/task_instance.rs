@@ -4,6 +4,7 @@ use crate::type_definition::{DateTimeUtc, NodeId, RunnerId, TaskId};
 /// Status of a TaskInstance
 #[derive(Clone, PartialEq, Debug)]
 pub enum TaskStatus {
+    Undefined,
     Defined,
     Queued,
     Success,

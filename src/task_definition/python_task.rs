@@ -26,25 +26,37 @@ impl TaskDefinition for PythonTaskDefinition {
             self.script_path, self.args
         );
         let script_path = (*self.script_path).clone();
-        let py_result = Command::new("python3")
+        let py_proc = Command::new("python3")
             .arg(script_path.into_string().unwrap())
             .args(self.args.clone())
-            .output()
-            .expect("failed to execute Python script");
-        debug!("python stdout: {:?}", py_result.stdout);
-        if !py_result.status.success() {
-            error!("Python script crashed");
-            let err = YoshiError {
-                message: "Python script was not a success".to_owned(),
-                origin: "PythonTaskDefinition::run".to_owned(),
-            };
-            return Err(err);
+            .output();
+        match py_proc {
+            Ok(py_result) => {
+                debug!("python stdout: {:?}", py_result.stdout);
+                if !py_result.status.success() {
+                    error!("Python script crashed");
+                    let err = YoshiError {
+                        message: "Python script was not a success".to_owned(),
+                        origin: "PythonTaskDefinition::run".to_owned(),
+                    };
+                    return Err(err);
+                }
+                let output = TaskOutput::StandardOutput {
+                    stdout: py_result.stdout,
+                    stderr: py_result.stderr,
+                };
+                return Ok(output);
+            }
+            Err(err) => {
+                error!("Python script crashed: {}", err);
+                let msg_err = format!("Python script error: {:?}", err);
+                let err = YoshiError {
+                    message: msg_err,
+                    origin: "PythonTaskDefinition::run".to_owned(),
+                };
+                return Err(err);
+            }
         }
-        let output = TaskOutput::StandardOutput {
-            stdout: py_result.stdout,
-            stderr: py_result.stderr,
-        };
-        Ok(output)
     }
 
     fn get_params(&self) -> HashMap<String, String> {

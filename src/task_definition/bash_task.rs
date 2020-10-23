@@ -19,24 +19,36 @@ impl TaskDefinition for BashTaskDefinition {
     }
     fn run(&self) -> Result<TaskOutput, YoshiError> {
         info!("Starting Bash command {:?}", self.command);
-        let bash_result = Command::new(self.command[0].clone())
+        let bash_proc = Command::new(self.command[0].clone())
             .args(&self.command[1..self.command.len()])
-            .output()
-            .expect("bash command failed to start");
-        debug!("bash stdout: {:?}", bash_result.stdout);
-        if !bash_result.status.success() {
-            error!("Bash command crashed");
-            let err = YoshiError {
-                message: "Bash command was not a success".to_owned(),
-                origin: "BashTaskDefinition::run".to_owned(),
-            };
-            return Err(err);
+            .output();
+        match bash_proc {
+            Ok(bash_result) => {
+                debug!("bash stdout: {:?}", bash_result.stdout);
+                if !bash_result.status.success() {
+                    error!("Bash command crashed");
+                    let err = YoshiError {
+                        message: "Bash command was not a success".to_owned(),
+                        origin: "BashTaskDefinition::run".to_owned(),
+                    };
+                    return Err(err);
+                }
+                let output = TaskOutput::StandardOutput {
+                    stdout: bash_result.stdout,
+                    stderr: bash_result.stderr,
+                };
+                Ok(output)
+            }
+            Err(err) => {
+                error!("Bash command crashed: {:?}", err);
+                let msg_err = format!("Bash cmd error: {:?}", err);
+                let err = YoshiError {
+                    message: msg_err,
+                    origin: "BashTaskDefinition::run".to_owned(),
+                };
+                return Err(err);
+            }
         }
-        let output = TaskOutput::StandardOutput {
-            stdout: bash_result.stdout,
-            stderr: bash_result.stderr,
-        };
-        Ok(output)
     }
 
     fn get_params(&self) -> HashMap<String, String> {

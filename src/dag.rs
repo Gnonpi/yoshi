@@ -131,7 +131,7 @@ impl Dag {
                 if !node.complete() {
                     // todo: replace with dag runner system
                     // todo: is the clone here really necessary?
-                    let node_runner = node.runner.clone();
+                    let mut node_runner = node.runner.clone();
                     let (sender, receiver) =
                         node_runner.start_task(node.id_node, &*node.definition);
                     // todo: replace with true spawning&waiting
