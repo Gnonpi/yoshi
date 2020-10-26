@@ -1,4 +1,4 @@
-use crate::runners::{MessageFromRunner, MessageToRunner, TaskRunner};
+use crate::runners::{MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
@@ -12,7 +12,7 @@ pub struct FakeTaskRunner {}
 
 impl TaskRunner for FakeTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
-        return 0;
+        return TaskRunnerType::Fake;
     }
     fn start_task(
         &mut self,

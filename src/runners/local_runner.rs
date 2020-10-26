@@ -1,5 +1,5 @@
 use crate::errors::YoshiError;
-use crate::runners::{FailureReason, MessageFromRunner, MessageToRunner, TaskRunner};
+use crate::runners::{FailureReason, MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
@@ -16,7 +16,7 @@ pub struct LocalTaskRunner {
 
 impl TaskRunner for LocalTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
-        return 1;
+        return TaskRunnerType::LocalBlocking;
     }
 
     /// Start a task, blocking the thread
@@ -76,7 +76,7 @@ impl TaskRunner for LocalTaskRunner {
 }
 
 impl LocalTaskRunner {
-    fn new() -> Self {
+    pub fn new() -> Self {
         LocalTaskRunner {
             current_status: TaskStatus::Undefined,
             stored_instance: None,
