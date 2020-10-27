@@ -1,4 +1,7 @@
+use crate::runners::{TaskRunnerFactory, TaskRunnerType, FakeTaskRunner};
+
 #[test]
-fn failing() {
-    assert_eq!(1, 2);
+fn it_can_return_a_runner() {
+    let runner = TaskRunnerFactory::new_runner(&TaskRunnerType::Fake);
+    assert_eq!(runner.get_runner_id(), TaskRunnerType::Fake);
 }
