@@ -5,6 +5,8 @@ use crate::type_definition::NodeId;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
+use crate::runners::TaskRunnerFactory;
+use crossbeam_channel::TryRecvError;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
@@ -16,7 +18,7 @@ pub struct Dag {
 
 impl Dag {
     /// Create a new dag
-    fn new() -> Self {
+    pub fn new() -> Self {
         Dag {
             start_node: None,
             graph_nodes: DiGraphMap::new(),
@@ -25,17 +27,17 @@ impl Dag {
     }
 
     /// Get a reference to a node given its id
-    fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
+    pub fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
         self.map_nodes.get(node_id)
     }
 
     /// Whether or not an id refer to a node in the dag
-    fn contains_node(&self, node_id: &NodeId) -> bool {
+    pub fn contains_node(&self, node_id: &NodeId) -> bool {
         self.map_nodes.contains_key(node_id)
     }
 
     /// Given the id of a node, if the node is in the graph, returns the children of that node
-    fn get_children_of_node(&self, node_id: &NodeId) -> Option<Vec<NodeId>> {
+    pub fn get_children_of_node(&self, node_id: &NodeId) -> Option<Vec<NodeId>> {
         if !self.contains_node(node_id) {
             return None;
         }
@@ -45,7 +47,7 @@ impl Dag {
     }
 
     /// Add a node to the DAG with possibly the parents and children
-    fn add_task(
+    pub fn add_task(
         &mut self,
         node: TaskNode,
         parent_ids: Option<Vec<&NodeId>>,
@@ -92,7 +94,7 @@ impl Dag {
     }
 
     /// Set the node from which the execution start
-    fn set_starting_node(&mut self, node_id: NodeId) {
+    pub fn set_starting_node(&mut self, node_id: NodeId) {
         info!("Setting starting node {}", node_id);
         if !self.contains_node(&node_id) {
             panic!("Cannot set starting unexistent node {}", node_id);
@@ -114,7 +116,7 @@ impl Dag {
             when a node is done,
             we add its children to the list
     */
-    fn run(&mut self) -> Result<(), YoshiError> {
+    pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
         if self.start_node.is_none() {
             // todo: when no starting_node is set, find one candidate then crash
@@ -129,32 +131,47 @@ impl Dag {
                 let node = self.get_node(&id_node).unwrap();
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
-                    // todo: replace with dag runner system
-                    // todo: is the clone here really necessary?
-                    let mut node_runner = node.runner.clone();
-                    let (sender, receiver) =
-                        node_runner.start_task(node.id_node, &*node.definition);
+                    let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
                     // todo: replace with true spawning&waiting
+                    let (_, receiver) =
+                        node_runner.start_task(node.id_node, &*node.definition);
                     for _ in 0..100 {
-                        let received_msg = receiver.recv().unwrap();
-                        match received_msg {
-                            Done {
-                                start_time,
-                                end_time,
-                            } => {
-                                info!("Got message that {:?} is done", node);
+                        // todo: this is fucked up by the design:
+                        // the sender+receiver are created in the start_task function
+                        // but we try to use the receiver after start_task completed
+                        let result_from_channel = receiver.try_recv();
+                        match result_from_channel {
+                            Ok(received_msg) => {
+                                match received_msg {
+                                    Done {
+                                        start_time,
+                                        end_time,
+                                    } => {
+                                        info!("Got message that {:?} is done", node);
+                                    }
+                                    Failure {
+                                        start_time,
+                                        reason,
+                                        failure_time,
+                                    } => {
+                                        panic!("{:?} failed to run", node);
+                                    }
+                                    _ => {
+                                        debug!("lol");
+                                    }
+                                }
+                            },
+                            Err(err) => {
+                                match err {
+                                    TryRecvError::Empty => {
+                                        debug!("no message in channel yet");
+                                    },
+                                    _ => {
+                                        panic!("Error while reading from channel: {:?}", err);
+                                    }
+                                }
                             }
-                            Failure {
-                                start_time,
-                                reason,
-                                failure_time,
-                            } => {
-                                panic!("{:?} failed to run", node);
-                            }
-                            _ => {
-                                debug!("lol");
-                            }
-                        }
+                        };
                     }
                 }
                 // Add the instance to the instance bag

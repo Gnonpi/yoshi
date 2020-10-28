@@ -6,7 +6,7 @@ use crate::task_output::TaskOutput;
 use crate::type_definition::{DateTimeUtc, NodeId, RunnerId};
 use chrono::prelude::*;
 use crossbeam_channel::{unbounded, Receiver, Sender};
-use log::warn;
+use log::{warn, debug};
 
 #[derive(Debug, Clone)]
 pub struct LocalTaskRunner {
@@ -28,11 +28,13 @@ impl TaskRunner for LocalTaskRunner {
         let (send_to_runner, recv_to_runner) = unbounded::<MessageToRunner>();
         let (send_from_runner, recv_from_runner) = unbounded::<MessageFromRunner>();
 
+        debug!("Start running task in Local runner");
         let start_time = Utc::now();
         let task_result = task_def.run();
         let end_time = Utc::now();
         match task_result {
             Ok(output) => {
+                debug!("Task done, creating corresponding TaskInstance");
                 let msg_success = MessageFromRunner::Done {
                     start_time,
                     end_time,

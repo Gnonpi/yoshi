@@ -77,7 +77,7 @@ impl TaskDefinition for PythonTaskDefinition {
 }
 
 impl PythonTaskDefinition {
-    fn new(script_path: FilePath, args: Vec<String>) -> Self {
+    pub fn new(script_path: FilePath, args: Vec<String>) -> Self {
         debug!("Creating Python task definition");
         PythonTaskDefinition {
             task_def_id: generate_task_definition_id(),

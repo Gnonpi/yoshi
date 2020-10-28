@@ -1,12 +1,11 @@
 use crate::dag::Dag;
-use crate::runners::FakeTaskRunner;
+use crate::runners::{FakeTaskRunner, TaskRunnerType};
 use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {
     let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
-    let t_run = FakeTaskRunner {};
-    TaskNode::new(Box::new(t_def), Box::new(t_run))
+    TaskNode::new(Box::new(t_def), TaskRunnerType::Fake)
 }
 
 #[test]
