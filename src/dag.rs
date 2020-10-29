@@ -7,6 +7,7 @@ use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
 use crate::runners::TaskRunnerFactory;
 use crossbeam_channel::TryRecvError;
+use crate::task_instance::TaskInstance;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
@@ -29,6 +30,10 @@ impl Dag {
     /// Get a reference to a node given its id
     pub fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
         self.map_nodes.get(node_id)
+    }
+
+    pub fn get_mut_node(&mut self, node_id: &NodeId) -> Option<&mut Box<TaskNode>> {
+        self.map_nodes.get_mut(node_id)
     }
 
     /// Whether or not an id refer to a node in the dag
@@ -128,11 +133,16 @@ impl Dag {
         // While there are nodes in the bag
         while bag_of_nodes.len() > 0 {
             if let Some(id_node) = bag_of_nodes.pop() {
-                let node = self.get_node(&id_node).unwrap();
+                let mut node = self.get_mut_node(&id_node).unwrap();
+                // let mut current_task_instance: Option<TaskInstance> = None;
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
+                    info!("Node {:?} is not complete, running it", node.id_node);
+
                     let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
                     let (_, recv_from_runner) = node_runner.get_channels();
+                    node_runner.start_task(id_node, &(*node.definition)).unwrap();
+
                     // todo: replace with true spawning&waiting
                     for _ in 0..100 {
                         let result_from_channel = recv_from_runner.try_recv();
@@ -144,6 +154,9 @@ impl Dag {
                                         end_time,
                                     } => {
                                         info!("Got message that {:?} is done", node);
+                                        // current_task_instance = Some(node_runner.get_task_instance().unwrap());
+                                        node.instance = Some(node_runner.get_task_instance().unwrap());
+                                        break
                                     }
                                     Failure {
                                         start_time,
@@ -160,7 +173,7 @@ impl Dag {
                             Err(err) => {
                                 match err {
                                     TryRecvError::Empty => {
-                                        debug!("no message in channel yet");
+                                        debug!("No message in channel yet");
                                     },
                                     _ => {
                                         panic!("Error while reading from channel: {:?}", err);

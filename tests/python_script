@@ -1,0 +1,4 @@
+import sys
+a = sys.argv[1]
+with open('/tmp/hello', 'w') as f:
+    f.write('Hello {}'.format(a))

@@ -5,6 +5,7 @@ use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
+use std::str;
 
 /// A Bash task that runs a Bash command
 #[derive(Clone, Debug)]
@@ -34,8 +35,8 @@ impl TaskDefinition for BashTaskDefinition {
                     return Err(err);
                 }
                 let output = TaskOutput::StandardOutput {
-                    stdout: bash_result.stdout,
-                    stderr: bash_result.stderr,
+                    stdout: str::from_utf8(&bash_result.stdout).unwrap().parse().unwrap(),
+                    stderr: str::from_utf8(&bash_result.stderr).unwrap().parse().unwrap(),
                 };
                 Ok(output)
             }

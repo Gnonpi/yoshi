@@ -8,6 +8,6 @@ type PostgresConn = String;
 pub enum TaskOutput {
     Text(String),
     LocalFile(Box<FilePath>),
-    StandardOutput { stdout: Vec<u8>, stderr: Vec<u8> },
+    StandardOutput { stdout: String, stderr: String },
     PostgresTable(PostgresConn, String),
 }

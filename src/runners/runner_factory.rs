@@ -13,8 +13,8 @@ pub struct TaskRunnerFactory;
 impl TaskRunnerFactory {
     pub fn new_runner(trt: &TaskRunnerType) -> Box<dyn TaskRunner> {
         match trt {
-            Fake => Box::new(FakeTaskRunner {}),
-            LocalBlocking => Box::new(LocalTaskRunner::new())
+            TaskRunnerType::Fake => Box::new(FakeTaskRunner {}),
+            TaskRunnerType::LocalBlocking => Box::new(LocalTaskRunner::new())
         }
     }
 }

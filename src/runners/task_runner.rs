@@ -5,12 +5,13 @@ use crossbeam_channel::{Receiver, Sender};
 use dyn_clone::DynClone;
 use std::fmt::Debug;
 
+#[derive(Debug)]
 pub enum FailureReason {
     GotError(String),
     Cancelled(DateTimeUtc),
 }
 
-// todo: are Message From/To XXX the best?
+#[derive(Debug)]
 pub enum MessageFromRunner {
     Queued,
     Running {
@@ -31,6 +32,7 @@ pub enum MessageFromRunner {
     },
 }
 
+#[derive(Debug)]
 pub enum MessageToRunner {
     GetStatus,
     Pause,

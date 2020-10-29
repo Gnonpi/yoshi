@@ -66,7 +66,8 @@ impl TaskRunner for LocalTaskRunner {
                 };
                 self.current_status = TaskStatus::Success;
                 self.stored_instance = Some(inst);
-                self.send_from_runner.as_ref().unwrap().send(msg_success);
+                debug!("Sending SUCCESS message");
+                self.send_from_runner.as_ref().unwrap().send(msg_success).unwrap();
             }
             Err(err) => {
                 warn!("Task failed {:?} {:?}", task_def, self);
@@ -77,7 +78,8 @@ impl TaskRunner for LocalTaskRunner {
                     failure_time: end_time,
                 };
                 self.current_status = TaskStatus::Failure;
-                self.send_from_runner.as_ref().unwrap().send(msg_failure);
+                debug!("Sending FAILURE message");
+                self.send_from_runner.as_ref().unwrap().send(msg_failure).unwrap();
             }
         }
         Ok(())
@@ -94,6 +96,7 @@ impl TaskRunner for LocalTaskRunner {
 
 impl LocalTaskRunner {
     pub fn new() -> Self {
+        debug!("Creating new LocalTaskRunner");
         LocalTaskRunner {
             current_status: TaskStatus::Undefined,
             stored_instance: None,
