@@ -7,11 +7,15 @@ use crate::type_definition::{DateTimeUtc, NodeId, RunnerId};
 use chrono::prelude::*;
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use log::{warn, debug};
+use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
 
 #[derive(Debug, Clone)]
 pub struct LocalTaskRunner {
     current_status: TaskStatus,
     stored_instance: Option<TaskInstance>,
+    channels_acquired: bool,
+    recv_to_runner: Option<Receiver<MessageToRunner>>,
+    send_from_runner: Option<Sender<MessageFromRunner>>
 }
 
 impl TaskRunner for LocalTaskRunner {
@@ -19,14 +23,26 @@ impl TaskRunner for LocalTaskRunner {
         return TaskRunnerType::LocalBlocking;
     }
 
+    fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
+        let (send_to_runner, recv_to_runner) = unbounded::<MessageToRunner>();
+        let (send_from_runner, recv_from_runner) = unbounded::<MessageFromRunner>();
+
+        self.channels_acquired = true;
+        self.recv_to_runner = Some(recv_to_runner);
+        self.send_from_runner = Some(send_from_runner);
+
+        (send_to_runner, recv_from_runner)
+    }
+
     /// Start a task, blocking the thread
     fn start_task(
         &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
-    ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
-        let (send_to_runner, recv_to_runner) = unbounded::<MessageToRunner>();
-        let (send_from_runner, recv_from_runner) = unbounded::<MessageFromRunner>();
+    ) -> Result<(), ChannelsNotAcquiredBeforeStartingError> {
+        if !self.channels_acquired {
+            return Err(ChannelsNotAcquiredBeforeStartingError {})
+        }
 
         debug!("Start running task in Local runner");
         let start_time = Utc::now();
@@ -50,7 +66,7 @@ impl TaskRunner for LocalTaskRunner {
                 };
                 self.current_status = TaskStatus::Success;
                 self.stored_instance = Some(inst);
-                send_from_runner.send(msg_success);
+                self.send_from_runner.as_ref().unwrap().send(msg_success);
             }
             Err(err) => {
                 warn!("Task failed {:?} {:?}", task_def, self);
@@ -61,11 +77,10 @@ impl TaskRunner for LocalTaskRunner {
                     failure_time: end_time,
                 };
                 self.current_status = TaskStatus::Failure;
-                send_from_runner.send(msg_failure);
+                self.send_from_runner.as_ref().unwrap().send(msg_failure);
             }
         }
-
-        (send_to_runner, recv_from_runner)
+        Ok(())
     }
 
     fn get_status(&self) -> TaskStatus {
@@ -82,6 +97,9 @@ impl LocalTaskRunner {
         LocalTaskRunner {
             current_status: TaskStatus::Undefined,
             stored_instance: None,
+            channels_acquired: false,
+            recv_to_runner: None,
+            send_from_runner: None
         }
     }
 }

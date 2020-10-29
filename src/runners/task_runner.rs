@@ -37,6 +37,9 @@ pub enum MessageToRunner {
     Cancel,
 }
 
+#[derive(Debug)]
+pub struct ChannelsNotAcquiredBeforeStartingError {}
+
 /// Struct in charge of taking a TaskDefinition
 /// and run it somewhere
 /// and create the TaskInstance when it finishes
@@ -44,12 +47,16 @@ pub trait TaskRunner: DynClone + Debug {
     /// Get an identifier of the Runner
     fn get_runner_id(&self) -> RunnerId;
 
+    /// Obtain the channels to communicate with TaskRunner when it's working
+    /// Channels must have lifetimes bounded by the lifetime of the Runner
+    fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>);
+
     /// Start the task and gives 2 channels to communicate while it's running
     fn start_task(
         &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
-    ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>);
+    ) -> Result<(), ChannelsNotAcquiredBeforeStartingError>;
 
     /// Get the status while it's running
     fn get_status(&self) -> TaskStatus;

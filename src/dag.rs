@@ -132,14 +132,10 @@ impl Dag {
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
                     let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
+                    let (_, recv_from_runner) = node_runner.get_channels();
                     // todo: replace with true spawning&waiting
-                    let (_, receiver) =
-                        node_runner.start_task(node.id_node, &*node.definition);
                     for _ in 0..100 {
-                        // todo: this is fucked up by the design:
-                        // the sender+receiver are created in the start_task function
-                        // but we try to use the receiver after start_task completed
-                        let result_from_channel = receiver.try_recv();
+                        let result_from_channel = recv_from_runner.try_recv();
                         match result_from_channel {
                             Ok(received_msg) => {
                                 match received_msg {
