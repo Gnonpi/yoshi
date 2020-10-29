@@ -14,7 +14,7 @@ use std::collections::HashMap;
 pub struct Dag {
     pub start_node: Option<NodeId>,
     pub(crate) graph_nodes: DiGraphMap<NodeId, ()>,
-    pub(crate) map_nodes: HashMap<NodeId, Box<TaskNode>>,
+    pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
 
 impl Dag {
@@ -28,11 +28,11 @@ impl Dag {
     }
 
     /// Get a reference to a node given its id
-    pub fn get_node(&self, node_id: &NodeId) -> Option<&Box<TaskNode>> {
+    pub fn get_node(&self, node_id: &NodeId) -> Option<&TaskNode> {
         self.map_nodes.get(node_id)
     }
 
-    pub fn get_mut_node(&mut self, node_id: &NodeId) -> Option<&mut Box<TaskNode>> {
+    pub fn get_mut_node(&mut self, node_id: &NodeId) -> Option<&mut TaskNode> {
         self.map_nodes.get_mut(node_id)
     }
 
@@ -47,7 +47,7 @@ impl Dag {
             return None;
         }
         // if graph is directed, neighbors is outgoing nodes
-        let neighbors = self.graph_nodes.neighbors(node_id.clone());
+        let neighbors = self.graph_nodes.neighbors(*node_id);
         Some(neighbors.collect())
     }
 
@@ -78,22 +78,22 @@ impl Dag {
             }
         }
         // Adding the node
-        let new_node_id = node.id_node.clone();
+        let new_node_id = node.id_node;
         info!("Adding node {}", new_node_id);
         self.graph_nodes.add_node(new_node_id);
-        self.map_nodes.insert(new_node_id, Box::new(node));
+        self.map_nodes.insert(new_node_id, node);
 
         // Linking parents and children
         if let Some(some_parent_ids) = parent_ids {
             for parent_id in some_parent_ids.iter() {
                 self.graph_nodes
-                    .add_edge((*parent_id).clone(), new_node_id, ());
+                    .add_edge(*(*parent_id), new_node_id, ());
             }
         }
         if let Some(some_children_ids) = children_ids {
             for child_id in some_children_ids.iter() {
                 self.graph_nodes
-                    .add_edge(new_node_id, (*child_id).clone(), ());
+                    .add_edge(new_node_id, *(*child_id), ());
             }
         }
     }
@@ -131,7 +131,7 @@ impl Dag {
         let mut bag_of_instances = vec![];
 
         // While there are nodes in the bag
-        while bag_of_nodes.len() > 0 {
+        while !bag_of_nodes.is_empty() {
             if let Some(id_node) = bag_of_nodes.pop() {
                 let mut node = self.get_mut_node(&id_node).unwrap();
                 // let mut current_task_instance: Option<TaskInstance> = None;
