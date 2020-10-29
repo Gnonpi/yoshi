@@ -53,7 +53,7 @@ impl TaskDefinition for BashTaskDefinition {
                     message: msg_err,
                     origin: "BashTaskDefinition::run".to_owned(),
                 };
-                return Err(err);
+                Err(err)
             }
         }
     }

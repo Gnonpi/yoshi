@@ -1,12 +1,10 @@
-use crate::errors::YoshiError;
 use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
 use crate::runners::{
     FailureReason, MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType,
 };
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
-use crate::task_output::TaskOutput;
-use crate::type_definition::{DateTimeUtc, NodeId, RunnerId};
+use crate::type_definition::{NodeId, RunnerId};
 use chrono::prelude::*;
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use log::{debug, warn};
@@ -22,7 +20,7 @@ pub struct LocalTaskRunner {
 
 impl TaskRunner for LocalTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
-        return TaskRunnerType::LocalBlocking;
+        TaskRunnerType::LocalBlocking
     }
 
     fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
@@ -64,7 +62,7 @@ impl TaskRunner for LocalTaskRunner {
                     date_started: start_time,
                     date_finished: end_time,
                     status: TaskStatus::Success,
-                    output: output,
+                    output
                 };
                 self.current_status = TaskStatus::Success;
                 self.stored_instance = Some(inst);
@@ -79,7 +77,7 @@ impl TaskRunner for LocalTaskRunner {
                 warn!("Task failed {:?} {:?}", task_def, self);
                 let err_msg = format!("{:?}", err);
                 let msg_failure = MessageFromRunner::Failure {
-                    start_time: start_time,
+                    start_time,
                     reason: FailureReason::GotError(err_msg),
                     failure_time: end_time,
                 };
@@ -114,6 +112,12 @@ impl LocalTaskRunner {
             recv_to_runner: None,
             send_from_runner: None,
         }
+    }
+}
+
+impl Default for LocalTaskRunner {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

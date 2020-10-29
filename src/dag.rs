@@ -1,7 +1,6 @@
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
-use crate::task_instance::TaskInstance;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
 use crossbeam_channel::TryRecvError;
@@ -208,6 +207,13 @@ impl Dag {
         Ok(())
     }
 }
+
+impl Default for Dag {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 
 #[cfg(test)]
 #[path = "./dag_test.rs"]

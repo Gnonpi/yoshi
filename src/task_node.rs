@@ -1,4 +1,3 @@
-use crate::runners::{FakeTaskRunner, TaskRunner};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
@@ -67,7 +66,7 @@ impl PartialEq for TaskNode {
         // i tried implementing a partialeq on taskdefinition
         // but it made problems about
         // trait into objects, not sized, not the right types
-        return self.definition.get_params() == other.definition.get_params();
+        self.definition.get_params() == other.definition.get_params()
     }
 }
 

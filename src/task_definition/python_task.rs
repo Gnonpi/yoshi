@@ -47,7 +47,7 @@ impl TaskDefinition for PythonTaskDefinition {
                     stdout: str::from_utf8(&py_result.stdout).unwrap().parse().unwrap(),
                     stderr: str::from_utf8(&py_result.stderr).unwrap().parse().unwrap(),
                 };
-                return Ok(output);
+                Ok(output)
             }
             Err(err) => {
                 error!("Python script crashed: {}", err);
@@ -56,7 +56,7 @@ impl TaskDefinition for PythonTaskDefinition {
                     message: msg_err,
                     origin: "PythonTaskDefinition::run".to_owned(),
                 };
-                return Err(err);
+                Err(err)
             }
         }
     }

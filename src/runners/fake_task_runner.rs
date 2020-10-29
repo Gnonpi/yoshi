@@ -13,7 +13,7 @@ pub struct FakeTaskRunner {}
 
 impl TaskRunner for FakeTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
-        return TaskRunnerType::Fake;
+        TaskRunnerType::Fake
     }
 
     fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
