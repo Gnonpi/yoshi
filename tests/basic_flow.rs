@@ -1,13 +1,13 @@
-use yoshi::task_node::TaskNode;
-use yoshi::task_definition::{PythonTaskDefinition, BashTaskDefinition, TaskDefinition};
-use std::fs::{File, remove_file};
-use yoshi::type_definition::FilePath;
-use std::io::Write;
-use yoshi::runners::{TaskRunnerFactory, LocalTaskRunner, TaskRunner};
-use yoshi::dag::Dag;
 use chrono::Utc;
+use std::fs::{remove_file, File};
+use std::io::Write;
+use yoshi::dag::Dag;
+use yoshi::runners::{LocalTaskRunner, TaskRunner, TaskRunnerFactory};
+use yoshi::task_definition::{BashTaskDefinition, PythonTaskDefinition, TaskDefinition};
 use yoshi::task_instance::TaskStatus;
+use yoshi::task_node::TaskNode;
 use yoshi::task_output::TaskOutput;
+use yoshi::type_definition::FilePath;
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -21,11 +21,9 @@ fn can_mount_simple_dag() {
     let script_path = FilePath::from("script.py");
     let mut file = File::create(script_path.clone()).unwrap();
     // todo: replace with include_string macro
-    file.write_all(include_str!("python_script").as_bytes()).unwrap();
-    let python_def = PythonTaskDefinition::new(
-        script_path.clone(),
-        vec!["ok".to_owned()]
-    );
+    file.write_all(include_str!("python_script").as_bytes())
+        .unwrap();
+    let python_def = PythonTaskDefinition::new(script_path.clone(), vec!["ok".to_owned()]);
 
     // Create bash task
     let bash_command = vec!["cat".to_owned(), "/tmp/hello".to_owned()];
@@ -55,35 +53,55 @@ fn can_mount_simple_dag() {
     assert!(complete_python_node.is_some());
     assert!((*complete_python_node.unwrap()).instance.is_some());
 
-    let python_task_instance = (*complete_python_node.unwrap()).instance.as_ref().unwrap().clone();
+    let python_task_instance = (*complete_python_node.unwrap())
+        .instance
+        .as_ref()
+        .unwrap()
+        .clone();
     assert_eq!(python_task_instance.id_node, python_node_id);
-    assert_eq!(python_task_instance.id_task_definition, python_def.task_definition_id());
+    assert_eq!(
+        python_task_instance.id_task_definition,
+        python_def.task_definition_id()
+    );
     assert_eq!(python_task_instance.id_task_runner, python_node.id_runner);
     assert!(python_task_instance.date_started > date_before_run);
     assert!(python_task_instance.date_started < date_after_run);
     assert_eq!(python_task_instance.status, TaskStatus::Success);
-    assert_eq!(python_task_instance.output, TaskOutput::StandardOutput {
-        stdout: String::from(""),
-        stderr: String::from("")
-    });
+    assert_eq!(
+        python_task_instance.output,
+        TaskOutput::StandardOutput {
+            stdout: String::from(""),
+            stderr: String::from("")
+        }
+    );
 
     let complete_bash_node = dag.get_node(&bash_node_id);
     assert!(complete_bash_node.is_some());
     assert!((*complete_bash_node.unwrap()).instance.is_some());
 
-    let bash_task_instance = (*complete_bash_node.unwrap()).instance.as_ref().unwrap().clone();
+    let bash_task_instance = (*complete_bash_node.unwrap())
+        .instance
+        .as_ref()
+        .unwrap()
+        .clone();
     assert_eq!(bash_task_instance.id_node, bash_node_id);
-    assert_eq!(bash_task_instance.id_task_definition, bash_def.task_definition_id());
+    assert_eq!(
+        bash_task_instance.id_task_definition,
+        bash_def.task_definition_id()
+    );
     assert_eq!(bash_task_instance.id_task_runner, bash_node.id_runner);
     assert!(bash_task_instance.date_started > date_before_run);
     assert!(bash_task_instance.date_started < date_after_run);
     assert!(bash_task_instance.date_started > python_task_instance.date_started);
 
     assert_eq!(bash_task_instance.status, TaskStatus::Success);
-    assert_eq!(bash_task_instance.output, TaskOutput::StandardOutput {
-        stdout: String::from("Hello ok"),
-        stderr: String::from("")
-    });
+    assert_eq!(
+        bash_task_instance.output,
+        TaskOutput::StandardOutput {
+            stdout: String::from("Hello ok"),
+            stderr: String::from("")
+        }
+    );
 
     // Cleanup
     remove_file(script_path).unwrap();
