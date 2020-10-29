@@ -1,9 +1,9 @@
-use super::{TaskRunner, FakeTaskRunner, LocalTaskRunner};
+use super::{FakeTaskRunner, LocalTaskRunner, TaskRunner};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TaskRunnerType {
     Fake,
-    LocalBlocking
+    LocalBlocking,
 }
 
 pub struct TaskRunnerFactory;
@@ -14,7 +14,7 @@ impl TaskRunnerFactory {
     pub fn new_runner(trt: &TaskRunnerType) -> Box<dyn TaskRunner> {
         match trt {
             TaskRunnerType::Fake => Box::new(FakeTaskRunner {}),
-            TaskRunnerType::LocalBlocking => Box::new(LocalTaskRunner::new())
+            TaskRunnerType::LocalBlocking => Box::new(LocalTaskRunner::new()),
         }
     }
 }

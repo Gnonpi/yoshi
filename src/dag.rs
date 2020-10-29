@@ -1,13 +1,13 @@
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
+use crate::runners::TaskRunnerFactory;
+use crate::task_instance::TaskInstance;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
+use crossbeam_channel::TryRecvError;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
-use crate::runners::TaskRunnerFactory;
-use crossbeam_channel::TryRecvError;
-use crate::task_instance::TaskInstance;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
@@ -141,7 +141,9 @@ impl Dag {
 
                     let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
                     let (_, recv_from_runner) = node_runner.get_channels();
-                    node_runner.start_task(id_node, &(*node.definition)).unwrap();
+                    node_runner
+                        .start_task(id_node, &(*node.definition))
+                        .unwrap();
 
                     // todo: replace with true spawning&waiting
                     for _ in 0..100 {
@@ -155,8 +157,9 @@ impl Dag {
                                     } => {
                                         info!("Got message that {:?} is done", node);
                                         // current_task_instance = Some(node_runner.get_task_instance().unwrap());
-                                        node.instance = Some(node_runner.get_task_instance().unwrap());
-                                        break
+                                        node.instance =
+                                            Some(node_runner.get_task_instance().unwrap());
+                                        break;
                                     }
                                     Failure {
                                         start_time,
@@ -169,17 +172,15 @@ impl Dag {
                                         debug!("lol");
                                     }
                                 }
-                            },
-                            Err(err) => {
-                                match err {
-                                    TryRecvError::Empty => {
-                                        debug!("No message in channel yet");
-                                    },
-                                    _ => {
-                                        panic!("Error while reading from channel: {:?}", err);
-                                    }
-                                }
                             }
+                            Err(err) => match err {
+                                TryRecvError::Empty => {
+                                    debug!("No message in channel yet");
+                                }
+                                _ => {
+                                    panic!("Error while reading from channel: {:?}", err);
+                                }
+                            },
                         };
                     }
                 }

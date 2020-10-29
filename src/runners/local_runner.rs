@@ -1,13 +1,15 @@
 use crate::errors::YoshiError;
-use crate::runners::{FailureReason, MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType};
+use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
+use crate::runners::{
+    FailureReason, MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType,
+};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{DateTimeUtc, NodeId, RunnerId};
 use chrono::prelude::*;
 use crossbeam_channel::{unbounded, Receiver, Sender};
-use log::{warn, debug};
-use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
+use log::{debug, warn};
 
 #[derive(Debug, Clone)]
 pub struct LocalTaskRunner {
@@ -15,7 +17,7 @@ pub struct LocalTaskRunner {
     stored_instance: Option<TaskInstance>,
     channels_acquired: bool,
     recv_to_runner: Option<Receiver<MessageToRunner>>,
-    send_from_runner: Option<Sender<MessageFromRunner>>
+    send_from_runner: Option<Sender<MessageFromRunner>>,
 }
 
 impl TaskRunner for LocalTaskRunner {
@@ -41,7 +43,7 @@ impl TaskRunner for LocalTaskRunner {
         task_def: &dyn TaskDefinition,
     ) -> Result<(), ChannelsNotAcquiredBeforeStartingError> {
         if !self.channels_acquired {
-            return Err(ChannelsNotAcquiredBeforeStartingError {})
+            return Err(ChannelsNotAcquiredBeforeStartingError {});
         }
 
         debug!("Start running task in Local runner");
@@ -67,7 +69,11 @@ impl TaskRunner for LocalTaskRunner {
                 self.current_status = TaskStatus::Success;
                 self.stored_instance = Some(inst);
                 debug!("Sending SUCCESS message");
-                self.send_from_runner.as_ref().unwrap().send(msg_success).unwrap();
+                self.send_from_runner
+                    .as_ref()
+                    .unwrap()
+                    .send(msg_success)
+                    .unwrap();
             }
             Err(err) => {
                 warn!("Task failed {:?} {:?}", task_def, self);
@@ -79,7 +85,11 @@ impl TaskRunner for LocalTaskRunner {
                 };
                 self.current_status = TaskStatus::Failure;
                 debug!("Sending FAILURE message");
-                self.send_from_runner.as_ref().unwrap().send(msg_failure).unwrap();
+                self.send_from_runner
+                    .as_ref()
+                    .unwrap()
+                    .send(msg_failure)
+                    .unwrap();
             }
         }
         Ok(())
@@ -102,7 +112,7 @@ impl LocalTaskRunner {
             stored_instance: None,
             channels_acquired: false,
             recv_to_runner: None,
-            send_from_runner: None
+            send_from_runner: None,
         }
     }
 }

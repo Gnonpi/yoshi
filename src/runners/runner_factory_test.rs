@@ -1,4 +1,4 @@
-use crate::runners::{TaskRunnerFactory, TaskRunnerType, FakeTaskRunner};
+use crate::runners::{FakeTaskRunner, TaskRunnerFactory, TaskRunnerType};
 
 #[test]
 fn it_can_return_a_runner() {

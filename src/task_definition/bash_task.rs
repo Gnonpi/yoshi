@@ -35,8 +35,14 @@ impl TaskDefinition for BashTaskDefinition {
                     return Err(err);
                 }
                 let output = TaskOutput::StandardOutput {
-                    stdout: str::from_utf8(&bash_result.stdout).unwrap().parse().unwrap(),
-                    stderr: str::from_utf8(&bash_result.stderr).unwrap().parse().unwrap(),
+                    stdout: str::from_utf8(&bash_result.stdout)
+                        .unwrap()
+                        .parse()
+                        .unwrap(),
+                    stderr: str::from_utf8(&bash_result.stderr)
+                        .unwrap()
+                        .parse()
+                        .unwrap(),
                 };
                 Ok(output)
             }

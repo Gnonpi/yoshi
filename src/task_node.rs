@@ -13,7 +13,7 @@ pub struct TaskNode {
     pub id_node: NodeId,
     pub definition: Box<dyn TaskDefinition>,
     pub instance: Option<TaskInstance>,
-    pub id_runner: RunnerId
+    pub id_runner: RunnerId,
 }
 
 impl TaskNode {

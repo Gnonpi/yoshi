@@ -1,3 +1,4 @@
+use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
 use crate::runners::{MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
@@ -5,7 +6,6 @@ use crate::task_output::TaskOutput;
 use crate::type_definition::{NodeId, RunnerId};
 use chrono::prelude::*;
 use crossbeam_channel::{unbounded, Receiver, Sender};
-use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
 
 /// just to pass some tests
 #[derive(Debug, Clone)]
