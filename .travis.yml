@@ -1,8 +1,12 @@
 language: rust
 rust: 
    - stable
-  # let's try only nightly for the moment
-  # - nightly
+   # nightly will ignore errors (toolchain problems)
+   - nightly
+
+matrix:
+  allow_failures:
+    - rust: nightly
 
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
