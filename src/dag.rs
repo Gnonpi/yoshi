@@ -146,29 +146,26 @@ impl Dag {
                     for _ in 0..100 {
                         let result_from_channel = recv_from_runner.try_recv();
                         match result_from_channel {
-                            Ok(received_msg) => {
-                                match received_msg {
-                                    Done {
-                                        start_time,
-                                        end_time,
-                                    } => {
-                                        info!("Got message that {:?} is done", node);
-                                        node.instance =
-                                            Some(node_runner.get_task_instance().unwrap());
-                                        break;
-                                    }
-                                    Failure {
-                                        start_time,
-                                        reason,
-                                        failure_time,
-                                    } => {
-                                        panic!("{:?} failed to run", node);
-                                    }
-                                    _ => {
-                                        debug!("lol");
-                                    }
+                            Ok(received_msg) => match received_msg {
+                                Done {
+                                    start_time,
+                                    end_time,
+                                } => {
+                                    info!("Got message that {:?} is done", node);
+                                    node.instance = Some(node_runner.get_task_instance().unwrap());
+                                    break;
                                 }
-                            }
+                                Failure {
+                                    start_time,
+                                    reason,
+                                    failure_time,
+                                } => {
+                                    panic!("{:?} failed to run", node);
+                                }
+                                _ => {
+                                    debug!("lol");
+                                }
+                            },
                             Err(err) => match err {
                                 TryRecvError::Empty => {
                                     debug!("No message in channel yet");
