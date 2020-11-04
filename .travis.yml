@@ -1,13 +1,13 @@
 language: rust
 rust: 
    - stable
-   # nightly will ignore errors (toolchain problems)
-   - nightly
+   # nightly cause toolchain problems
+   # - nightly
 
-matrix:
-  allow_failures:
-    - rust: nightly
-  fast_finish: true
+# matrix:
+#   allow_failures:
+#     - rust: nightly
+#   fast_finish: true
 
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
