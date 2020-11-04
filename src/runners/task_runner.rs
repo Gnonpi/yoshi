@@ -5,12 +5,14 @@ use crossbeam_channel::{Receiver, Sender};
 use dyn_clone::DynClone;
 use std::fmt::Debug;
 
+/// Describe the cause of a task stop
 #[derive(Debug)]
 pub enum FailureReason {
     GotError(String),
     Cancelled(DateTimeUtc),
 }
 
+/// The messages that are automatically sent from the TaskRunner to the Dag
 #[derive(Debug)]
 pub enum MessageFromRunner {
     Queued,
@@ -32,6 +34,7 @@ pub enum MessageFromRunner {
     },
 }
 
+/// Messages that can be sent to a TaskRunner to trigger things
 #[derive(Debug)]
 pub enum MessageToRunner {
     GetStatus,

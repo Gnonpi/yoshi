@@ -33,7 +33,6 @@ impl TaskDefinition for PythonTaskDefinition {
             .output();
         match py_proc {
             Ok(py_result) => {
-                // debug!("python stdout: {:?}", py_result.stdout);
                 if !py_result.status.success() {
                     error!("Python started running but crashed");
                     error!("stderr: {:?}", str::from_utf8(&py_result.stderr));

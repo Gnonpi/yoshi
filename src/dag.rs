@@ -31,6 +31,7 @@ impl Dag {
         self.map_nodes.get(node_id)
     }
 
+    /// Get a mutable reference to a node given its id
     pub fn get_mut_node(&mut self, node_id: &NodeId) -> Option<&mut TaskNode> {
         self.map_nodes.get_mut(node_id)
     }
@@ -131,7 +132,6 @@ impl Dag {
         while !bag_of_nodes.is_empty() {
             if let Some(id_node) = bag_of_nodes.pop() {
                 let mut node = self.get_mut_node(&id_node).unwrap();
-                // let mut current_task_instance: Option<TaskInstance> = None;
                 debug!("Treating node {:?}", node.id_node);
                 if !node.complete() {
                     info!("Node {:?} is not complete, running it", node.id_node);
@@ -153,7 +153,6 @@ impl Dag {
                                         end_time,
                                     } => {
                                         info!("Got message that {:?} is done", node);
-                                        // current_task_instance = Some(node_runner.get_task_instance().unwrap());
                                         node.instance =
                                             Some(node_runner.get_task_instance().unwrap());
                                         break;

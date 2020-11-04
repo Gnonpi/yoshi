@@ -1,5 +1,7 @@
 use super::{FakeTaskRunner, LocalTaskRunner, TaskRunner};
 
+/// Enum to selec the type of runner to create
+/// TaskRunner impl a method that returns one of those
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum TaskRunnerType {
     Fake,

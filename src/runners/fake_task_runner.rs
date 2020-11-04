@@ -27,6 +27,7 @@ impl TaskRunner for FakeTaskRunner {
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
     ) -> Result<(), ChannelsNotAcquiredBeforeStartingError> {
+        // a fake task always succeeds!
         Ok(())
     }
 
