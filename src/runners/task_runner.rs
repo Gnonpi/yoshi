@@ -5,12 +5,15 @@ use crossbeam_channel::{Receiver, Sender};
 use dyn_clone::DynClone;
 use std::fmt::Debug;
 
+/// Describe the cause of a task stop
+#[derive(Debug)]
 pub enum FailureReason {
     GotError(String),
     Cancelled(DateTimeUtc),
 }
 
-// todo: are Message From/To XXX the best?
+/// The messages that are automatically sent from the TaskRunner to the Dag
+#[derive(Debug)]
 pub enum MessageFromRunner {
     Queued,
     Running {
@@ -31,11 +34,16 @@ pub enum MessageFromRunner {
     },
 }
 
+/// Messages that can be sent to a TaskRunner to trigger things
+#[derive(Debug)]
 pub enum MessageToRunner {
     GetStatus,
     Pause,
     Cancel,
 }
+
+#[derive(Debug)]
+pub struct ChannelsNotAcquiredBeforeStartingError {}
 
 /// Struct in charge of taking a TaskDefinition
 /// and run it somewhere
@@ -44,12 +52,16 @@ pub trait TaskRunner: DynClone + Debug {
     /// Get an identifier of the Runner
     fn get_runner_id(&self) -> RunnerId;
 
+    /// Obtain the channels to communicate with TaskRunner when it's working
+    /// Channels must have lifetimes bounded by the lifetime of the Runner
+    fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>);
+
     /// Start the task and gives 2 channels to communicate while it's running
     fn start_task(
         &mut self,
         node_id: NodeId,
         task_def: &dyn TaskDefinition,
-    ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>);
+    ) -> Result<(), ChannelsNotAcquiredBeforeStartingError>;
 
     /// Get the status while it's running
     fn get_status(&self) -> TaskStatus;

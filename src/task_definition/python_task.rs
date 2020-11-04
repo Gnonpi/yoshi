@@ -5,6 +5,7 @@ use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
+use std::str;
 
 /// A Python task that runs a Python script
 #[derive(Clone, Debug)]
@@ -32,9 +33,9 @@ impl TaskDefinition for PythonTaskDefinition {
             .output();
         match py_proc {
             Ok(py_result) => {
-                debug!("python stdout: {:?}", py_result.stdout);
                 if !py_result.status.success() {
-                    error!("Python script crashed");
+                    error!("Python started running but crashed");
+                    error!("stderr: {:?}", str::from_utf8(&py_result.stderr));
                     let err = YoshiError {
                         message: "Python script was not a success".to_owned(),
                         origin: "PythonTaskDefinition::run".to_owned(),
@@ -42,10 +43,10 @@ impl TaskDefinition for PythonTaskDefinition {
                     return Err(err);
                 }
                 let output = TaskOutput::StandardOutput {
-                    stdout: py_result.stdout,
-                    stderr: py_result.stderr,
+                    stdout: str::from_utf8(&py_result.stdout).unwrap().parse().unwrap(),
+                    stderr: str::from_utf8(&py_result.stderr).unwrap().parse().unwrap(),
                 };
-                return Ok(output);
+                Ok(output)
             }
             Err(err) => {
                 error!("Python script crashed: {}", err);
@@ -54,7 +55,7 @@ impl TaskDefinition for PythonTaskDefinition {
                     message: msg_err,
                     origin: "PythonTaskDefinition::run".to_owned(),
                 };
-                return Err(err);
+                Err(err)
             }
         }
     }
@@ -77,7 +78,7 @@ impl TaskDefinition for PythonTaskDefinition {
 }
 
 impl PythonTaskDefinition {
-    fn new(script_path: FilePath, args: Vec<String>) -> Self {
+    pub fn new(script_path: FilePath, args: Vec<String>) -> Self {
         debug!("Creating Python task definition");
         PythonTaskDefinition {
             task_def_id: generate_task_definition_id(),

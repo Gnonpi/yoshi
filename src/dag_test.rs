@@ -1,12 +1,11 @@
 use crate::dag::Dag;
-use crate::runners::FakeTaskRunner;
+use crate::runners::{FakeTaskRunner, TaskRunnerType};
 use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {
     let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
-    let t_run = FakeTaskRunner {};
-    TaskNode::new(Box::new(t_def), Box::new(t_run))
+    TaskNode::new(Box::new(t_def), TaskRunnerType::Fake)
 }
 
 #[test]
@@ -27,7 +26,7 @@ fn it_can_add_one_node() {
     assert!(dag.contains_node(&task.id_node));
     assert!(dag.get_node(&task.id_node).is_some());
     let added_task = dag.get_node(&task.id_node).unwrap();
-    assert_eq!(task, **added_task);
+    assert_eq!(task, *added_task);
 }
 
 #[test]
@@ -118,7 +117,7 @@ fn it_can_get_node() {
     // retrieve inserted node
     let got_node = dag.get_node(&task.id_node);
     assert!(got_node.is_some());
-    let got_node = *(got_node.unwrap()).clone();
+    let got_node = got_node.unwrap().clone();
     assert_eq!(got_node, task);
 }
 

@@ -1,4 +1,5 @@
-use crate::runners::{MessageFromRunner, MessageToRunner, TaskRunner};
+use crate::runners::task_runner::ChannelsNotAcquiredBeforeStartingError;
+use crate::runners::{MessageFromRunner, MessageToRunner, TaskRunner, TaskRunnerType};
 use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
@@ -12,20 +13,28 @@ pub struct FakeTaskRunner {}
 
 impl TaskRunner for FakeTaskRunner {
     fn get_runner_id(&self) -> RunnerId {
-        return 0;
+        TaskRunnerType::Fake
     }
-    fn start_task(
-        &mut self,
-        node_id: NodeId,
-        task_def: &dyn TaskDefinition,
-    ) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
+
+    fn get_channels(&mut self) -> (Sender<MessageToRunner>, Receiver<MessageFromRunner>) {
         let (s, _) = unbounded::<MessageToRunner>();
         let (_, r) = unbounded::<MessageFromRunner>();
         (s, r)
     }
+
+    fn start_task(
+        &mut self,
+        node_id: NodeId,
+        task_def: &dyn TaskDefinition,
+    ) -> Result<(), ChannelsNotAcquiredBeforeStartingError> {
+        // a fake task always succeeds!
+        Ok(())
+    }
+
     fn get_status(&self) -> TaskStatus {
         TaskStatus::Success
     }
+
     fn get_task_instance(&self) -> Option<TaskInstance> {
         let inst = TaskInstance {
             id_node: NodeId::new_v4(),

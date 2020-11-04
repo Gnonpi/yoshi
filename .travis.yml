@@ -1,21 +1,26 @@
 language: rust
 rust: 
-  # - stable
-  # let's try only nightly for the moment
-  - nightly
+   - stable
+   # nightly cause toolchain problems
+   # - nightly
+
+# matrix:
+#   allow_failures:
+#     - rust: nightly
+#   fast_finish: true
 
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
 cache:
   directories:
-    - /home/travis/.cargo
+    - $TRAVIS_HOME/.cargo
 
 # But don't cache the cargo registry
 before_cache:
-  - rm -rf /home/travis/.cargo/registry
+  - rm -rf $TRAVIS_HOME/.cargo/registry
 
 install:
-  - rustup component add rustfmt --toolchain nightly
+  - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION
 
 before_script:
   # show info about bash and python as we use them
