@@ -62,7 +62,7 @@ impl TaskRunner for LocalTaskRunner {
                     date_started: start_time,
                     date_finished: end_time,
                     status: TaskStatus::Success,
-                    output
+                    output,
                 };
                 self.current_status = TaskStatus::Success;
                 self.stored_instance = Some(inst);

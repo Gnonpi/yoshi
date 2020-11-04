@@ -85,14 +85,12 @@ impl Dag {
         // Linking parents and children
         if let Some(some_parent_ids) = parent_ids {
             for parent_id in some_parent_ids.iter() {
-                self.graph_nodes
-                    .add_edge(*(*parent_id), new_node_id, ());
+                self.graph_nodes.add_edge(*(*parent_id), new_node_id, ());
             }
         }
         if let Some(some_children_ids) = children_ids {
             for child_id in some_children_ids.iter() {
-                self.graph_nodes
-                    .add_edge(new_node_id, *(*child_id), ());
+                self.graph_nodes.add_edge(new_node_id, *(*child_id), ());
             }
         }
     }
@@ -213,7 +211,6 @@ impl Default for Dag {
         Self::new()
     }
 }
-
 
 #[cfg(test)]
 #[path = "./dag_test.rs"]
