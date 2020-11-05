@@ -9,10 +9,3 @@
 * it should be possible to declare nodes(definition)+dag
     or nodes+definitions+dag or dag(node(definition))
     linking via ids
-
-Example in TOML (declaring everything)
-```
-```
-
-
-Example in YAML:
