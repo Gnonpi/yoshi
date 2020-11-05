@@ -1,0 +1,30 @@
+nodes:
+  nodeA:
+    runner:
+      id_runner: local_runner
+    child: dummy_end
+    definition:
+      id_task: python_task_definition
+      script_path: /tmp/script.py
+      args: []
+  nodeB:
+    runner:
+      id_runner: local_runner
+    child: dummy_end
+    definitions:
+      bash_task:
+        id_task: bash_task_definition
+        command: echo 1
+  dummy_start:
+    definition:
+      id_task: dummy_task_definition
+    runner:
+      id_runner: local_runner
+    children:
+      - nodeA
+      - nodeB
+  dummy_end:
+    definition:
+      id_task: dummy_task_definition
+    runner:
+      id_runner: local_runner

@@ -1,0 +1,42 @@
+# example1.toml in yaml
+# automatically produced from convertsimple.com
+nodes:
+  nodeA:
+    ref_definition: python_task
+    ref_runner: local
+  
+  nodeB:
+    ref_definition: bash_task
+    ref_runner: local
+  
+  dummy_start:
+    ref_definition: dummy
+    ref_runner: local_runner
+  
+  dummy_end:
+    ref_definition: dummy
+    ref_runner: local_runner
+
+definitions:
+  python_task:
+    id_task: python_task_definition
+    script_path: /tmp/script.py
+    args: []
+
+  bash_task:
+    id_task: bash_task_definition
+    command: echo 1
+
+  dummy:
+    id_task: dummy_task_definition
+
+runners:
+  local_runner:
+    id_runner: local_runner
+
+dags:
+  dummy_start:
+    - nodeA
+    - nodeB
+  nodeA: dummy_end
+  nodeB: dummy_end
