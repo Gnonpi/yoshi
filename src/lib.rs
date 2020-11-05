@@ -9,3 +9,5 @@ pub mod runners;
 pub mod task_output;
 
 pub mod dag;
+
+pub mod dag_parsing;
