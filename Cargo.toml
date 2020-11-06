@@ -26,6 +26,13 @@ petgraph = "0.5.1"
 # channels for message passing
 crossbeam-channel = "0.5.0"
 
+toml = { version = "0.5.7", optional = true}
+yaml-rust = { version = "0.4.4", optional = true}
+
+[features]
+toml_parse = ["toml"]
+yaml_parse = ["yaml-rust"]
+
 [lib]
 name = "yoshi"
 path = "src/lib.rs"

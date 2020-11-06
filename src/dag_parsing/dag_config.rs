@@ -19,7 +19,8 @@ pub(super) struct DagConfig {
 
 impl DagConfig {
     fn validate(&self) -> bool {
-
+        // to impl
+        false
     }
 }
 
@@ -30,6 +31,7 @@ impl DagConfig {
 impl From<DagConfig> for Dag {
     fn from(dag_config: DagConfig) -> Self {
         // to impl
+        Dag::new()
     }
 }
 
@@ -40,11 +42,17 @@ fn get_dag_config_from_file(filepath: FilePath, parser: dyn DagConfigParser) -> 
     // get content of file
     // call validate
     // call parse_file
+    
+    // to impl
+    Err(DagParsingError {reason: String::from("to impl")})
 }
 
-pub fn get_dag_from_file(filepaht: FilePath) -> Result<Dag, DagParsingError> {
+pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, DagParsingError> {
     // deduce format from suffix (optional format enum parameter?)
     // match over suffix to use the right parser
     // pass parser and filepath to get_dag_config_from_file
     // return Dag::from the result
+    
+    // to impl
+    Err(DagParsingError {reason: String::from("to impl")})
 }
