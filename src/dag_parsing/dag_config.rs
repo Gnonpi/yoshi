@@ -10,7 +10,10 @@ struct NodeConfig {}
 struct DefinitionConfig {}
 struct RunnerDefinition {}
 
-pub(super) struct DagConfig {
+// todo: should be pub(crate)?
+// it's pub here but not referenced in mod.rs
+// and only loaded via super::dag_config::DagConfig
+pub struct DagConfig {
     nodes: HashMap<NodeConfigId, NodeConfig>,
     definitions: HashMap<DefinitionConfigId, DefinitionConfig>,
     runners: HashMap<RunnerDefinitionId, RunnerDefinition>,
@@ -38,7 +41,7 @@ impl From<DagConfig> for Dag {
 /// ------------------------------------
 
 
-fn get_dag_config_from_file(filepath: FilePath, parser: dyn DagConfigParser) -> Result<DagConfig, DagParsingError> {
+fn get_dag_config_from_file(filepath: FilePath, parser: &dyn DagConfigParser) -> Result<DagConfig, DagParsingError> {
     // get content of file
     // call validate
     // call parse_file

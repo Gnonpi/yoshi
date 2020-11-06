@@ -8,7 +8,7 @@ impl DagConfigParser for TomlDagConfigParser {
         SupportedFormat::Toml
     }
     
-    fn validate(&self, content: String) -> bool {
+    fn validate(&self, content: &String) -> bool {
 
     }
 

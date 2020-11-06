@@ -5,7 +5,7 @@ mod errors;
 pub(super) use dag_config_parser::DagConfigParser;
 
 pub use errors::DagParsingError;
-pub use dag_config_parser::SupportedFormat;
+pub(super) use dag_config_parser::SupportedFormat;
 pub use dag_config::get_dag_from_file;
 
 // could this be in a block in a mod?

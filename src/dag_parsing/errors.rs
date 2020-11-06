@@ -3,5 +3,5 @@
 
 #[derive(Debug)]
 pub struct DagParsingError {
-    reason: String
+    pub reason: String
 }
