@@ -1,5 +1,5 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition};
+use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
@@ -18,6 +18,11 @@ impl TaskDefinition for BashTaskDefinition {
     fn task_definition_id(&self) -> TaskId {
         self.task_def_id
     }
+
+    fn task_type(&self) -> TaskDefinitionType {
+        TaskDefinitionType::Bash
+    }
+
     fn run(&self) -> Result<TaskOutput, YoshiError> {
         info!("Starting Bash command {:?}", self.command);
         let bash_proc = Command::new(self.command[0].clone())

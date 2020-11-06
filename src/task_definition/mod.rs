@@ -4,4 +4,4 @@ mod task_def;
 
 pub use bash_task::BashTaskDefinition;
 pub use python_task::PythonTaskDefinition;
-pub use task_def::{generate_task_definition_id, TaskDefinition};
+pub use task_def::{TaskDefinitionType, generate_task_definition_id, TaskDefinition};
