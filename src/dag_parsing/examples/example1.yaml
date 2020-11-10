@@ -11,11 +11,11 @@ nodes:
   
   dummy_start:
     ref_definition: dummy
-    ref_runner: local_runner
+    ref_runner: local
   
   dummy_end:
     ref_definition: dummy
-    ref_runner: local_runner
+    ref_runner: local
 
 definitions:
   python_task:
@@ -31,10 +31,10 @@ definitions:
     id_task: dummy_task_definition
 
 runners:
-  local_runner:
+  local:
     id_runner: local_runner
 
-dags:
+dag:
   dummy_start:
     - nodeA
     - nodeB

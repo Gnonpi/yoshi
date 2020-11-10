@@ -26,12 +26,15 @@ petgraph = "0.5.1"
 # channels for message passing
 crossbeam-channel = "0.5.0"
 
+# Parsing&validation with serde for parsing
+serde = { version = "1.0", optional = true }
+# Serde extension built on yaml-rust
+serde_yaml = { version = "0.8", optional = true}
 toml = { version = "0.5.7", optional = true}
-yaml-rust = { version = "0.4.4", optional = true}
 
 [features]
-toml_parse = ["toml"]
-yaml_parse = ["yaml-rust"]
+toml_parse = ["serde", "toml"]
+yaml_parse = ["serde", "yaml-rust"]
 
 [lib]
 name = "yoshi"
