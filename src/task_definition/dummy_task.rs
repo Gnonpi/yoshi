@@ -1,11 +1,11 @@
 use crate::errors::YoshiError;
+use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 
 /// A task definition that cannot fail,
-/// use to sync 
+/// use to sync
 #[derive(Clone, Debug)]
 pub struct DummyTaskDefinition {}
 
