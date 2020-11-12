@@ -3,12 +3,12 @@ use crate::type_definition::FilePath;
 use crate::dag_parsing::{DagParsingError, DagConfigParser};
 use std::collections::HashMap;
 
-type NodeConfigId = String;
-type DefinitionConfigId = String;
-type RunnerDefinitionId = String;
-struct NodeConfig {}
-struct DefinitionConfig {}
-struct RunnerDefinition {}
+pub(crate) type NodeConfigId = String;
+pub(crate) type DefinitionConfigId = String;
+pub(crate) type RunnerDefinitionId = String;
+pub(crate) struct NodeConfig {}
+pub(crate) struct DefinitionConfig {}
+pub(crate) struct RunnerDefinition {}
 
 // todo: should be pub(crate)?
 // it's pub here but not referenced in mod.rs

@@ -34,7 +34,7 @@ toml = { version = "0.5.7", optional = true}
 
 [features]
 toml_parse = ["serde", "toml"]
-yaml_parse = ["serde", "yaml-rust"]
+yaml_parse = ["serde", "serde_yaml"]
 
 [lib]
 name = "yoshi"
