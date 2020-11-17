@@ -57,6 +57,19 @@ fn it_validate_valid_content() {
 }
 
 #[test]
-fn it_can_parse_file() {
+fn it_can_parse_example_1() {
+    let example_path = "src/dag_parsing/examples/example1.yaml";
+    let content = fs::read_to_string(example_path).expect("failed to read example file");
+    let ycp = YamlDagConfigParser {};
+    let dag_config = ycp.parse_file(content).unwrap();
+    
+    assert_eq!(dag_config.nodes.len(), 4);
+    assert_eq!(dag_config.definitions.len(), 3);
+    assert_eq!(dag_config.runners.len(), 1);
+    assert_eq!(dag_config.dag_edges.len(), 3);
+}
+
+#[test]
+fn it_can_parse_example_2() {
     assert!(false);
 }

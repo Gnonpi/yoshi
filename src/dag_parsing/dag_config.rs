@@ -3,21 +3,33 @@ use crate::type_definition::FilePath;
 use crate::dag_parsing::{DagParsingError, DagConfigParser};
 use std::collections::HashMap;
 
+// todo: could we do something to avoid repeating those pub(crate)?
 pub(crate) type NodeConfigId = String;
 pub(crate) type DefinitionConfigId = String;
-pub(crate) type RunnerDefinitionId = String;
-pub(crate) struct NodeConfig {}
-pub(crate) struct DefinitionConfig {}
-pub(crate) struct RunnerDefinition {}
+pub(crate) type RunnerConfigId = String;
+pub(crate) struct NodeConfig {
+    pub(crate) id_node: NodeConfigId, 
+    pub(crate) ref_definition: DefinitionConfigId,
+    pub(crate) ref_runner: RunnerConfigId
+}
+pub(crate) struct DefinitionConfig {
+    pub(crate) id_definition: DefinitionConfigId,
+    pub(crate) definition_type: String,
+    pub(crate) params: HashMap<String, String>
+}
+pub(crate) struct RunnerConfig {
+    pub(crate) id_runner: RunnerConfigId,
+    pub(crate) runner_type: String
+}
 
 // todo: should be pub(crate)?
 // it's pub here but not referenced in mod.rs
 // and only loaded via super::dag_config::DagConfig
 pub struct DagConfig {
-    nodes: HashMap<NodeConfigId, NodeConfig>,
-    definitions: HashMap<DefinitionConfigId, DefinitionConfig>,
-    runners: HashMap<RunnerDefinitionId, RunnerDefinition>,
-    dag_edges: HashMap<NodeConfigId, Vec<NodeConfigId>>
+    pub(crate) nodes: HashMap<NodeConfigId, NodeConfig>,
+    pub(crate) definitions: HashMap<DefinitionConfigId, DefinitionConfig>,
+    pub(crate) runners: HashMap<RunnerConfigId, RunnerConfig>,
+    pub(crate) dag_edges: HashMap<NodeConfigId, Vec<NodeConfigId>>
 }
 
 impl DagConfig {
