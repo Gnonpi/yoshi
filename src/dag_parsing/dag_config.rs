@@ -7,16 +7,19 @@ use std::collections::HashMap;
 pub(crate) type NodeConfigId = String;
 pub(crate) type DefinitionConfigId = String;
 pub(crate) type RunnerConfigId = String;
+#[derive(Debug)]
 pub(crate) struct NodeConfig {
     pub(crate) id_node: NodeConfigId, 
     pub(crate) ref_definition: DefinitionConfigId,
     pub(crate) ref_runner: RunnerConfigId
 }
+#[derive(Debug)]
 pub(crate) struct DefinitionConfig {
     pub(crate) id_definition: DefinitionConfigId,
     pub(crate) definition_type: String,
     pub(crate) params: HashMap<String, String>
 }
+#[derive(Debug)]
 pub(crate) struct RunnerConfig {
     pub(crate) id_runner: RunnerConfigId,
     pub(crate) runner_type: String
@@ -25,6 +28,7 @@ pub(crate) struct RunnerConfig {
 // todo: should be pub(crate)?
 // it's pub here but not referenced in mod.rs
 // and only loaded via super::dag_config::DagConfig
+#[derive(Debug)]
 pub struct DagConfig {
     pub(crate) nodes: HashMap<NodeConfigId, NodeConfig>,
     pub(crate) definitions: HashMap<DefinitionConfigId, DefinitionConfig>,

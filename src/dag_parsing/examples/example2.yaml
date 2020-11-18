@@ -11,10 +11,9 @@ nodes:
     runner:
       id_runner: local_runner
     child: dummy_end
-    definitions:
-      bash_task:
-        id_task: bash_task_definition
-        command: echo 1
+    definition:
+      id_task: bash_task_definition
+      command: echo 1
   dummy_start:
     definition:
       id_task: dummy_task_definition

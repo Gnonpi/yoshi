@@ -3,6 +3,10 @@ use crate::dag_parsing::yaml_parser::YamlDagConfigParser;
 use crate::dag_parsing::DagParsingError;
 use std::fs;
 
+fn init_logger() {
+    let _ = env_logger::builder().is_test(true).try_init();
+}
+
 
 #[test]
 fn it_can_return_format() {
@@ -62,7 +66,7 @@ fn it_can_parse_example_1() {
     let content = fs::read_to_string(example_path).expect("failed to read example file");
     let ycp = YamlDagConfigParser {};
     let dag_config = ycp.parse_file(content).unwrap();
-    
+
     assert_eq!(dag_config.nodes.len(), 4);
     assert_eq!(dag_config.definitions.len(), 3);
     assert_eq!(dag_config.runners.len(), 1);
@@ -71,5 +75,17 @@ fn it_can_parse_example_1() {
 
 #[test]
 fn it_can_parse_example_2() {
-    assert!(false);
+    init_logger();
+    let example_path = "src/dag_parsing/examples/example2.yaml";
+    let content = fs::read_to_string(example_path).expect("failed to read example file");
+    let ycp = YamlDagConfigParser {};
+    let dag_config = ycp.parse_file(content).unwrap();
+
+    println!("{:#?}", dag_config);
+    
+    assert_eq!(dag_config.nodes.len(), 4);
+    // 1 def & 1 runner per node
+    assert_eq!(dag_config.definitions.len(), 4);
+    assert_eq!(dag_config.runners.len(), 4);
+    assert_eq!(dag_config.dag_edges.len(), 3);
 }

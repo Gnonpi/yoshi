@@ -12,7 +12,7 @@ use crate::dag_parsing::DagParsingError;
 use std::collections::{BTreeMap, HashMap};
 use serde::Deserialize;
 use serde_yaml;
-use log::info;
+use log::{debug, info};
 
 /*
 Interesting article about serde and validation:
@@ -35,8 +35,8 @@ struct ParsedYamlNodeRunner {
 struct ParsedYamlNodeDefinition {
     id_task: DefinitionConfigId,
     
-    #[serde(flatten)]
-    params: HashMap<String, String>
+    // #[serde(flatten)]
+    // params: HashMap<String, String>
 }
 
 /// Serde-derive: node
@@ -44,8 +44,8 @@ struct ParsedYamlNodeDefinition {
 struct ParsedYamlNode {
   ref_definition: Option<String>,
   ref_runner: Option<String>,
-  definition: Option<BTreeMap<String, ParsedYamlNodeDefinition>>,
-  runner: Option<BTreeMap<String, ParsedYamlNodeRunner>>,
+  definition: Option<ParsedYamlNodeDefinition>,
+  runner: Option<ParsedYamlNodeRunner>,
   child: Option<String>,
   children: Option<Vec<String>>
 }
@@ -76,9 +76,9 @@ enum ParsedYamlDagEdges {
 #[derive(Debug, PartialEq, Deserialize)]
 struct ParsedYamlConfig {
   nodes: BTreeMap<String, ParsedYamlNode>,
-  definitions: BTreeMap<String, ParsedYamlDefinition>,
-  runners: BTreeMap<String, ParsedYamlRunner>,
-  dag: BTreeMap<String, ParsedYamlDagEdges>
+  definitions: Option<BTreeMap<String, ParsedYamlDefinition>>,
+  runners: Option<BTreeMap<String, ParsedYamlRunner>>,
+  dag: Option<BTreeMap<String, ParsedYamlDagEdges>>
 }
 
 pub struct YamlDagConfigParser {}
@@ -96,6 +96,7 @@ fn first_entry_value<K: Clone, V: Clone>(btree: &BTreeMap<K, V>) -> Option<(K, V
 
 /// Build a DagConfig from a parsed yaml
 fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingError> {
+    debug!("{:#?}", config);
     let mut map_nodes: HashMap<NodeConfigId, NodeConfig> = HashMap::new();
     let mut map_definitions: HashMap<DefinitionConfigId, DefinitionConfig> = HashMap::new();
     let mut map_runners: HashMap<RunnerConfigId, RunnerConfig> = HashMap::new();
@@ -103,31 +104,38 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
 
     // todo: try reducing number of .to_string()
     // RUNNERS
-    for (runner_name, parsed_runner) in config.runners.iter() {
-        let runner_cfg = RunnerConfig {
-            id_runner: runner_name.to_string(),
-            runner_type: parsed_runner.id_runner.clone()
-        };
-        map_runners.insert(runner_name.to_string(), runner_cfg);
+    info!("Looking for runner entries");
+    if config.runners.is_some() {
+        for (runner_name, parsed_runner) in config.runners.unwrap().iter() {
+            let runner_cfg = RunnerConfig {
+                id_runner: runner_name.to_string(),
+                runner_type: parsed_runner.id_runner.clone()
+            };
+            map_runners.insert(runner_name.to_string(), runner_cfg);
+        }
     }
 
     // DEFINITIONS
-    for (def_name, parsed_def) in config.definitions.iter() {
-        let mut hashmap_params = HashMap::<String, String>::new();
-        if parsed_def.params.is_some() {
-            for (key, value) in parsed_def.params.clone().unwrap().iter() {
-                hashmap_params.insert(key.clone(), value.clone());
+    info!("Looking for definition entries");
+    if config.definitions.is_some() {
+        for (def_name, parsed_def) in config.definitions.unwrap().iter() {
+            let mut hashmap_params = HashMap::<String, String>::new();
+            if parsed_def.params.is_some() {
+                for (key, value) in parsed_def.params.clone().unwrap().iter() {
+                    hashmap_params.insert(key.clone(), value.clone());
+                }
             }
+            let def_cfg = DefinitionConfig {
+                id_definition: def_name.to_string(),
+                definition_type: parsed_def.id_task.clone(),
+                params: hashmap_params
+            };
+            map_definitions.insert(def_name.to_string(), def_cfg);
         }
-        let def_cfg = DefinitionConfig {
-            id_definition: def_name.to_string(),
-            definition_type: parsed_def.id_task.clone(),
-            params: hashmap_params
-        };
-        map_definitions.insert(def_name.to_string(), def_cfg);
     }
 
     // NODES
+    info!("Processing node entries");
     if config.nodes.len() == 0 {
         // todo: replace errors in this function by more specific ones
         return Err(DagParsingError { reason: String::from("Parsed config has no nodes") })
@@ -141,14 +149,14 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
         let used_ref_definition = match &parsed_node.definition {
             Some(node_def) => {
                 // add node def to existing map
-                let (def_name, def_value) = first_entry_value(&node_def).unwrap();
+                let node_def_id = format!("{}_{}", node_name.to_string(), node_def.id_task.clone());
                 let cfg_def = DefinitionConfig {
-                    id_definition: def_name.to_string(),
-                    definition_type: def_value.id_task,
-                    params: def_value.params
+                    id_definition: node_def_id.clone(),
+                    definition_type: node_def.id_task.clone(),
+                    params: HashMap::new()  // todo: FIXME
                 };
-                map_definitions.insert(def_name.to_string(), cfg_def);
-                def_name.to_string()
+                map_definitions.insert(node_def_id.clone(), cfg_def);
+                node_def_id.to_string()
             },
             None => {
                 // check that referenced definition is in map
@@ -171,13 +179,13 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
         // todo: it's the same thing as definition, should be refactored in one function?
         let used_ref_runner = match &parsed_node.runner {
             Some(node_def) => {
-                let (runner_name, runner_value) = first_entry_value(&node_def).unwrap();
+                let node_runner_id = format!("{}_{}", node_name.to_string(), node_def.id_runner.clone());
                 let cfg_runner = RunnerConfig {
-                    id_runner: runner_name.to_string(),
-                    runner_type: runner_value.id_runner
+                    id_runner: node_runner_id.clone(),
+                    runner_type: node_def.id_runner.clone(),
                 };
-                map_runners.insert(runner_name.to_string(), cfg_runner);
-                runner_name.to_string()
+                map_runners.insert(node_runner_id.clone(), cfg_runner);
+                node_runner_id.to_string()
             },
             None => {
                 let ref_runner = parsed_node.ref_runner.as_ref().unwrap().to_string();
@@ -204,24 +212,27 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
     }
 
     // DAG EDGES
-    for (parent_node, node_children) in config.dag.iter() {
-        if !map_nodes.contains_key(parent_node) {
-            return Err(DagParsingError { reason: format!("Adding children to not known node '{:?}'", parent_node)})
-        }
-        match node_children {
-            ParsedYamlDagEdges::Child(child) => {
-                if !map_nodes.contains_key(child) {
-                    return Err(DagParsingError { reason: format!("Adding not known node '{:?}' to '{:?}'", child, parent_node)})
-                }   
-                dag_edges.insert(parent_node.to_string(), vec![child.to_string()]);             
-            },
-            ParsedYamlDagEdges::Children(children) => {
-                for child in children.iter() {
+    info!("Looking for DAG edges");
+    if config.dag.is_some() {
+        for (parent_node, node_children) in config.dag.unwrap().iter() {
+            if !map_nodes.contains_key(parent_node) {
+                return Err(DagParsingError { reason: format!("Adding children to not known node '{:?}'", parent_node)})
+            }
+            match node_children {
+                ParsedYamlDagEdges::Child(child) => {
                     if !map_nodes.contains_key(child) {
-                        return Err(DagParsingError { reason: format!("Adding not known node '{:?}' to '{:?}'", child, parent_node)})    
+                        return Err(DagParsingError { reason: format!("Adding not known node '{:?}' to '{:?}'", child, parent_node)})
+                    }   
+                    dag_edges.insert(parent_node.to_string(), vec![child.to_string()]);             
+                },
+                ParsedYamlDagEdges::Children(children) => {
+                    for child in children.iter() {
+                        if !map_nodes.contains_key(child) {
+                            return Err(DagParsingError { reason: format!("Adding not known node '{:?}' to '{:?}'", child, parent_node)})    
+                        }
                     }
+                    dag_edges.insert(parent_node.to_string(), children.to_vec());
                 }
-                dag_edges.insert(parent_node.to_string(), children.to_vec());
             }
         }
     }
@@ -252,6 +263,7 @@ impl DagConfigParser for YamlDagConfigParser {
     }
     
     fn parse_file(&self, content: String) -> Result<DagConfig, DagParsingError> {
+        info!("Creating DagConfig from YAML");
         let parsed_content = serde_yaml::from_str(&content).unwrap();
         build_dag_config(parsed_content)
     }
