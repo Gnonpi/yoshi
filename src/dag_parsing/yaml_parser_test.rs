@@ -81,7 +81,7 @@ fn it_can_parse_example_2() {
     let ycp = YamlDagConfigParser {};
     let dag_config = ycp.parse_file(content).unwrap();
 
-    println!("{:#?}", dag_config);
+    // println!("{:#?}", dag_config);
     
     assert_eq!(dag_config.nodes.len(), 4);
     // 1 def & 1 runner per node

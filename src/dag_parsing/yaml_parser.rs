@@ -200,7 +200,14 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
         };
 
         // Node--Children
-        // if parsed_node.child.is_some() 
+        if parsed_node.child.is_some() {
+            let child = vec![parsed_node.child.clone().unwrap()];
+            dag_edges.insert(node_name.to_string(), child);
+        }
+        if parsed_node.children.is_some() {
+            let children = parsed_node.children.clone().unwrap();
+            dag_edges.insert(node_name.to_string(), children);
+        }
 
         // 
         let node_cfg = NodeConfig {
