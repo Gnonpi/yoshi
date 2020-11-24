@@ -1,5 +1,8 @@
 use crate::dag::Dag;
-use crate::type_definition::FilePath;
+use crate::task_node::TaskNode;
+use crate::task_definition::{DummyTaskDefinition, BashTaskDefinition, PythonTaskDefinition, TaskDefinition, TaskDefinitionType, string_to_definition_type};
+use crate::type_definition::{FilePath, NodeId};
+use crate::runners::string_to_runner_type;
 use crate::dag_parsing::{DagParsingError, DagConfigParser};
 use std::collections::HashMap;
 use log::{debug, info, error};
@@ -76,11 +79,58 @@ impl DagConfig {
 // todo: should we add a From or Into trait to DagConfig?
 // From<T> for U means Into<U> for T --> one direction
 // Into is reflexive
-
 impl From<DagConfig> for Dag {
     fn from(dag_config: DagConfig) -> Self {
         info!("Creating DAG from config:\n{:#?}", dag_config);
-        Dag::new()
+        let mut node_cfg_id_to_node_id = HashMap::<NodeConfigId, NodeId>::new();
+        let mut dag = Dag::new();
+        for (node_cfg_id, node_cfg) in dag_config.nodes.iter() {
+            // linking def and run
+            let def_cfg = &dag_config.definitions[&node_cfg.ref_definition];
+            let runner_cfg = &dag_config.runners[&node_cfg.ref_runner];
+
+            // getting enum types
+            let def_type = string_to_definition_type(def_cfg.definition_type.clone()).unwrap();
+            let runner_type = string_to_runner_type(runner_cfg.runner_type.clone()).unwrap();
+
+            // todo: move to its own module
+            // todo: create task in trello
+            let definition: Box<dyn TaskDefinition>;
+            match def_type {
+                TaskDefinitionType::Bash => {
+                    let commands = def_cfg.params.get("commands").unwrap();
+                    definition = Box::new(
+                        BashTaskDefinition::new(vec![commands.to_string()])
+                    );
+                },
+                TaskDefinitionType::Python => {
+                    let script_path = def_cfg.params.get("script_path").unwrap();
+                    let args = def_cfg.params.get("args").unwrap();
+                    definition = Box::new(
+                        PythonTaskDefinition::new(
+                        FilePath::from(script_path),
+                        vec![args.to_string()]
+                    ));
+                },
+                TaskDefinitionType::Dummy => {
+                    let dummy = DummyTaskDefinition {};
+                    definition = Box::new(dummy);
+                },
+            }
+            
+            // creating node
+            let node = TaskNode::new(
+                definition,
+                runner_type    
+            );
+            node_cfg_id_to_node_id.insert(node_cfg_id.to_string(), node.id_node); 
+            dag.add_task(
+                node,
+                None,
+                None
+            );
+        }
+        dag
     }
 }
 
