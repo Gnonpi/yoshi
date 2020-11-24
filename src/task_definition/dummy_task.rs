@@ -1,6 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
 use crate::task_output::TaskOutput;
+use super::task_def::TaskDefinitionType;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
 
@@ -10,6 +11,10 @@ use std::collections::HashMap;
 pub struct DummyTaskDefinition {}
 
 impl TaskDefinition for DummyTaskDefinition {
+    fn task_type(&self) -> TaskDefinitionType {
+        TaskDefinitionType::Dummy
+    }
+
     fn task_definition_id(&self) -> TaskId {
         generate_task_definition_id()
     }

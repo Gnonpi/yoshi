@@ -18,7 +18,7 @@ pub struct TaskNode {
 impl TaskNode {
     /// Create a new node
     pub fn new(definition: Box<dyn TaskDefinition>, id_runner: RunnerId) -> Self {
-        debug!("Creating task node");
+        debug!("Creating task node {:?}-{:?}", definition.task_type(), id_runner);
         TaskNode {
             id_node: NodeId::new_v4(),
             definition,

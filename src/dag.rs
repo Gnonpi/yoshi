@@ -8,11 +8,14 @@ use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
 
+type GraphNodeId = DiGraphMap<NodeId, ()>;
+
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
+#[derive(Debug)]
 pub struct Dag {
     pub start_node: Option<NodeId>,
-    pub(crate) graph_nodes: DiGraphMap<NodeId, ()>,
+    pub(crate) graph_nodes: GraphNodeId,
     pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
 
@@ -21,7 +24,7 @@ impl Dag {
     pub fn new() -> Self {
         Dag {
             start_node: None,
-            graph_nodes: DiGraphMap::new(),
+            graph_nodes: GraphNodeId::new(),
             map_nodes: HashMap::new(),
         }
     }
@@ -205,6 +208,23 @@ impl Dag {
 impl Default for Dag {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> bool {
+    for (self_edge, other_edge) in self_graph.all_edges().zip(other_graph.all_edges()) {
+        if self_edge != other_edge {
+            return false
+        }        
+    }
+    true
+}
+
+impl PartialEq for Dag {
+    fn eq(&self, other: &Self) -> bool {
+        self.start_node == other.start_node &&
+        equal_graph_nodes(&self.graph_nodes, &other.graph_nodes) &&
+        self.map_nodes == other.map_nodes        
     }
 }
 
