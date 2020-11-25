@@ -4,9 +4,10 @@ use crate::dag_parsing::dag_config::DagConfig;
 use crate::runners::TaskRunnerType;
 use crate::dag::Dag;
 use crate::task_node::TaskNode;
-use crate::task_definition::{DummyTaskDefinition, PythonTaskDefinition, BashTaskDefinition};
-use crate::type_definition::FilePath;
+use crate::task_definition::{TaskDefinitionType, DummyTaskDefinition, PythonTaskDefinition, BashTaskDefinition};
+use crate::type_definition::{FilePath, NodeId};
 use std::fs;
+use std::collections::HashMap;
 use log::{debug, info};
 
 
@@ -31,61 +32,56 @@ fn it_can_validate_dag_config() {
 #[test]
 fn it_can_take_config_to_dag() {
     init_logger();
-    // expected dag
-    let local_runner_id = TaskRunnerType::LocalBlocking;
-    
-    let dummy_def = DummyTaskDefinition {};
-    let python_def = PythonTaskDefinition::new(
-        FilePath::from("/tmp/script.py"),
-        vec![]
-    );
-    let bash_def = BashTaskDefinition::new(vec!["echo 1".to_string()]);
-
-    let nodeA = TaskNode::new(Box::new(python_def), local_runner_id);
-    let nodeB = TaskNode::new(Box::new(bash_def), local_runner_id);
-    let dummy_start = TaskNode::new(Box::new(dummy_def.clone()), local_runner_id);
-    let dummy_end = TaskNode::new(Box::new(dummy_def.clone()), local_runner_id);
-    let id_nodeA = nodeA.id_node.clone();
-    let id_nodeB = nodeB.id_node.clone();
-    let id_dummy_start = dummy_start.id_node.clone();
-    let id_dummy_end = dummy_end.id_node.clone();
-
-    let mut expected_dag = Dag::new();
-
-    info!("Creating expected dag");
-    debug!("dummy_start");
-    expected_dag.add_task(
-        dummy_start,
-        None,
-        None
-    );
-    debug!("nodeA");
-    expected_dag.add_task(
-        nodeA,
-        Some(vec![&id_dummy_start]),
-        None
-    );
-    debug!("nodeB");
-    expected_dag.add_task(
-        nodeB,
-        Some(vec![&id_dummy_start]),
-        None
-    );
-    debug!("dummy_end");
-    expected_dag.add_task(
-        dummy_end,
-        Some(vec![&id_nodeA, &id_nodeB]),
-        None
-    );
 
     // create from config
     let dag_config = create_dag_config();
     let result_dag = Dag::from(dag_config);
 
     info!("Comparing DAG");
-    assert_eq!(expected_dag, result_dag);
+    println!("Result dag: {:#?}", result_dag);
+    
+    // start_node is none
+    assert!(result_dag.start_node.is_none());
+    // created dag has 1 - 2 - 1 nodes
+    assert_eq!(result_dag.graph_nodes.node_count(), 4);
+    assert_eq!(result_dag.map_nodes.len(), 4);
 
-    assert!(1 == 2);
+    // mapping labels to node_id(uuid)
+    let mut map_node_id_to_label = HashMap::<String, NodeId>::new();
+    for (node_id, node) in result_dag.map_nodes.iter() {
+        let node_label = node.label.as_ref().unwrap();
+        map_node_id_to_label.insert(node_label.clone(), node.id_node);
+    }
+    
+    //
+    let dummy_start_id = map_node_id_to_label.get("dummy_start").unwrap();
+    let dummy_end_id = map_node_id_to_label.get("dummy_end").unwrap();
+    let nodeA_id = map_node_id_to_label.get("nodeA").unwrap();
+    let nodeB_id = map_node_id_to_label.get("nodeB").unwrap();
+    
+    // dummy_start
+    let dummy_start_node = result_dag.map_nodes.get(dummy_start_id).unwrap();
+    assert_eq!(dummy_start_node.definition.task_type(), TaskDefinitionType::Dummy);
+    assert_eq!(dummy_start_node.id_runner, TaskRunnerType::LocalBlocking);
+    let neighbors_start: Vec<NodeId> = result_dag.graph_nodes.neighbors(*dummy_start_id).collect();
+    assert_eq!(neighbors_start, vec![nodeA_id.clone(), nodeB_id.clone()]);
+
+    // dummy end 
+    let dummy_end_node = result_dag.map_nodes.get(dummy_end_id).unwrap();
+    assert_eq!(dummy_end_node.definition.task_type(), TaskDefinitionType::Dummy);
+    assert_eq!(dummy_end_node.id_runner, TaskRunnerType::LocalBlocking);
+    let neighbors_end: Vec<NodeId> = result_dag.graph_nodes.neighbors(*dummy_end_id).collect();
+    assert_eq!(neighbors_end, vec![]);
+
+    // nodeA
+    let nodeA_node = result_dag.map_nodes.get(dummy_start_id).unwrap();
+    assert_eq!(nodeA_node.definition.task_type(), TaskDefinitionType::Python);
+    assert_eq!(nodeA_node.id_runner, TaskRunnerType::LocalBlocking);
+    let neighbors_A: Vec<NodeId> = result_dag.graph_nodes.neighbors(*nodeA_id).collect();
+    assert_eq!(neighbors_A, vec![nodeA_id.clone(), nodeB_id.clone()]);
+
+    // todo: add nodeB
+    // todo: check definition params
 }
 
 #[test]

@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 // todo: use a factory pattern for definitions?
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TaskDefinitionType {
     Bash,
     Python,

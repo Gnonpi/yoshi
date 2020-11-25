@@ -98,18 +98,24 @@ impl From<DagConfig> for Dag {
             let definition: Box<dyn TaskDefinition>;
             match def_type {
                 TaskDefinitionType::Bash => {
-                    let commands = def_cfg.params.get("commands").unwrap();
+                    let commands = def_cfg.params.get("command").unwrap();
                     definition = Box::new(
                         BashTaskDefinition::new(vec![commands.to_string()])
                     );
                 },
                 TaskDefinitionType::Python => {
                     let script_path = def_cfg.params.get("script_path").unwrap();
-                    let args = def_cfg.params.get("args").unwrap();
+                    let args_string = def_cfg.params.get("args").unwrap();
+                    let mut args: Vec<String> = vec![];
+                    if args_string.to_string() == "[]".to_string() {
+                        args = vec![];
+                    } else {
+                        args = vec![args_string.to_string()];
+                    }
                     definition = Box::new(
                         PythonTaskDefinition::new(
                         FilePath::from(script_path),
-                        vec![args.to_string()]
+                        args
                     ));
                 },
                 TaskDefinitionType::Dummy => {
@@ -119,10 +125,11 @@ impl From<DagConfig> for Dag {
             }
             
             // creating node
-            let node = TaskNode::new(
+            let mut node = TaskNode::new(
                 definition,
                 runner_type    
             );
+            node.set_label(node_cfg_id);
             node_cfg_id_to_node_id.insert(node_cfg_id.to_string(), node.id_node); 
             dag.add_task(
                 node,
@@ -130,6 +137,17 @@ impl From<DagConfig> for Dag {
                 None
             );
         }
+        // Adding edges
+        // normally all nodes are already inserted
+        // todo: could those clones be avoided by consuming the map element by element?
+        for (parent_id, children_id) in dag_config.dag_edges.iter() {
+            let parent_node_id = node_cfg_id_to_node_id.get(parent_id).unwrap();
+            for child_id in children_id.iter() {
+                let child_node_id = node_cfg_id_to_node_id.get(child_id).unwrap();
+                dag.add_edge(*parent_node_id, *child_node_id);
+            }            
+        }
+
         dag
     }
 }
