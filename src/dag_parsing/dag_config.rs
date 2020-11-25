@@ -3,8 +3,10 @@ use crate::task_node::TaskNode;
 use crate::task_definition::{DummyTaskDefinition, BashTaskDefinition, PythonTaskDefinition, TaskDefinition, TaskDefinitionType, string_to_definition_type};
 use crate::type_definition::{FilePath, NodeId};
 use crate::runners::string_to_runner_type;
-use crate::dag_parsing::{DagParsingError, DagConfigParser};
+use crate::dag_parsing::{DagParsingError, DagConfigParser, YamlDagConfigParser};
 use std::collections::HashMap;
+use std::path::Path;
+use std::fs;
 use log::{debug, info, error};
 
 // todo: could we do something to avoid repeating those pub(crate)?
@@ -157,21 +159,42 @@ impl From<DagConfig> for Dag {
 
 fn get_dag_config_from_file(filepath: FilePath, parser: &dyn DagConfigParser) -> Result<DagConfig, DagParsingError> {
     // get content of file
+    let content = fs::read_to_string(filepath).expect("failed to read example file");
     // call validate
+    let dag_config = parser.parse_file(content).unwrap();
     // call parse_file
-    
-    // to impl
-    Err(DagParsingError {reason: String::from("to impl")})
+    if !dag_config.validate() {
+        return Err(DagParsingError {
+            reason: "failed to validate dag config".to_string()
+        })
+    }
+    Ok(dag_config)
 }
 
 pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, DagParsingError> {
     // deduce format from suffix (optional format enum parameter?)
+    let path = filepath.clone().into_string().unwrap();
+    let suffix = Path::new(&path).extension().unwrap();
     // match over suffix to use the right parser
+    let parser;
+    match suffix.to_str().unwrap() {
+        "yaml" | "yml" => {
+            parser = YamlDagConfigParser {};
+        },
+        _ => {
+            return Err(
+                DagParsingError {
+                    reason: format!("Unknown suffix: {:?}", suffix)
+                }
+            )
+        }
+    }
     // pass parser and filepath to get_dag_config_from_file
-    // return Dag::from the result
+    let dag_config = get_dag_config_from_file(filepath, &parser).unwrap();
+    let dag = Dag::from(dag_config);
     
-    // to impl
-    Err(DagParsingError {reason: String::from("to impl")})
+    // return Dag::from the result
+    Ok(dag)
 }
 
 

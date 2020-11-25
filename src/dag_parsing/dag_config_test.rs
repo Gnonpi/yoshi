@@ -1,6 +1,7 @@
 use crate::dag_parsing::YamlDagConfigParser;
 use crate::dag_parsing::dag_config_parser::DagConfigParser;
 use crate::dag_parsing::dag_config::DagConfig;
+use crate::dag_parsing::get_dag_from_file;
 use crate::runners::TaskRunnerType;
 use crate::dag::Dag;
 use crate::task_node::TaskNode;
@@ -74,22 +75,21 @@ fn it_can_take_config_to_dag() {
     assert_eq!(neighbors_end, vec![]);
 
     // nodeA
-    let nodeA_node = result_dag.map_nodes.get(dummy_start_id).unwrap();
+    let nodeA_node = result_dag.map_nodes.get(nodeA_id).unwrap();
     assert_eq!(nodeA_node.definition.task_type(), TaskDefinitionType::Python);
     assert_eq!(nodeA_node.id_runner, TaskRunnerType::LocalBlocking);
     let neighbors_A: Vec<NodeId> = result_dag.graph_nodes.neighbors(*nodeA_id).collect();
-    assert_eq!(neighbors_A, vec![nodeA_id.clone(), nodeB_id.clone()]);
+    assert_eq!(neighbors_A, vec![dummy_end_id.clone()]);
 
     // todo: add nodeB
     // todo: check definition params
 }
 
-#[test]
-fn test_get_dag_config_from_file() {
-    assert!(1 == 2);
-}
-
+// todo: move to integration test
 #[test]
 fn test_get_dag_from_file() {
-    assert!(1 == 2);
+    let example_path = "src/dag_parsing/examples/example2.yaml";    
+    let dag = get_dag_from_file(FilePath::from(example_path));
+
+    assert!(dag.is_ok());
 }
