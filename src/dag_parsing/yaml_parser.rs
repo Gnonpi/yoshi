@@ -12,6 +12,7 @@ use crate::dag_parsing::DagParsingError;
 use std::collections::{BTreeMap, HashMap};
 use serde::Deserialize;
 use serde_yaml;
+use serde_yaml::Value;
 use log::{debug, info};
 
 /*
@@ -35,8 +36,8 @@ struct ParsedYamlNodeRunner {
 struct ParsedYamlNodeDefinition {
     id_task: DefinitionConfigId,
     
-    // #[serde(flatten)]
-    // params: HashMap<String, String>
+    #[serde(flatten)]
+    params: HashMap<String, Value>
 }
 
 /// Serde-derive: node
@@ -56,7 +57,7 @@ struct ParsedYamlDefinition {
   id_task: String,
   
   #[serde(flatten)]
-  params: Option<BTreeMap<String, String>>
+  params: HashMap<String, Value>
 }
 
 /// Serde-derive: runner
@@ -93,6 +94,43 @@ fn first_entry_value<K: Clone, V: Clone>(btree: &BTreeMap<K, V>) -> Option<(K, V
     Some((key.clone(), value.clone()))
 }
 
+// todo: move to a module?
+/// Convert a serde_yaml::Value to a String
+fn convert_yaml_value_to_string(value: &Value) -> String {
+    match value {
+        Value::Null => "null".to_string(),
+        Value::Bool(boolean) => {
+            if *boolean {
+                return "true".to_string()
+            } else {
+                return "false".to_string()
+            }
+        },
+        Value::Number(num) => num.to_string(),
+        Value::String(string) => string.to_string(),
+        Value::Sequence(seq) => {
+            let mut buffer = String::from("[");
+            for el in seq.iter() {
+                buffer.push_str(&convert_yaml_value_to_string(el));
+            }
+            buffer.push(']');
+            return buffer
+        },
+        Value::Mapping(map) => {
+            let mut buffer = String::from("{");
+            for (key, val) in map.iter() {
+                let format_pair = format!("{}: {}", 
+                    convert_yaml_value_to_string(key),
+                    convert_yaml_value_to_string(val)
+                );
+                buffer.push_str(&format_pair);
+            }
+            buffer.push('}');
+            return buffer
+        }
+    }
+}
+
 
 /// Build a DagConfig from a parsed yaml
 fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingError> {
@@ -120,9 +158,10 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
     if config.definitions.is_some() {
         for (def_name, parsed_def) in config.definitions.unwrap().iter() {
             let mut hashmap_params = HashMap::<String, String>::new();
-            if parsed_def.params.is_some() {
-                for (key, value) in parsed_def.params.clone().unwrap().iter() {
-                    hashmap_params.insert(key.clone(), value.clone());
+            if !parsed_def.params.is_empty() {
+                for (key, value) in parsed_def.params.iter() {
+                    let value_string = convert_yaml_value_to_string(value);
+                    hashmap_params.insert(key.clone(), value_string);
                 }
             }
             let def_cfg = DefinitionConfig {
@@ -150,10 +189,17 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
             Some(node_def) => {
                 // add node def to existing map
                 let node_def_id = format!("{}_{}", node_name.to_string(), node_def.id_task.clone());
+                let mut hashmap_params = HashMap::<String, String>::new();
+                if !node_def.params.is_empty() {
+                    for (key, value) in node_def.params.iter() {
+                        let value_string = convert_yaml_value_to_string(value);
+                        hashmap_params.insert(key.clone(), value_string);
+                    }
+                }
                 let cfg_def = DefinitionConfig {
                     id_definition: node_def_id.clone(),
                     definition_type: node_def.id_task.clone(),
-                    params: HashMap::new()  // todo: FIXME
+                    params: hashmap_params
                 };
                 map_definitions.insert(node_def_id.clone(), cfg_def);
                 node_def_id.to_string()
