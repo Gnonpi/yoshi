@@ -1,4 +1,4 @@
-use crate::dag_parsing::dag_config_parser::{SupportedFormat, DagConfigParser};
+use crate::dag_parsing::dag_config_parser::{DagConfigParser, SupportedFormat};
 use crate::dag_parsing::yaml_parser::YamlDagConfigParser;
 use crate::dag_parsing::DagParsingError;
 use std::fs;
@@ -6,7 +6,6 @@ use std::fs;
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
 }
-
 
 #[test]
 fn it_can_return_format() {
@@ -27,7 +26,7 @@ bar:
   - 2.0
 ";
     let ycp = YamlDagConfigParser {};
-    assert!(! ycp.validate(&invalid_yaml.to_owned()));
+    assert!(!ycp.validate(&invalid_yaml.to_owned()));
 }
 
 #[test]
@@ -41,21 +40,20 @@ bar:
   - 2.0
 ";
     let ycp = YamlDagConfigParser {};
-    assert!(! ycp.validate(&invalid_schema.to_owned()));
+    assert!(!ycp.validate(&invalid_schema.to_owned()));
 }
 
 // todo: parametrized tests?
 #[test]
 fn it_validate_valid_content() {
     let vec_example_path = vec![
-      "src/dag_parsing/examples/example1.yaml",
-      "src/dag_parsing/examples/example2.yaml"
+        "src/dag_parsing/examples/example1.yaml",
+        "src/dag_parsing/examples/example2.yaml",
     ];
     let ycp = YamlDagConfigParser {};
     for example_path in vec_example_path.iter() {
-      let content = fs::read_to_string(example_path)
-          .expect("failed to read example file");
-      assert!(ycp.validate(&content));
+        let content = fs::read_to_string(example_path).expect("failed to read example file");
+        assert!(ycp.validate(&content));
     }
 }
 

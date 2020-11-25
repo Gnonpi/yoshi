@@ -10,25 +10,17 @@ use std::fmt::Debug;
 pub enum TaskDefinitionType {
     Bash,
     Python,
-    Dummy
+    Dummy,
 }
 
 pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType> {
     match def_name.as_str() {
-        "python_task_definition" => {
-            return Some(TaskDefinitionType::Python)
-        },
-        "bash_task_definition" => {
-            return Some(TaskDefinitionType::Bash)
-        },
-        "dummy_task_definition" => {
-            return Some(TaskDefinitionType::Dummy)
-        },
-        _ => {
-            return None
-        }
+        "python_task_definition" => return Some(TaskDefinitionType::Python),
+        "bash_task_definition" => return Some(TaskDefinitionType::Bash),
+        "dummy_task_definition" => return Some(TaskDefinitionType::Dummy),
+        _ => return None,
     }
-} 
+}
 
 /// Trait that define a task that can be started
 /// basically what's to be done
