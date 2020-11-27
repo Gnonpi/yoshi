@@ -8,14 +8,12 @@ use yoshi::task_instance::TaskStatus;
 use yoshi::task_node::TaskNode;
 use yoshi::task_output::TaskOutput;
 use yoshi::type_definition::FilePath;
-
-fn init_logger() {
-    let _ = env_logger::builder().is_test(true).try_init();
-}
+// 
+mod common;
 
 #[test]
 fn can_mount_simple_dag() {
-    init_logger();
+    common::init_logger();
 
     // Create Python task
     let script_path = FilePath::from("script.py");

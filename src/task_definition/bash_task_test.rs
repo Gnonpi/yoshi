@@ -1,8 +1,5 @@
 use crate::task_definition::bash_task::*;
-
-fn init_logger() {
-    let _ = env_logger::builder().is_test(true).try_init();
-}
+use crate::test_utils::init_logger;
 
 #[test]
 fn it_can_run_basic_command() {
