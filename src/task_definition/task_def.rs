@@ -5,7 +5,7 @@ use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-// todo: use a factory pattern for definitions?
+/// Enum identifying the variant of Definition
 #[derive(Debug, PartialEq)]
 pub enum TaskDefinitionType {
     Bash,
@@ -13,6 +13,7 @@ pub enum TaskDefinitionType {
     Dummy,
 }
 
+/// Given a string, return an enum that link to a definition variant
 pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType> {
     match def_name.as_str() {
         "python_task_definition" => return Some(TaskDefinitionType::Python),
@@ -25,9 +26,13 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
 /// Trait that define a task that can be started
 /// basically what's to be done
 pub trait TaskDefinition: DynClone + Debug {
+    /// Return a unique id for the definition (instance)
     fn task_definition_id(&self) -> TaskId;
+    /// Return an enum to identify the kind of definition
     fn task_type(&self) -> TaskDefinitionType;
+    /// Execute the action defined
     fn run(&self) -> Result<TaskOutput, YoshiError>;
+    /// Return a view of the parameters that are going to be used
     fn get_params(&self) -> HashMap<String, String>;
 }
 

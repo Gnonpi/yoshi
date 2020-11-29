@@ -33,6 +33,7 @@ impl TaskNode {
         }
     }
 
+    /// Set a label (human readable name) to the node
     pub fn set_label(&mut self, new_label: &String) {
         self.label = Some(new_label.to_string())
     }
