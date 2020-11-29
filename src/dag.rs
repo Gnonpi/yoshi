@@ -95,6 +95,25 @@ impl Dag {
             }
         }
     }
+    
+    // todo: add custom error (same as add_task)
+    // todo: use ref ids instead of move
+    /// Add an edge between two existing nodes
+    pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) {
+        if !self.contains_node(&parent_id) {
+            panic!(
+                "Trying to add edge with unexistent parent {}",
+                parent_id.to_string()
+            );
+        }
+        if !self.contains_node(&child_id) {
+            panic!(
+                "Trying to add edge with unexistent child {}",
+                child_id.to_string()
+            );
+        }
+        self.graph_nodes.add_edge(parent_id, child_id, ());
+    }
 
     /// Set the node from which the execution start
     pub fn set_starting_node(&mut self, node_id: NodeId) {
