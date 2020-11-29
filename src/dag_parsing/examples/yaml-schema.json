@@ -1,0 +1,78 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "nodes"
+    ],
+    "properties": {
+      "nodes": {
+        "type": "object",
+        "properties": {
+          "*": {
+            "$ref": "#/definitions/node"
+          }
+        }
+      },
+      "definitions": {
+        "type": "object",
+        "properties": {
+          "*": {
+            "$ref": "#/definitions/definition"
+          }
+        }
+      },
+      "runners": {
+        "type": "object",
+        "properties": {
+          "*": {
+            "$ref": "#/definitions/runner"
+          }
+        }
+      },
+      "dags": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    "definitions": {
+      "node": {
+        "type": "object",
+        "properties": {
+          "ref_definition": {
+            "type": "string"
+          },
+          "ref_runner": {
+            "type": "string"
+          },
+          "runner": {
+            "type": "object",
+            "properties": {
+              "id_runner": {"type": "string"}
+            }
+          }
+        }
+      },
+      "definition": {
+        "type": "object",
+        "required": [
+          "id_task"
+        ],
+        "properties": {
+          "id_task": {
+            "type": "string"
+          }
+        }
+      },
+      "runner": {
+        "type": "object",
+        "required": [
+          "id_runner"
+        ],
+        "properties": {
+          "id_runner": {
+            "type": "runner"
+          }
+        }
+      }
+    }
+  }
