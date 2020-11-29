@@ -1,0 +1,30 @@
+# more concise toml
+# declaring all definitions & runners in node
+
+[nodes.nodeA]
+# instead of ref_runner, it's directly runner
+runner = { id_runner = "local_runner" }
+# the next task to execute
+child = "dummy_end"
+# we can use inline table for definitions that are larger
+[nodes.nodeA.definition]
+id_task = "python_task_definition"
+script_path = "/tmp/script.py"
+args = []
+
+[nodes.nodeB]
+runner = { id_runner = "local_runner"}
+child = "dummy_end"
+[nodes.nodeB.definitions.bash_task]
+id_task = "bash_task_definition"
+command = "echo 1"
+
+[nodes.dummy_start]
+definition = { id_task = "dummy_task_definition" }
+runner = { id_runner = "local_runner" }
+children = ["nodeA", "nodeB"]
+
+[nodes.dummy_end]
+definition = { id_task = "dummy_task_definition" }
+runner = { id_runner = "local_runner" }
+# has no children nor child
