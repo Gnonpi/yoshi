@@ -17,7 +17,7 @@ impl TaskDefinition for DummyTaskDefinition {
     fn task_type(&self) -> TaskDefinitionType {
         TaskDefinitionType::Dummy
     }
-    
+
     fn run(&self) -> Result<TaskOutput, YoshiError> {
         Ok(TaskOutput::Nothing)
     }

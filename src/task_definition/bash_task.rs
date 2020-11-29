@@ -19,7 +19,6 @@ impl TaskDefinition for BashTaskDefinition {
         self.task_def_id
     }
 
-
     fn task_type(&self) -> TaskDefinitionType {
         TaskDefinitionType::Bash
     }
