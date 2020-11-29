@@ -26,9 +26,13 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
 /// Trait that define a task that can be started
 /// basically what's to be done
 pub trait TaskDefinition: DynClone + Debug {
+    /// Return a unique id for the definition (instance)
     fn task_definition_id(&self) -> TaskId;
+    /// Return an enum to identify the kind of definition
     fn task_type(&self) -> TaskDefinitionType;
+    /// Execute the action defined
     fn run(&self) -> Result<TaskOutput, YoshiError>;
+    /// Return a view of the parameters that are going to be used
     fn get_params(&self) -> HashMap<String, String>;
 }
 
