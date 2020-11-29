@@ -10,6 +10,7 @@ use log::debug;
 #[derive(Clone, Debug)]
 pub struct TaskNode {
     pub id_node: NodeId,
+    pub label: Option<String>,
     pub definition: Box<dyn TaskDefinition>,
     pub instance: Option<TaskInstance>,
     pub id_runner: RunnerId,
@@ -18,13 +19,19 @@ pub struct TaskNode {
 impl TaskNode {
     /// Create a new node
     pub fn new(definition: Box<dyn TaskDefinition>, id_runner: RunnerId) -> Self {
-        debug!("Creating task node");
+        debug!("Creating task node {:?}-{:?}", definition, id_runner);
         TaskNode {
             id_node: NodeId::new_v4(),
+            label: None,
             definition,
             instance: None,
             id_runner,
         }
+    }
+
+    /// Set a label (human readable name) to the node
+    pub fn set_label(&mut self, new_label: &String) {
+        self.label = Some(new_label.to_string())
     }
 
     /// Can we build on this task?
