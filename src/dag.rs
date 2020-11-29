@@ -95,7 +95,7 @@ impl Dag {
             }
         }
     }
-    
+
     // todo: add custom error (same as add_task)
     // todo: use ref ids instead of move
     /// Add an edge between two existing nodes
@@ -264,8 +264,6 @@ impl PartialEq for Dag {
             && self.map_nodes == other.map_nodes;
     }
 }
-
-
 
 #[cfg(test)]
 #[path = "./dag_test.rs"]
