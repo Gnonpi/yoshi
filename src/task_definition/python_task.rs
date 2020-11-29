@@ -1,5 +1,5 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition};
+use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
@@ -19,6 +19,10 @@ pub struct PythonTaskDefinition {
 impl TaskDefinition for PythonTaskDefinition {
     fn task_definition_id(&self) -> TaskId {
         self.task_def_id
+    }
+
+    fn task_type(&self) -> TaskDefinitionType {
+        TaskDefinitionType::Python
     }
 
     fn run(&self) -> Result<TaskOutput, YoshiError> {
