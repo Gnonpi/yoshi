@@ -8,11 +8,14 @@ use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
 
+// todo: move to its own module
+type GraphNodeId = DiGraphMap<NodeId, ()>;
+
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
 pub struct Dag {
     pub start_node: Option<NodeId>,
-    pub(crate) graph_nodes: DiGraphMap<NodeId, ()>,
+    pub(crate) graph_nodes: GraphNodeId,
     pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
 
