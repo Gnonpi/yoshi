@@ -263,9 +263,9 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
 
 impl PartialEq for Dag {
     fn eq(&self, other: &Self) -> bool {
-        return self.start_node == other.start_node
+        self.start_node == other.start_node
             && equal_graph_nodes(&self.graph_nodes, &other.graph_nodes)
-            && self.map_nodes == other.map_nodes;
+            && self.map_nodes == other.map_nodes
     }
 }
 

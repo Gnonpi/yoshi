@@ -10,8 +10,8 @@ pub enum TaskRunnerType {
 
 pub fn string_to_runner_type(runner_name: String) -> Option<TaskRunnerType> {
     match runner_name.as_str() {
-        "local_runner" => return Some(TaskRunnerType::LocalBlocking),
-        _ => return None,
+        "local_runner" => Some(TaskRunnerType::LocalBlocking),
+        _ => None,
     }
 }
 
