@@ -79,16 +79,6 @@ struct ParsedYamlConfig {
 
 pub struct YamlDagConfigParser {}
 
-/// To avoid working in nightly,
-/// implement a simple BTreeMap.first_entry_value
-fn first_entry_value<K: Clone, V: Clone>(btree: &BTreeMap<K, V>) -> Option<(K, V)> {
-    if btree.len() == 0 {
-        return None;
-    }
-    let (key, value) = btree.iter().next().unwrap();
-    Some((key.clone(), value.clone()))
-}
-
 // todo: move to a module?
 /// Convert a serde_yaml::Value to a String
 fn convert_yaml_value_to_string(value: &Value) -> String {
