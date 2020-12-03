@@ -33,7 +33,7 @@ before_script:
 script:
   - cargo build
   - cargo check
-  - RUST_LOG=debug cargo test
+  - RUST_LOG=debug cargo test --all-features
   # clippy failing on warnings
   - cargo clippy -- -D warnings
   - cargo fmt -- --check
