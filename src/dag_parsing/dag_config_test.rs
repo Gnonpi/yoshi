@@ -74,11 +74,11 @@ fn it_can_take_config_to_dag() {
     assert_eq!(neighbors_end, vec![]);
 
     // nodeA
-    let nodeA_node = result_dag.map_nodes.get(dummy_start_id).unwrap();
+    let nodeA_node = result_dag.map_nodes.get(nodeA_id).unwrap();
     assert_eq!(nodeA_node.definition.task_type(), TaskDefinitionType::Python);
     assert_eq!(nodeA_node.id_runner, TaskRunnerType::LocalBlocking);
     let neighbors_A: Vec<NodeId> = result_dag.graph_nodes.neighbors(*nodeA_id).collect();
-    assert_eq!(neighbors_A, vec![nodeA_id.clone(), nodeB_id.clone()]);
+    assert_eq!(neighbors_A, vec![dummy_end_id.clone()]);
 
     // todo: add nodeB
     // todo: check definition params

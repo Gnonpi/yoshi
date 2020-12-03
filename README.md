@@ -12,6 +12,8 @@
 
 ## Background
 
+Cool link: https://seed-rs.org/0.8.0/rust
+
 ## Contributing
 
 ## Technologies

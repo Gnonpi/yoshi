@@ -19,7 +19,11 @@ pub struct TaskNode {
 impl TaskNode {
     /// Create a new node
     pub fn new(definition: Box<dyn TaskDefinition>, id_runner: RunnerId) -> Self {
-        debug!("Creating task node {:?}-{:?}", definition.task_type(), id_runner);
+        debug!(
+            "Creating task node {:?}-{:?}",
+            definition.task_type(),
+            id_runner
+        );
         TaskNode {
             id_node: NodeId::new_v4(),
             label: None,
@@ -29,6 +33,7 @@ impl TaskNode {
         }
     }
 
+    /// Set a label (human readable name) to the node
     pub fn set_label(&mut self, new_label: &String) {
         self.label = Some(new_label.to_string())
     }

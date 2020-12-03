@@ -8,7 +8,7 @@ use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
 use std::collections::HashMap;
 
-// todo: move to its own module with partialeq
+// todo: move to its own module
 type GraphNodeId = DiGraphMap<NodeId, ()>;
 
 /// The set of TaskNode we want to run
@@ -101,6 +101,7 @@ impl Dag {
     }
 
     // todo: add custom error (same as add_task)
+    // todo: use ref ids instead of move
     /// Add an edge between two existing nodes
     pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) {
         if !self.contains_node(&parent_id) {
@@ -232,48 +233,39 @@ impl Default for Dag {
 
 // todo: change to partialeq
 fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> bool {
-        // check same number of nodes
-        debug!("Equal graph nodes: node_count");
-        if self_graph.node_count() != other_graph.node_count() {
-            return false
-        }
-        // check same number of edges
-        debug!("Equal graph nodes: edge_count");
-        if self_graph.edge_count() != other_graph.edge_count() {
-            return false
-        }
-        // check every node in self is present in other
-        debug!("Equal graph nodes: contains_node");
-        for self_node in self_graph.nodes() {
-            debug!("{:?}", self_node);
-            if !other_graph.contains_node(self_node) {
-                return false
-            }
-        }
-        // check every edge in self is present in other
-        debug!("Equal graph nodes: contains_edge");
-        for (origin, dest, dir) in self_graph.all_edges() {
-            if !other_graph.contains_edge(origin, dest) {
-                return false
-            }
-        }
-        true
-}
-
-/*
-impl PartialEq for GraphNodeId {
-    fn eq(&self, other: &Self) -> bool {
-
+    // check same number of nodes
+    debug!("Equal graph nodes: node_count");
+    if self_graph.node_count() != other_graph.node_count() {
+        return false;
     }
+    // check same number of edges
+    debug!("Equal graph nodes: edge_count");
+    if self_graph.edge_count() != other_graph.edge_count() {
+        return false;
+    }
+    // check every node in self is present in other
+    debug!("Equal graph nodes: contains_node");
+    for self_node in self_graph.nodes() {
+        debug!("{:?}", self_node);
+        if !other_graph.contains_node(self_node) {
+            return false;
+        }
+    }
+    // check every edge in self is present in other
+    debug!("Equal graph nodes: contains_edge");
+    for (origin, dest, dir) in self_graph.all_edges() {
+        if !other_graph.contains_edge(origin, dest) {
+            return false;
+        }
+    }
+    true
 }
-*/
 
 impl PartialEq for Dag {
     fn eq(&self, other: &Self) -> bool {
-        return 
-            self.start_node == other.start_node &&
-            equal_graph_nodes(&self.graph_nodes, &other.graph_nodes) &&
-            self.map_nodes == other.map_nodes
+        return self.start_node == other.start_node
+            && equal_graph_nodes(&self.graph_nodes, &other.graph_nodes)
+            && self.map_nodes == other.map_nodes;
     }
 }
 
