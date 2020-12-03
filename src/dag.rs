@@ -13,6 +13,7 @@ type GraphNodeId = DiGraphMap<NodeId, ()>;
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
+#[derive(Debug)]
 pub struct Dag {
     pub start_node: Option<NodeId>,
     pub(crate) graph_nodes: GraphNodeId,
@@ -24,7 +25,7 @@ impl Dag {
     pub fn new() -> Self {
         Dag {
             start_node: None,
-            graph_nodes: DiGraphMap::new(),
+            graph_nodes: GraphNodeId::new(),
             map_nodes: HashMap::new(),
         }
     }
@@ -262,9 +263,9 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
 
 impl PartialEq for Dag {
     fn eq(&self, other: &Self) -> bool {
-        return self.start_node == other.start_node
+        self.start_node == other.start_node
             && equal_graph_nodes(&self.graph_nodes, &other.graph_nodes)
-            && self.map_nodes == other.map_nodes;
+            && self.map_nodes == other.map_nodes
     }
 }
 

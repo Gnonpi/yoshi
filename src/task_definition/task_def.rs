@@ -16,10 +16,10 @@ pub enum TaskDefinitionType {
 /// Given a string, return an enum that link to a definition variant
 pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType> {
     match def_name.as_str() {
-        "python_task_definition" => return Some(TaskDefinitionType::Python),
-        "bash_task_definition" => return Some(TaskDefinitionType::Bash),
-        "dummy_task_definition" => return Some(TaskDefinitionType::Dummy),
-        _ => return None,
+        "python_task_definition" => Some(TaskDefinitionType::Python),
+        "bash_task_definition" => Some(TaskDefinitionType::Bash),
+        "dummy_task_definition" => Some(TaskDefinitionType::Dummy),
+        _ => None,
     }
 }
 
