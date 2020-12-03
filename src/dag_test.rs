@@ -105,6 +105,22 @@ fn it_can_add_node_with_parents_and_children() {
 }
 
 #[test]
+fn it_can_add_edge() {
+    let mut dag = Dag::new();
+    let task_one = _produce_task_node();
+    let task_two = _produce_task_node();
+    dag.add_task(task_one.clone(), None, None);
+    dag.add_task(task_two.clone(), None, None);
+
+    dag.add_edge(task_one.id_node, task_two.id_node);
+    assert!(dag
+        .graph_nodes
+        .contains_edge(task_one.id_node, task_two.id_node));
+
+    // todo: add edge case cannot create cycle
+}
+
+#[test]
 fn it_can_get_node() {
     let mut dag = Dag::new();
     let task = _produce_task_node();
