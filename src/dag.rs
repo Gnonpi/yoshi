@@ -148,8 +148,10 @@ impl Dag {
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
         if self.start_nodes.is_empty() {
-            // todo: when no starting_node is set, find one candidate then crash
-            panic!("Dag cannot start without starting node");
+            return Err(YoshiError {
+                message: format!("Dag cannot start without source node"),
+                origin: format!("Dag.run")
+            })
         }
         let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];
