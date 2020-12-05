@@ -1,9 +1,9 @@
+use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
-use crate::dag_checker::{check_contains_cycle, find_source_nodes, find_sink_nodes};
 use crossbeam_channel::TryRecvError;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
@@ -11,8 +11,6 @@ use std::collections::HashMap;
 
 // todo: move to its own module
 type GraphNodeId = DiGraphMap<NodeId, ()>;
-
-
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
@@ -150,8 +148,8 @@ impl Dag {
         if self.start_nodes.is_empty() {
             return Err(YoshiError {
                 message: format!("Dag cannot start without source node"),
-                origin: format!("Dag.run")
-            })
+                origin: format!("Dag.run"),
+            });
         }
         let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];

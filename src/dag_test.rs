@@ -27,7 +27,7 @@ fn it_can_add_one_node() {
     assert!(dag.get_node(&task.id_node).is_some());
     let added_task = dag.get_node(&task.id_node).unwrap();
     assert_eq!(task, *added_task);
-    
+
     assert_eq!(dag.start_nodes, vec![task.id_node]);
 }
 

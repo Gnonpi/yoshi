@@ -1,8 +1,8 @@
-use crate::task_definition::DummyTaskDefinition;
-use crate::type_definition::{NodeId, RunnerId};
-use crate::task_node::TaskNode;
 use crate::dag::Dag;
-use crate::dag_checker::{check_contains_cycle, find_source_nodes, find_sink_nodes};
+use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
+use crate::task_definition::DummyTaskDefinition;
+use crate::task_node::TaskNode;
+use crate::type_definition::{NodeId, RunnerId};
 
 /*
 #[test]
@@ -23,7 +23,7 @@ fn it_can_find_one_cycle() {
 fn it_can_find_indirect_cycle() {
 assert_eq!(1, 2);
 }
-*/ 
+*/
 
 #[test]
 fn it_can_find_sources_nodes() {
@@ -65,4 +65,3 @@ fn it_can_find_sink_nodes() {
     let res = find_sink_nodes(&dag);
     assert_eq!(res, vec![second_id]);
 }
-
