@@ -8,6 +8,13 @@ pub enum TaskRunnerType {
     LocalBlocking,
 }
 
+pub fn string_to_runner_type(runner_name: String) -> Option<TaskRunnerType> {
+    match runner_name.as_str() {
+        "local_runner" => Some(TaskRunnerType::LocalBlocking),
+        _ => None,
+    }
+}
+
 pub struct TaskRunnerFactory;
 
 // todo: should we use factory for TaskDefinition?

@@ -10,5 +10,8 @@ pub mod task_output;
 
 pub mod dag;
 
+#[cfg(any(feature = "toml_parse", feature = "yaml_parse"))]
+pub mod dag_parsing;
+
 #[cfg(test)]
 pub mod test_utils;

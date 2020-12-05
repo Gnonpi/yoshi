@@ -1,0 +1,46 @@
+# very verbose toml, declaring each element and linking via ids
+
+# nodes table + id_node
+[nodes.nodeA]
+# ref to remind it's not defining
+ref_definition = "python_task"
+ref_runner = "local"
+
+[nodes.nodeB]
+ref_definition = "bash_task"
+ref_runner = "local"
+
+[nodes.dummy_start]
+ref_definition = "dummy"
+ref_runner = "local_runner"
+
+[nodes.dummy_end]
+ref_definition = "dummy"
+ref_runner = "local_runner"
+
+# definitions + id_task
+[definitions.python_task]
+# type of task to run
+id_task = "python_task_definition"
+# parameters
+script_path = "/tmp/script.py"
+args = []
+
+[definitions.bash_task]
+id_task = "bash_task_definition"
+command = "echo 1"
+
+[definitions.dummy]
+id_task = "dummy_task_definition"
+
+# runners + id_runner : is this ok?
+[runners.local_runner]
+# type of runner used
+id_runner = "local_runner"
+
+# contains all the relations between nodes
+[dags]
+# always the form id_node -> single child id or list of child ids
+dummy_start = ["nodeA", "nodeB"]
+nodeA = "dummy_end"
+nodeB = "dummy_end"
