@@ -5,10 +5,6 @@ use crate::task_node::TaskNode;
 use crate::task_output::TaskOutput;
 use chrono::prelude::*;
 
-fn init_logger() {
-    let _ = env_logger::builder().is_test(true).try_init();
-}
-
 fn _produce_task_node() -> TaskNode {
     let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
     TaskNode::new(Box::new(t_def), TaskRunnerType::Fake)

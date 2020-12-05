@@ -1,13 +1,9 @@
 use crate::task_definition::python_task::*;
+use crate::test_utils::init_logger;
 use crate::type_definition::FilePath;
 use std::boxed::Box;
 use std::fs::{remove_file, File};
 use std::io::prelude::*;
-
-// todo: move this to test utils module and reuse?
-fn init_logger() {
-    let _ = env_logger::builder().is_test(true).try_init();
-}
 
 #[test]
 fn it_can_run_basic_script() {
