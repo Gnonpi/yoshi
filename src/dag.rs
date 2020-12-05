@@ -15,7 +15,7 @@ type GraphNodeId = DiGraphMap<NodeId, ()>;
 /// Handle the stories of parents/children nodes
 #[derive(Debug)]
 pub struct Dag {
-    pub start_node: Vec<NodeId>,
+    pub start_nodes: Vec<NodeId>,
     pub(crate) graph_nodes: GraphNodeId,
     pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
@@ -24,7 +24,7 @@ impl Dag {
     /// Create a new dag
     pub fn new() -> Self {
         Dag {
-            start_node: vec![],
+            start_nodes: vec![],
             graph_nodes: GraphNodeId::new(),
             map_nodes: HashMap::new(),
         }
@@ -119,18 +119,6 @@ impl Dag {
         self.graph_nodes.add_edge(parent_id, child_id, ());
     }
 
-    /// Set the node from which the execution start
-    /*
-    pub fn set_starting_node(&mut self, node_id: NodeId) {
-        info!("Setting starting node {}", node_id);
-        if !self.contains_node(&node_id) {
-            panic!("Cannot set starting unexistent node {}", node_id);
-        }
-        self.start_node = Some(node_id)
-        // todo: if there is start_node when starting to run, find sources nodes
-    }
-    */
-
     // shitty implementation first
     /*
     When we mount the Dag,
@@ -146,11 +134,11 @@ impl Dag {
     */
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
-        if self.start_node.is_empty() {
+        if self.start_nodes.is_empty() {
             // todo: when no starting_node is set, find one candidate then crash
             panic!("Dag cannot start without starting node");
         }
-        let mut bag_of_nodes = self.start_node.clone();
+        let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];
 
         // While there are nodes in the bag
@@ -265,7 +253,7 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
 
 impl PartialEq for Dag {
     fn eq(&self, other: &Self) -> bool {
-        self.start_node == other.start_node
+        self.start_nodes == other.start_nodes
             && equal_graph_nodes(&self.graph_nodes, &other.graph_nodes)
             && self.map_nodes == other.map_nodes
     }

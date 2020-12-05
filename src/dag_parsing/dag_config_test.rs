@@ -43,7 +43,7 @@ fn it_can_take_config_to_dag() {
     println!("Result dag: {:#?}", result_dag);
 
     // start_node is none
-    assert!(result_dag.start_node.is_none());
+    assert!(result_dag.start_nodes.is_empty());
     // created dag has 1 - 2 - 1 nodes
     assert_eq!(result_dag.graph_nodes.node_count(), 4);
     assert_eq!(result_dag.map_nodes.len(), 4);

@@ -11,7 +11,7 @@ fn _produce_task_node() -> TaskNode {
 #[test]
 fn it_can_create_a_dag() {
     let dag = Dag::new();
-    assert!(dag.start_node.is_none());
+    assert!(dag.start_nodes.is_empty());
     assert_eq!(dag.graph_nodes.node_count(), 0);
     assert_eq!(dag.graph_nodes.edge_count(), 0);
     assert_eq!(dag.map_nodes.len(), 0);
@@ -146,14 +146,4 @@ fn it_knows_it_contain_node() {
     let unknown_node_id = generate_task_definition_id();
     assert!(!dag.contains_node(&unknown_node_id));
     assert!(dag.contains_node(&task.id_node));
-}
-
-#[test]
-fn it_can_set_starting_node() {
-    let mut dag = Dag::new();
-    let task = _produce_task_node();
-    dag.add_task(task.clone(), None, None);
-
-    dag.set_starting_node(task.id_node);
-    assert_eq!(dag.start_node, Some(task.id_node));
 }

@@ -2,7 +2,7 @@ use chrono::Utc;
 use std::fs::{remove_file, File};
 use std::io::Write;
 use yoshi::dag::Dag;
-use yoshi::runners::{LocalTaskRunner, TaskRunner, TaskRunnerFactory};
+use yoshi::runners::{LocalTaskRunner, TaskRunner};
 use yoshi::task_definition::{BashTaskDefinition, PythonTaskDefinition, TaskDefinition};
 use yoshi::task_instance::TaskStatus;
 use yoshi::task_node::TaskNode;
@@ -38,7 +38,6 @@ fn can_mount_simple_dag() {
     // Adding tasks to dag
     dag.add_task(python_node.clone(), None, None);
     dag.add_task(bash_node.clone(), Some(vec![&python_node_id]), None);
-    dag.set_starting_node(python_node_id);
 
     // Running
     let date_before_run = Utc::now();
