@@ -1,10 +1,9 @@
 use crate::task_definition::python_task::*;
-use crate::type_definition::FilePath;
 use crate::test_utils::init_logger;
+use crate::type_definition::FilePath;
 use std::boxed::Box;
 use std::fs::{remove_file, File};
 use std::io::prelude::*;
-
 
 #[test]
 fn it_can_run_basic_script() {

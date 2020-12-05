@@ -8,7 +8,7 @@ use yoshi::task_instance::TaskStatus;
 use yoshi::task_node::TaskNode;
 use yoshi::task_output::TaskOutput;
 use yoshi::type_definition::FilePath;
-// 
+//
 mod common;
 
 #[test]
