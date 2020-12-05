@@ -3,13 +3,13 @@ use crate::errors::YoshiError;
 use crate::dag::Dag;
 use log::{debug, info};
 use petgraph::algo::{is_cyclic_directed};
-use petgraph::graphmap::NeighborsDirected;
 use petgraph::Direction;    
 
 
+/// todo: https://trello.com/c/nehAyt5u/47-move-graphnodeid-to-its-module
 /// Check if there is a cycle in the graph of our Dag
 /// A DAG with a cycle is, by definition, wrong
-fn check_cycle(dag: &Dag) -> Result<(), YoshiError> {
+pub(crate) fn check_contains_cycle(dag: &Dag) -> Result<(), YoshiError> {
     /*
     if is_cyclic_directed(dag.graph_nodes) {
         let err_msg = format!("DAG contains a cycle");
@@ -18,17 +18,13 @@ fn check_cycle(dag: &Dag) -> Result<(), YoshiError> {
             origin: format!("dag_checker:check_cycle")
         })
     }
-    Ok(())
     */
-    Err(YoshiError {
-        message: format!("to impl"),
-        origin: format!("dag_checker")
-    })
+    Ok(())
 }
 
 /// Find source nodes in Dag
 /// Source nodes are nodes without incoming edges, without parents
-fn find_source_nodes(dag: &Dag) -> Vec<NodeId> {
+pub(crate) fn find_source_nodes(dag: &Dag) -> Vec<NodeId> {
     if dag.graph_nodes.node_count() == 0 {
         info!("Dag has no nodes, cannot find sources");
         return vec![]
@@ -50,7 +46,7 @@ fn find_source_nodes(dag: &Dag) -> Vec<NodeId> {
 
 /// Find sinks nodes in Dag
 /// Sink nodes are nodes without outgoing edges, without children
-fn find_sink_nodes(dag: &Dag) -> Vec<NodeId> {
+pub(crate) fn find_sink_nodes(dag: &Dag) -> Vec<NodeId> {
     if dag.graph_nodes.node_count() == 0 {
         info!("Dag has no nodes, cannot find sinks");
         return vec![]
