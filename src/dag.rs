@@ -15,7 +15,7 @@ type GraphNodeId = DiGraphMap<NodeId, ()>;
 /// Handle the stories of parents/children nodes
 #[derive(Debug)]
 pub struct Dag {
-    pub start_node: Option<NodeId>,
+    pub start_node: Vec<NodeId>,
     pub(crate) graph_nodes: GraphNodeId,
     pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
@@ -24,7 +24,7 @@ impl Dag {
     /// Create a new dag
     pub fn new() -> Self {
         Dag {
-            start_node: None,
+            start_node: vec![],
             graph_nodes: GraphNodeId::new(),
             map_nodes: HashMap::new(),
         }
@@ -120,6 +120,7 @@ impl Dag {
     }
 
     /// Set the node from which the execution start
+    /*
     pub fn set_starting_node(&mut self, node_id: NodeId) {
         info!("Setting starting node {}", node_id);
         if !self.contains_node(&node_id) {
@@ -128,6 +129,7 @@ impl Dag {
         self.start_node = Some(node_id)
         // todo: if there is start_node when starting to run, find sources nodes
     }
+    */
 
     // shitty implementation first
     /*
@@ -144,11 +146,11 @@ impl Dag {
     */
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
-        if self.start_node.is_none() {
+        if self.start_node.is_empty() {
             // todo: when no starting_node is set, find one candidate then crash
             panic!("Dag cannot start without starting node");
         }
-        let mut bag_of_nodes = vec![self.start_node.unwrap().clone()];
+        let mut bag_of_nodes = self.start_node.clone();
         let mut bag_of_instances = vec![];
 
         // While there are nodes in the bag
