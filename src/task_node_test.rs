@@ -43,6 +43,16 @@ fn it_says_complete_after_success() {
 }
 
 #[test]
+fn it_can_add_a_label() {
+    let mut node = _produce_task_node();
+    assert!(node.label.is_none());
+    let label = String::from("cool label");
+    node.set_label(&label);
+    assert!(node.label.is_some());
+    assert_eq!(node.label.unwrap(), label);
+}
+
+#[test]
 #[ignore]
 fn it_has_an_output_after_running() {
     // this will have to wait a bit for
