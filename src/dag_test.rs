@@ -27,6 +27,8 @@ fn it_can_add_one_node() {
     assert!(dag.get_node(&task.id_node).is_some());
     let added_task = dag.get_node(&task.id_node).unwrap();
     assert_eq!(task, *added_task);
+    
+    assert_eq!(dag.start_nodes, vec![task.id_node]);
 }
 
 #[test]
@@ -54,6 +56,8 @@ fn it_can_add_node_with_parents() {
 
     assert!(dag.graph_nodes.contains_edge(id_parent_a, id_child.clone()));
     assert!(dag.graph_nodes.contains_edge(id_parent_b, id_child.clone()));
+
+    assert_eq!(dag.start_nodes, vec![id_parent_a, id_parent_b]);
 }
 
 #[test]
@@ -70,6 +74,12 @@ fn it_can_add_node_with_parents_and_children() {
     let id_child_c = child_c.id_node.clone();
     let id_child_d = child_d.id_node.clone();
     let id_middle = middle_node.id_node.clone();
+
+    /*
+    parent_a  parent_b
+        middle_node
+    child_c  child_d
+    */
 
     dag.add_task(parent_a, None, None);
     dag.add_task(parent_b, None, None);
@@ -102,6 +112,8 @@ fn it_can_add_node_with_parents_and_children() {
 
     assert!(dag.graph_nodes.contains_edge(id_middle.clone(), id_child_c));
     assert!(dag.graph_nodes.contains_edge(id_middle.clone(), id_child_d));
+
+    assert_eq!(dag.start_nodes, vec![id_parent_a, id_parent_b]);
 }
 
 #[test]
@@ -116,8 +128,7 @@ fn it_can_add_edge() {
     assert!(dag
         .graph_nodes
         .contains_edge(task_one.id_node, task_two.id_node));
-
-    // todo: add edge case cannot create cycle
+    assert_eq!(dag.start_nodes, vec![task_one.id_node]);
 }
 
 #[test]

@@ -3,6 +3,7 @@ use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
+use crate::dag_checker::{check_contains_cycle, find_source_nodes, find_sink_nodes};
 use crossbeam_channel::TryRecvError;
 use log::{debug, info};
 use petgraph::graphmap::DiGraphMap;
@@ -10,6 +11,8 @@ use std::collections::HashMap;
 
 // todo: move to its own module
 type GraphNodeId = DiGraphMap<NodeId, ()>;
+
+
 
 /// The set of TaskNode we want to run
 /// Handle the stories of parents/children nodes
@@ -55,6 +58,14 @@ impl Dag {
         Some(neighbors.collect())
     }
 
+    /// Method to call when we modify the topology of the graph
+    fn verify_dag(&mut self) -> Result<(), YoshiError> {
+        check_contains_cycle(self).unwrap();
+        let sources = find_source_nodes(self);
+        self.start_nodes = sources;
+        Ok(())
+    }
+
     /// Add a node to the DAG with possibly the parents and children
     pub fn add_task(
         &mut self,
@@ -98,6 +109,7 @@ impl Dag {
                 self.graph_nodes.add_edge(new_node_id, *(*child_id), ());
             }
         }
+        self.verify_dag();
     }
 
     // todo: add custom error (same as add_task)
@@ -117,6 +129,7 @@ impl Dag {
             );
         }
         self.graph_nodes.add_edge(parent_id, child_id, ());
+        self.verify_dag();
     }
 
     // shitty implementation first
