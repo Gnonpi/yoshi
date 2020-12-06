@@ -1,7 +1,7 @@
 use crate::dag::Dag;
 use crate::errors::YoshiError;
 use crate::type_definition::NodeId;
-use log::{debug, info};
+use log::{info};
 use petgraph::algo::is_cyclic_directed;
 use petgraph::Direction;
 

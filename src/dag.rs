@@ -1,4 +1,4 @@
-use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
+use crate::dag_checker::{check_contains_cycle, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;

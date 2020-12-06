@@ -4,12 +4,9 @@ use crate::dag_parsing::dag_config_parser::DagConfigParser;
 use crate::dag_parsing::get_dag_from_file;
 use crate::dag_parsing::YamlDagConfigParser;
 use crate::runners::TaskRunnerType;
-use crate::task_definition::{
-    BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition, TaskDefinitionType,
-};
-use crate::task_node::TaskNode;
+use crate::task_definition::TaskDefinitionType;
 use crate::type_definition::{FilePath, NodeId};
-use log::{debug, info};
+use log::info;
 use std::collections::HashMap;
 use std::fs;
 
@@ -88,8 +85,8 @@ fn it_can_take_config_to_dag() {
         TaskDefinitionType::Python
     );
     assert_eq!(nodeA_node.id_runner, TaskRunnerType::LocalBlocking);
-    let neighbors_A: Vec<NodeId> = result_dag.graph_nodes.neighbors(*nodeA_id).collect();
-    assert_eq!(neighbors_A, vec![dummy_end_id.clone()]);
+    let neighbors_a: Vec<NodeId> = result_dag.graph_nodes.neighbors(*nodeA_id).collect();
+    assert_eq!(neighbors_a, vec![dummy_end_id.clone()]);
 
     // todo: add nodeB
     // todo: check definition params
