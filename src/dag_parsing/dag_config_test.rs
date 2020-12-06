@@ -42,8 +42,8 @@ fn it_can_take_config_to_dag() {
     info!("Comparing DAG");
     println!("Result dag: {:#?}", result_dag);
 
-    // start_node is none
-    assert!(result_dag.start_node.is_none());
+    // start_node is initialized
+    assert_eq!(result_dag.start_nodes.len(), 1);
     // created dag has 1 - 2 - 1 nodes
     assert_eq!(result_dag.graph_nodes.node_count(), 4);
     assert_eq!(result_dag.map_nodes.len(), 4);

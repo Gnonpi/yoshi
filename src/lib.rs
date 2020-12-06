@@ -9,6 +9,7 @@ pub mod runners;
 pub mod task_output;
 
 pub mod dag;
+pub mod dag_checker;
 
 #[cfg(any(feature = "toml_parse", feature = "yaml_parse"))]
 pub mod dag_parsing;

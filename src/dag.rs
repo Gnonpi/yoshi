@@ -1,3 +1,4 @@
+use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
@@ -15,7 +16,7 @@ type GraphNodeId = DiGraphMap<NodeId, ()>;
 /// Handle the stories of parents/children nodes
 #[derive(Debug)]
 pub struct Dag {
-    pub start_node: Option<NodeId>,
+    pub start_nodes: Vec<NodeId>,
     pub(crate) graph_nodes: GraphNodeId,
     pub(crate) map_nodes: HashMap<NodeId, TaskNode>,
 }
@@ -24,7 +25,7 @@ impl Dag {
     /// Create a new dag
     pub fn new() -> Self {
         Dag {
-            start_node: None,
+            start_nodes: vec![],
             graph_nodes: GraphNodeId::new(),
             map_nodes: HashMap::new(),
         }
@@ -53,6 +54,14 @@ impl Dag {
         // if graph is directed, neighbors is outgoing nodes
         let neighbors = self.graph_nodes.neighbors(*node_id);
         Some(neighbors.collect())
+    }
+
+    /// Method to call when we modify the topology of the graph
+    fn verify_dag(&mut self) -> Result<(), YoshiError> {
+        check_contains_cycle(self).unwrap();
+        let sources = find_source_nodes(self);
+        self.start_nodes = sources;
+        Ok(())
     }
 
     /// Add a node to the DAG with possibly the parents and children
@@ -98,6 +107,7 @@ impl Dag {
                 self.graph_nodes.add_edge(new_node_id, *(*child_id), ());
             }
         }
+        self.verify_dag();
     }
 
     // todo: add custom error (same as add_task)
@@ -117,16 +127,7 @@ impl Dag {
             );
         }
         self.graph_nodes.add_edge(parent_id, child_id, ());
-    }
-
-    /// Set the node from which the execution start
-    pub fn set_starting_node(&mut self, node_id: NodeId) {
-        info!("Setting starting node {}", node_id);
-        if !self.contains_node(&node_id) {
-            panic!("Cannot set starting unexistent node {}", node_id);
-        }
-        self.start_node = Some(node_id)
-        // todo: if there is start_node when starting to run, find sources nodes
+        self.verify_dag();
     }
 
     // shitty implementation first
@@ -144,11 +145,13 @@ impl Dag {
     */
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
-        if self.start_node.is_none() {
-            // todo: when no starting_node is set, find one candidate then crash
-            panic!("Dag cannot start without starting node");
+        if self.start_nodes.is_empty() {
+            return Err(YoshiError {
+                message: format!("Dag cannot start without source node"),
+                origin: format!("Dag.run"),
+            });
         }
-        let mut bag_of_nodes = vec![self.start_node.unwrap().clone()];
+        let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];
 
         // While there are nodes in the bag
@@ -263,7 +266,7 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
 
 impl PartialEq for Dag {
     fn eq(&self, other: &Self) -> bool {
-        self.start_node == other.start_node
+        self.start_nodes == other.start_nodes
             && equal_graph_nodes(&self.graph_nodes, &other.graph_nodes)
             && self.map_nodes == other.map_nodes
     }
