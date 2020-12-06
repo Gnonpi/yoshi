@@ -26,3 +26,9 @@ impl TaskDefinition for DummyTaskDefinition {
         HashMap::new()
     }
 }
+
+impl DummyTaskDefinition {
+    pub fn new() -> Self {
+        DummyTaskDefinition {}
+    }
+}
