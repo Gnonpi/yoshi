@@ -1,5 +1,5 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
+use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType, DefinitionArguments};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
@@ -12,6 +12,14 @@ use std::str;
 pub struct BashTaskDefinition {
     task_def_id: TaskId,
     command: Vec<String>,
+}
+
+impl From<DefinitionArguments> for BashTaskDefinition {
+    fn from(da: DefinitionArguments) -> Self {
+        let command = da.get("command");
+        let vec_command = vec![command];  // todo: make correctly
+        BashTaskDefinition::new(vec_command)
+    }
 }
 
 impl TaskDefinition for BashTaskDefinition {

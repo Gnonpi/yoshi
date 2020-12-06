@@ -1,5 +1,5 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
+use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType, DefinitionArguments};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
@@ -14,6 +14,20 @@ pub struct PythonTaskDefinition {
     task_def_id: TaskId,
     script_path: Box<FilePath>,
     args: Vec<String>,
+}
+
+impl From<DefinitionArguments> for PythonTaskDefinition {
+    fn from(da: DefinitionArguments) -> Self {
+        let script_path = da.params.get("script_path").unwrap();
+        let args_string = da.params.get("args").unwrap();
+        let mut args = vec![];
+        if args_string.to_string() == "[]".to_string() {
+            let args = vec![];
+        } else {
+            let args = vec![args_string.to_string()];
+        }
+        PythonTaskDefinition::new(FilePath::from(script_path), args)
+    }
 }
 
 impl TaskDefinition for PythonTaskDefinition {

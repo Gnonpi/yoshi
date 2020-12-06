@@ -11,5 +11,5 @@ pub use task_def::{
     generate_task_definition_id, TaskDefinition
 };
 pub use definition_factory::{
-    string_to_definition_type, TaskDefinitionType
+    string_to_definition_type, TaskDefinitionType, DefinitionArguments
 };

@@ -24,7 +24,13 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
     }
 }
 
-struct DefinitionArguments;
+pub struct DefinitionArguments;
+
+impl DefinitionArguments {
+    fn get(key: str) -> String {
+        String::from("to impl")
+    }
+}
 
 struct DefinitionFactory;
 
