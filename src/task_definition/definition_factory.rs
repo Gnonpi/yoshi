@@ -4,7 +4,6 @@ use crate::task_definition::{
     PythonTaskDefinition, 
     TaskDefinition
 };
-use crate::type_definition::FilePath;
 use crate::task_definition::DefinitionArguments;
 
 /// Enum identifying the variant of Definition
@@ -30,19 +29,18 @@ struct DefinitionFactory;
 
 impl DefinitionFactory {
     /// Given a type of task and the arguments to pass it, create a new instance
-    fn new_definition(tdt: &TaskDefinitionType, arguments: &DefinitionArguments) -> Box<dyn TaskDefinition> {
+    fn new_definition(tdt: &TaskDefinitionType, arguments: DefinitionArguments) -> Box<dyn TaskDefinition> {
         match tdt {
             TaskDefinitionType::Bash => {
-                let b_def = BashTaskDefinition::new(vec!["echo 'Hello'".to_string()]);
+                let b_def = BashTaskDefinition::from(arguments);
                 Box::new(b_def)
             },
             TaskDefinitionType::Python => {
-                let script_path = FilePath::from("script.py");
-                let p_def = PythonTaskDefinition::new(script_path, vec![]);
+                let p_def = PythonTaskDefinition::from(arguments);
                 Box::new(p_def)
             },
             TaskDefinitionType::Dummy => {
-                let d_def = DummyTaskDefinition::new();
+                let d_def = DummyTaskDefinition::from(arguments);
                 Box::new(d_def)
             },
             _ => {
