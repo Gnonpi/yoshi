@@ -1,5 +1,5 @@
 #[test]
-fn test() {
+fn test_unknown_type() {
     assert_eq!(1, 2);
 }
 
