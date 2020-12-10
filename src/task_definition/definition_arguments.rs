@@ -1,8 +1,9 @@
 use crate::type_definition::FilePath;
 use std::collections::HashMap;
 
-// todo: move to new module
 // todo: review visibility
+/// Identify what type of argument we're saving.
+/// Allow to parse back a string saved
 #[derive(Debug, Clone, Copy)]
 pub enum DefinitionArgumentType {
     AString, // A-string to differentiate from type
@@ -12,6 +13,7 @@ pub enum DefinitionArgumentType {
     VecString,
 }
 
+/// One stored argument to create a new definition
 #[derive(Debug, PartialEq)]
 pub enum DefinitionArgumentElement {
     AString(String),
@@ -22,11 +24,13 @@ pub enum DefinitionArgumentElement {
     VecString(Vec<String>),
 }
 
+/// Save the arguments to pass to a definition
 pub struct DefinitionArguments {
     map: HashMap<String, (String, DefinitionArgumentType)>,
 }
 
 // todo: temporary, use a library or something more efficient and fail-proff
+/// Convert a string containing a JSON array to a Vec of string 
 fn string_to_vec_of_string(mut s: String) -> Vec<String> {
     let mut res = Vec::new();
     s.remove(0);
@@ -58,6 +62,7 @@ fn string_to_vec_of_string(mut s: String) -> Vec<String> {
     res
 }
 
+/// Grouped arguments to create a new definition
 impl DefinitionArguments {
     pub fn new() -> Self {
         DefinitionArguments {
