@@ -147,8 +147,8 @@ impl Dag {
         info!("Starting dag");
         if self.start_nodes.is_empty() {
             return Err(YoshiError {
-                message: format!("Dag cannot start without source node"),
-                origin: format!("Dag.run"),
+                message: "Dag cannot start without source node".to_string(),
+                origin: "Dag.run".to_string()
             });
         }
         let mut bag_of_nodes = self.start_nodes.clone();

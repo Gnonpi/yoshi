@@ -67,7 +67,7 @@ impl PartialEq for TaskNode {
             (None, None) => comp_instance = true,
             _ => comp_instance = false,
         }
-        if comp_instance == false {
+        if !comp_instance {
             return false;
         }
         if self.id_runner != other.id_runner {
