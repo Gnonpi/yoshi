@@ -8,7 +8,7 @@ use std::fmt::Debug;
 
 /// Trait that define a task that can be started
 /// basically what's to be done
-pub trait TaskDefinition: DynClone + From<DefinitionArguments> + Debug {
+pub trait TaskDefinition: DynClone + Debug {
     /// Return a unique id for the definition (instance)
     fn task_definition_id(&self) -> TaskId;
     /// Return an enum to identify the kind of definition

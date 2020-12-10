@@ -1,5 +1,11 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType, DefinitionArguments};
+use crate::task_definition::{
+    generate_task_definition_id, 
+    TaskDefinition, 
+    TaskDefinitionType, 
+    DefinitionArguments,
+    DefinitionArgumentElement
+};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
@@ -16,9 +22,18 @@ pub struct BashTaskDefinition {
 
 impl From<DefinitionArguments> for BashTaskDefinition {
     fn from(da: DefinitionArguments) -> Self {
-        let command = da.get("command");
-        let vec_command = vec![command];  // todo: make correctly
-        BashTaskDefinition::new(vec_command)
+        if let Some(e) = da.get(&"command".to_string()) {
+            match e {
+                DefinitionArgumentElement::VecString(vs) => {
+                    BashTaskDefinition::new(vs)
+                },
+                _ => {
+                    panic!("Trying to create BashTask with something other than String");
+                }
+            }
+        } else {
+            panic!("Could not find parameter 'command' to create BashTask");
+        }
     }
 }
 

@@ -116,7 +116,7 @@ impl From<DagConfig> for Dag {
                     let args_string = def_cfg.params.get("args").unwrap();
                     let mut args: Vec<String> = vec![];
                     if args_string.to_string() == "[]".to_string() {
-                        let args = vec![];
+                        let args: Vec<String> = vec![];
                     } else {
                         let args = vec![args_string.to_string()];
                     }
