@@ -13,6 +13,7 @@ pub enum DefinitionArgumentType {
     VecString
 }
 
+#[derive(Debug, PartialEq)]
 pub enum DefinitionArgumentElement {
     AString(String),
     Filepath(FilePath),
@@ -65,8 +66,8 @@ impl DefinitionArguments {
         }
     }
 
-    fn set(&mut self, key: String, value: String, da_type: DefinitionArgumentType) {
-        self.map.insert(key, (value, da_type));
+    fn set(&mut self, key: &String, value: String, da_type: DefinitionArgumentType) {
+        self.map.insert(key.to_string(), (value, da_type));
     }
 
     pub fn get(&self, key: &String) -> Option<DefinitionArgumentElement> {
