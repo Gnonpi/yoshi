@@ -11,7 +11,7 @@ use crate::task_definition::DefinitionArguments;
 pub enum TaskDefinitionType {
     Bash,
     Python,
-    Dummy,
+    Dummy
 }
 
 /// Given a string, return an enum that link to a definition variant
@@ -24,28 +24,23 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
     }
 }
 
-/// Factory to create new TaskDefinition
-struct DefinitionFactory;
-
-impl DefinitionFactory {
-    /// Given a type of task and the arguments to pass it, create a new instance
-    fn new_definition(tdt: &TaskDefinitionType, arguments: DefinitionArguments) -> Box<dyn TaskDefinition> {
-        match tdt {
-            TaskDefinitionType::Bash => {
-                let b_def = BashTaskDefinition::from(arguments);
-                Box::new(b_def)
-            },
-            TaskDefinitionType::Python => {
-                let p_def = PythonTaskDefinition::from(arguments);
-                Box::new(p_def)
-            },
-            TaskDefinitionType::Dummy => {
-                let d_def = DummyTaskDefinition::from(arguments);
-                Box::new(d_def)
-            },
-            _ => {
-                panic!("Definition type not linked to TaskDefinition: {:?}", tdt);
-            }
+/// Given a type of task and the arguments to pass it, create a new instance
+pub fn create_new_definition(tdt: &TaskDefinitionType, arguments: DefinitionArguments) -> Box<dyn TaskDefinition> {
+    match tdt {
+        TaskDefinitionType::Bash => {
+            let b_def = BashTaskDefinition::from(arguments);
+            Box::new(b_def)
+        },
+        TaskDefinitionType::Python => {
+            let p_def = PythonTaskDefinition::from(arguments);
+            Box::new(p_def)
+        },
+        TaskDefinitionType::Dummy => {
+            let d_def = DummyTaskDefinition::from(arguments);
+            Box::new(d_def)
+        },
+        _ => {
+            panic!("Definition type not linked to TaskDefinition: {:?}", tdt);
         }
     }
 }

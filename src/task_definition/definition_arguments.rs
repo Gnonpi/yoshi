@@ -60,13 +60,13 @@ fn string_to_vec_of_string(mut s: String) -> Vec<String> {
 }
 
 impl DefinitionArguments {
-    fn new() -> Self {
+    pub fn new() -> Self {
         DefinitionArguments {
             map: HashMap::new()
         }
     }
 
-    fn set(&mut self, key: &String, value: String, da_type: DefinitionArgumentType) {
+    pub fn set(&mut self, key: &String, value: String, da_type: DefinitionArgumentType) {
         self.map.insert(key.to_string(), (value, da_type));
     }
 

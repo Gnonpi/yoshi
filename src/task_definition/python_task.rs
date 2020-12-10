@@ -99,11 +99,13 @@ impl TaskDefinition for PythonTaskDefinition {
         let script_path_string = script_path_copy.into_string().unwrap();
         params.insert("script_path".to_string(), script_path_string);
 
-        let mut arg_string = "".to_string();
+        let mut arg_string = "[".to_string();
         for arg in self.args.iter() {
             arg_string.push_str(&arg);
             arg_string.push_str(" ");
         }
+        arg_string.pop();
+        arg_string.push_str("]");
         params.insert("args".to_string(), arg_string);
         params
     }

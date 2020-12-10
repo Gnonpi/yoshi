@@ -15,5 +15,5 @@ pub use definition_arguments::{
     DefinitionArguments, DefinitionArgumentType, DefinitionArgumentElement
 };
 pub use definition_factory::{
-    string_to_definition_type, TaskDefinitionType
+    create_new_definition, string_to_definition_type, TaskDefinitionType
 };

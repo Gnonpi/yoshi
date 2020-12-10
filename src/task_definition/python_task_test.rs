@@ -51,5 +51,5 @@ fn it_can_return_parameters() {
     let params = ptd.get_params();
     let p = script_path.clone().into_string().unwrap();
     assert_eq!(params.get("script_path"), Some(&p));
-    assert_eq!(params.get("args"), Some(&"one two ".to_string()));
+    assert_eq!(params.get("args"), Some(&"[one two]".to_string()));
 }
