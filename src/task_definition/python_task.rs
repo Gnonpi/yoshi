@@ -1,5 +1,8 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType, DefinitionArguments, DefinitionArgumentElement};
+use crate::task_definition::{
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
+    TaskDefinitionType,
+};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
@@ -24,9 +27,9 @@ impl From<DefinitionArguments> for PythonTaskDefinition {
             match e {
                 DefinitionArgumentElement::Filepath(fp) => {
                     script_path = fp;
-                },
+                }
                 _ => {
-                    panic!("'script_path' for PythonTask must be a Filepath");    
+                    panic!("'script_path' for PythonTask must be a Filepath");
                 }
             }
         }
@@ -34,7 +37,7 @@ impl From<DefinitionArguments> for PythonTaskDefinition {
             match e {
                 DefinitionArgumentElement::VecString(vs) => {
                     args = vs;
-                },
+                }
                 _ => {
                     panic!("'args' for PythonTask must be a VecString");
                 }

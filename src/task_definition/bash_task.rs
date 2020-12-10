@@ -1,10 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{
-    generate_task_definition_id, 
-    TaskDefinition, 
-    TaskDefinitionType, 
-    DefinitionArguments,
-    DefinitionArgumentElement
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
+    TaskDefinitionType,
 };
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
@@ -24,9 +21,7 @@ impl From<DefinitionArguments> for BashTaskDefinition {
     fn from(da: DefinitionArguments) -> Self {
         if let Some(e) = da.get(&"command".to_string()) {
             match e {
-                DefinitionArgumentElement::VecString(vs) => {
-                    BashTaskDefinition::new(vs)
-                },
+                DefinitionArgumentElement::VecString(vs) => BashTaskDefinition::new(vs),
                 _ => {
                     panic!("Trying to create BashTask with something other than String");
                 }

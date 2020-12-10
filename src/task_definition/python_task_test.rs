@@ -1,9 +1,9 @@
 use crate::task_definition::python_task::*;
 use crate::task_definition::{generate_task_definition_id, TaskDefinition};
+use crate::task_output::TaskOutput;
 use crate::test_utils::init_logger;
 use crate::type_definition::FilePath;
 use std::boxed::Box;
-use crate::task_output::TaskOutput;
 use std::fs::{remove_file, File};
 use std::io::prelude::*;
 
@@ -16,7 +16,7 @@ fn it_can_run_basic_script() {
     file.write_all(b"import sys; a = sys.argv[1]; print('all good {}'.format(a))")
         .unwrap();
     let args = vec!["one".to_string()];
-    
+
     let ptd = PythonTaskDefinition {
         task_def_id: generate_task_definition_id(),
         script_path: Box::new(script_path.clone()),

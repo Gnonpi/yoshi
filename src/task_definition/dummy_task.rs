@@ -1,5 +1,7 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType, DefinitionArguments};
+use crate::task_definition::{
+    generate_task_definition_id, DefinitionArguments, TaskDefinition, TaskDefinitionType,
+};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;

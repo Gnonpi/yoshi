@@ -1,7 +1,5 @@
 use crate::task_definition::{
-    DefinitionArguments, 
-    DefinitionArgumentType,
-    DefinitionArgumentElement
+    DefinitionArgumentElement, DefinitionArgumentType, DefinitionArguments,
 };
 
 #[test]
@@ -33,7 +31,7 @@ fn test_getting_converts_to_type() {
     let expected = vec![
         String::from("one"),
         String::from("two"),
-        String::from("three")
+        String::from("three"),
     ];
     let da_type = DefinitionArgumentType::VecString;
 

@@ -1,7 +1,7 @@
 use crate::errors::YoshiError;
+use crate::task_definition::TaskDefinitionType;
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
-use crate::task_definition::{TaskDefinitionType};
 use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -16,7 +16,7 @@ pub trait TaskDefinition: DynClone + Debug {
     /// Execute the action defined
     fn run(&self) -> Result<TaskOutput, YoshiError>;
     /// Return a view of the parameters that are going to be used
-    fn get_params(&self) -> HashMap<String, String>;  // todo: change to DefinitionArguments
+    fn get_params(&self) -> HashMap<String, String>; // todo: change to DefinitionArguments
 }
 
 /// Generate a random (99.99% unique) task id

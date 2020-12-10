@@ -1,16 +1,15 @@
 use crate::type_definition::FilePath;
 use std::collections::HashMap;
 
-
 // todo: move to new module
 // todo: review visibility
 #[derive(Debug, Clone, Copy)]
 pub enum DefinitionArgumentType {
-    AString,  // A-string to differentiate from type
+    AString, // A-string to differentiate from type
     Filepath,
     Integer,
     Float,
-    VecString
+    VecString,
 }
 
 #[derive(Debug, PartialEq)]
@@ -20,11 +19,11 @@ pub enum DefinitionArgumentElement {
     Integer(i64),
     Float(f64),
     /// Vec of string as JSON array
-    VecString(Vec<String>)
+    VecString(Vec<String>),
 }
 
 pub struct DefinitionArguments {
-    map: HashMap<String, (String, DefinitionArgumentType)>
+    map: HashMap<String, (String, DefinitionArgumentType)>,
 }
 
 // todo: temporary, use a library or something more efficient and fail-proff
@@ -33,7 +32,7 @@ fn string_to_vec_of_string(mut s: String) -> Vec<String> {
     s.remove(0);
     s.remove(s.len() - 1);
     if s.is_empty() {
-        return res
+        return res;
     }
     // basic iterative algo
     let mut opened_quotes = false;
@@ -62,7 +61,7 @@ fn string_to_vec_of_string(mut s: String) -> Vec<String> {
 impl DefinitionArguments {
     pub fn new() -> Self {
         DefinitionArguments {
-            map: HashMap::new()
+            map: HashMap::new(),
         }
     }
 
@@ -77,32 +76,31 @@ impl DefinitionArguments {
                 match t {
                     DefinitionArgumentType::AString => {
                         Some(DefinitionArgumentElement::AString(value))
-                    },
+                    }
                     DefinitionArgumentType::Filepath => {
                         let fp = FilePath::from(value);
                         Some(DefinitionArgumentElement::Filepath(fp))
-                    },
+                    }
                     DefinitionArgumentType::Integer => {
                         let as_int = value.parse::<i64>().unwrap();
                         Some(DefinitionArgumentElement::Integer(as_int))
-                    },
+                    }
                     DefinitionArgumentType::Float => {
                         let as_float = value.parse::<f64>().unwrap();
                         Some(DefinitionArgumentElement::Float(as_float))
-                    },
+                    }
                     DefinitionArgumentType::VecString => {
                         // from JSON format
                         // todo: use a library (serde?)
-                        let result = string_to_vec_of_string(value);               
+                        let result = string_to_vec_of_string(value);
                         Some(DefinitionArgumentElement::VecString(result))
-                    },
+                    }
                 }
-            },
-            None => None
+            }
+            None => None,
         }
     }
 }
-
 
 #[cfg(test)]
 #[path = "./definition_arguments_test.rs"]
