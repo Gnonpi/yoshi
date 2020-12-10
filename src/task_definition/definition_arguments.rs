@@ -30,7 +30,7 @@ pub struct DefinitionArguments {
 }
 
 // todo: temporary, use a library or something more efficient and fail-proff
-/// Convert a string containing a JSON array to a Vec of string 
+/// Convert a string containing a JSON array to a Vec of string
 fn string_to_vec_of_string(mut s: String) -> Vec<String> {
     let mut res = Vec::new();
     s.remove(0);
