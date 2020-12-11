@@ -1,5 +1,8 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
+use crate::task_definition::{
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
+    TaskDefinitionType,
+};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
@@ -14,6 +17,38 @@ pub struct PythonTaskDefinition {
     task_def_id: TaskId,
     script_path: Box<FilePath>,
     args: Vec<String>,
+}
+
+impl From<DefinitionArguments> for PythonTaskDefinition {
+    fn from(da: DefinitionArguments) -> Self {
+        let mut script_path = FilePath::new();
+        let mut args: Vec<String> = vec![];
+        if let Some(e) = da.get(&"script_path".to_string()) {
+            match e {
+                DefinitionArgumentElement::Filepath(fp) => {
+                    script_path = fp;
+                }
+                _ => {
+                    panic!("'script_path' for PythonTask must be a Filepath");
+                }
+            }
+        } else {
+            panic!("Not found mandatory argument 'script_path' for PythonTask");
+        }
+        if let Some(e) = da.get(&"args".to_string()) {
+            match e {
+                DefinitionArgumentElement::VecString(vs) => {
+                    args = vs;
+                }
+                _ => {
+                    panic!("'args' for PythonTask must be a VecString");
+                }
+            }
+        } else {
+            panic!("Not found mandatory argument 'args' for PythonTask");
+        }
+        PythonTaskDefinition::new(script_path, args)
+    }
 }
 
 impl TaskDefinition for PythonTaskDefinition {
@@ -71,11 +106,13 @@ impl TaskDefinition for PythonTaskDefinition {
         let script_path_string = script_path_copy.into_string().unwrap();
         params.insert("script_path".to_string(), script_path_string);
 
-        let mut arg_string = "".to_string();
+        let mut arg_string = "[".to_string();
         for arg in self.args.iter() {
             arg_string.push_str(&arg);
             arg_string.push_str(" ");
         }
+        arg_string.pop();
+        arg_string.push_str("]");
         params.insert("args".to_string(), arg_string);
         params
     }

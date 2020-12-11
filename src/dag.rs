@@ -1,4 +1,4 @@
-use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
+use crate::dag_checker::{check_contains_cycle, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
@@ -147,8 +147,8 @@ impl Dag {
         info!("Starting dag");
         if self.start_nodes.is_empty() {
             return Err(YoshiError {
-                message: format!("Dag cannot start without source node"),
-                origin: format!("Dag.run"),
+                message: "Dag cannot start without source node".to_string(),
+                origin: "Dag.run".to_string(),
             });
         }
         let mut bag_of_nodes = self.start_nodes.clone();

@@ -1,5 +1,5 @@
 use crate::dag::Dag;
-use crate::runners::{FakeTaskRunner, TaskRunnerType};
+use crate::runners::TaskRunnerType;
 use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
 use crate::task_node::TaskNode;
 

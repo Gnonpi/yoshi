@@ -1,5 +1,7 @@
 use crate::errors::YoshiError;
-use crate::task_definition::{generate_task_definition_id, TaskDefinition, TaskDefinitionType};
+use crate::task_definition::{
+    generate_task_definition_id, DefinitionArguments, TaskDefinition, TaskDefinitionType,
+};
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
@@ -8,6 +10,12 @@ use std::collections::HashMap;
 /// use to sync
 #[derive(Clone, Debug)]
 pub struct DummyTaskDefinition {}
+
+impl From<DefinitionArguments> for DummyTaskDefinition {
+    fn from(da: DefinitionArguments) -> Self {
+        DummyTaskDefinition::new()
+    }
+}
 
 impl TaskDefinition for DummyTaskDefinition {
     fn task_definition_id(&self) -> TaskId {
@@ -24,5 +32,11 @@ impl TaskDefinition for DummyTaskDefinition {
 
     fn get_params(&self) -> HashMap<String, String> {
         HashMap::new()
+    }
+}
+
+impl DummyTaskDefinition {
+    pub fn new() -> Self {
+        DummyTaskDefinition {}
     }
 }

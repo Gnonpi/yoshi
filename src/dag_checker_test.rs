@@ -2,7 +2,7 @@ use crate::dag::Dag;
 use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
 use crate::task_definition::DummyTaskDefinition;
 use crate::task_node::TaskNode;
-use crate::type_definition::{NodeId, RunnerId};
+use crate::type_definition::RunnerId;
 
 /*
 #[test]
