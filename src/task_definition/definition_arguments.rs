@@ -4,7 +4,7 @@ use std::collections::HashMap;
 // todo: review visibility
 /// Identify what type of argument we're saving.
 /// Allow to parse back a string saved
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum DefinitionArgumentType {
     AString, // A-string to differentiate from type
     Filepath,
@@ -25,6 +25,7 @@ pub enum DefinitionArgumentElement {
 }
 
 /// Save the arguments to pass to a definition
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct DefinitionArguments {
     map: HashMap<String, (String, DefinitionArgumentType)>,
 }

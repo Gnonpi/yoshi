@@ -4,7 +4,7 @@ use crate::task_definition::{
 };
 
 /// Enum identifying the variant of Definition
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TaskDefinitionType {
     Bash,
     Python,

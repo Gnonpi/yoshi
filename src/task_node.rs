@@ -1,4 +1,4 @@
-use crate::task_definition::TaskDefinition;
+use crate::task_definition::{TaskDefinitionType, DefinitionArguments};
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{NodeId, RunnerId};
@@ -11,23 +11,25 @@ use log::debug;
 pub struct TaskNode {
     pub id_node: NodeId,
     pub label: Option<String>,
-    pub definition: Box<dyn TaskDefinition>,
+    pub definition_type: TaskDefinitionType,
+    pub definition_arguments: DefinitionArguments,
     pub instance: Option<TaskInstance>,
     pub id_runner: RunnerId,
 }
 
 impl TaskNode {
     /// Create a new node
-    pub fn new(definition: Box<dyn TaskDefinition>, id_runner: RunnerId) -> Self {
+    pub fn new(definition_type: TaskDefinitionType, definition_arguments: DefinitionArguments, id_runner: RunnerId) -> Self {
         debug!(
             "Creating task node {:?}-{:?}",
-            definition.task_type(),
+            definition_type.clone(),
             id_runner
         );
         TaskNode {
             id_node: NodeId::new_v4(),
             label: None,
-            definition,
+            definition_type,
+            definition_arguments,
             instance: None,
             id_runner,
         }
@@ -73,11 +75,10 @@ impl PartialEq for TaskNode {
         if self.id_runner != other.id_runner {
             return false;
         }
-        // todo: not the best thing but it'll have to do
-        // i tried implementing a partialeq on taskdefinition
-        // but it made problems about
-        // trait into objects, not sized, not the right types
-        self.definition.get_params() == other.definition.get_params()
+        if self.definition_type != other.definition_type {
+            return false;
+        }
+        return self.definition_arguments == other.definition_arguments
     }
 }
 
