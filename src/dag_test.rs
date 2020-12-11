@@ -1,11 +1,12 @@
 use crate::dag::Dag;
 use crate::runners::TaskRunnerType;
-use crate::task_definition::{generate_task_definition_id, BashTaskDefinition};
+use crate::task_definition::{generate_task_definition_id, TaskDefinitionType, DefinitionArguments, DefinitionArgumentType};
 use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {
-    let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
-    TaskNode::new(Box::new(t_def), TaskRunnerType::Fake)
+    let mut da = DefinitionArguments::new();
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake)
 }
 
 #[test]

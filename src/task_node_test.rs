@@ -1,19 +1,22 @@
 use crate::runners::TaskRunnerType;
-use crate::task_definition::BashTaskDefinition;
+use crate::task_definition::{TaskDefinitionType, DefinitionArguments, DefinitionArgumentType};
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_node::TaskNode;
 use crate::task_output::TaskOutput;
+use crate::type_definition::TaskId;
 use chrono::prelude::*;
 
 fn _produce_task_node() -> TaskNode {
-    let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
-    TaskNode::new(Box::new(t_def), TaskRunnerType::Fake)
+    let mut da = DefinitionArguments::new();
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake)
 }
 
 #[test]
 fn it_can_create_new_node() {
-    let t_def = BashTaskDefinition::new(vec!["echo".to_owned(), "'Hello'".to_owned()]);
-    let new_node = TaskNode::new(Box::new(t_def), TaskRunnerType::Fake);
+    let mut da = DefinitionArguments::new();
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    let new_node = TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake);
     assert!(new_node.instance.is_none());
     assert_eq!(new_node.id_runner, TaskRunnerType::Fake);
 }
@@ -25,7 +28,7 @@ fn it_says_complete_after_success() {
 
     let instance = TaskInstance {
         id_node: node.id_node.clone(),
-        id_task_definition: node.definition.task_definition_id().clone(),
+        id_task_definition: TaskId::new_v4(),
         id_task_runner: node.id_runner,
         date_started: Utc::now(),
         date_finished: Utc::now(),
