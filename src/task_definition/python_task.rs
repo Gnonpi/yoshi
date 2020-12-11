@@ -32,6 +32,8 @@ impl From<DefinitionArguments> for PythonTaskDefinition {
                     panic!("'script_path' for PythonTask must be a Filepath");
                 }
             }
+        } else {
+            panic!("Not found mandatory argument 'script_path' for PythonTask");
         }
         if let Some(e) = da.get(&"args".to_string()) {
             match e {
@@ -42,6 +44,8 @@ impl From<DefinitionArguments> for PythonTaskDefinition {
                     panic!("'args' for PythonTask must be a VecString");
                 }
             }
+        } else {
+            panic!("Not found mandatory argument 'args' for PythonTask");
         }
         PythonTaskDefinition::new(script_path, args)
     }
