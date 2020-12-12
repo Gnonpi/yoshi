@@ -17,16 +17,10 @@ git:
 cache:
   directories:
     - $TRAVIS_HOME/.cargo
-    - /opt/pyenv/versions/3.6.3
 
 # But don't cache the cargo registry
 before_cache:
   - rm -rf $TRAVIS_HOME/.cargo/registry
-
-before_install:
-  # - pyenv install --list --> travis ci pyenv list goes to 3.6 and 3.7dev
-  - pyenv install -s 3.6.3
-  - pyenv global 3.6.3
 
 install:
   - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION
