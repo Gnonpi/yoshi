@@ -9,6 +9,9 @@ rust:
 #     - rust: nightly
 #   fast_finish: true
 
+git:
+  depth: 10
+
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
 cache:
@@ -31,6 +34,7 @@ before_script:
   - rustup component add rustfmt
     
 script:
+  - python3 scripts/check_version.py
   - cargo build
   - cargo check
   - RUST_LOG=debug cargo test --all-features
@@ -43,3 +47,6 @@ branches:
     # Push and PR to master branch
     - master
 
+deploy:
+  - provider: script
+    script: scripts/tag_branch.sh
