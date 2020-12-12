@@ -3,7 +3,7 @@ use std::fs::{remove_file, File};
 use std::io::Write;
 use yoshi::dag::Dag;
 use yoshi::runners::{LocalTaskRunner, TaskRunner};
-use yoshi::task_definition::{TaskDefinitionType, DefinitionArguments, DefinitionArgumentType};
+use yoshi::task_definition::{DefinitionArgumentType, DefinitionArguments, TaskDefinitionType};
 use yoshi::task_instance::TaskStatus;
 use yoshi::task_node::TaskNode;
 use yoshi::task_output::TaskOutput;
@@ -28,7 +28,10 @@ fn can_mount_simple_dag() {
 
     // Create bash arguments
     let mut da_ba = DefinitionArguments::new();
-    da_ba.set(&String::from("command"), "[\"cat\", \"/tmp/hello\"]".to_string());
+    da_ba.set(
+        &String::from("command"),
+        "[\"cat\", \"/tmp/hello\"]".to_string(),
+    );
 
     // Create a Dag
     let local_id_runner = LocalTaskRunner::new().get_runner_id();
