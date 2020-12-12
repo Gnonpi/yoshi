@@ -26,11 +26,12 @@ before_script:
   # show info about bash and python as we use them
   # to execute nodes
   - bash --version
-  - python3 --version
+  - python3.6 --version
   - rustup component add clippy
   - rustup component add rustfmt
     
 script:
+  - python3 scripts/check_version.py
   - cargo build
   - cargo check
   - RUST_LOG=debug cargo test --all-features
