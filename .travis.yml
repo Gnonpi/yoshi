@@ -21,6 +21,7 @@ before_cache:
 
 install:
   - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION
+  - apt-get install -y python3.6
 
 before_script:
   # show info about bash and python as we use them
