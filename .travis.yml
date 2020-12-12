@@ -9,6 +9,9 @@ rust:
 #     - rust: nightly
 #   fast_finish: true
 
+git:
+  depth: 10
+
 # Need to cache the whole `.cargo` directory to keep .crates.toml for
 # cargo-update to work
 cache:
@@ -49,3 +52,6 @@ branches:
     # Push and PR to master branch
     - master
 
+deploy:
+  - provider: script
+    script: scripts/tag_branch.sh
