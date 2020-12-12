@@ -1,5 +1,5 @@
 use crate::runners::TaskRunnerType;
-use crate::task_definition::{TaskDefinitionType, DefinitionArguments, DefinitionArgumentType};
+use crate::task_definition::{DefinitionArgumentType, DefinitionArguments, TaskDefinitionType};
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_node::TaskNode;
 use crate::task_output::TaskOutput;

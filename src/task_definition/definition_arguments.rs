@@ -75,7 +75,11 @@ impl DefinitionArguments {
         self.map.insert(key.to_string(), value);
     }
 
-    pub fn get(&self, key: &String, da_type: DefinitionArgumentType) -> Option<DefinitionArgumentElement> {
+    pub fn get(
+        &self,
+        key: &String,
+        da_type: DefinitionArgumentType,
+    ) -> Option<DefinitionArgumentElement> {
         match self.map.get(key) {
             Some(v) => {
                 let value = v.to_string();

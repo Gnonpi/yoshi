@@ -1,4 +1,4 @@
-use crate::task_definition::{TaskDefinitionType, DefinitionArguments};
+use crate::task_definition::{DefinitionArguments, TaskDefinitionType};
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::task_output::TaskOutput;
 use crate::type_definition::{NodeId, RunnerId};
@@ -19,7 +19,11 @@ pub struct TaskNode {
 
 impl TaskNode {
     /// Create a new node
-    pub fn new(definition_type: TaskDefinitionType, definition_arguments: DefinitionArguments, id_runner: RunnerId) -> Self {
+    pub fn new(
+        definition_type: TaskDefinitionType,
+        definition_arguments: DefinitionArguments,
+        id_runner: RunnerId,
+    ) -> Self {
         debug!(
             "Creating task node {:?}-{:?}",
             definition_type.clone(),
@@ -78,7 +82,7 @@ impl PartialEq for TaskNode {
         if self.definition_type != other.definition_type {
             return false;
         }
-        return self.definition_arguments == other.definition_arguments
+        return self.definition_arguments == other.definition_arguments;
     }
 }
 

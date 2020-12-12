@@ -60,30 +60,21 @@ fn it_can_take_config_to_dag() {
 
     // dummy_start
     let dummy_start_node = result_dag.map_nodes.get(dummy_start_id).unwrap();
-    assert_eq!(
-        dummy_start_node.definition_type,
-        TaskDefinitionType::Dummy
-    );
+    assert_eq!(dummy_start_node.definition_type, TaskDefinitionType::Dummy);
     assert_eq!(dummy_start_node.id_runner, TaskRunnerType::LocalBlocking);
     let neighbors_start: Vec<NodeId> = result_dag.graph_nodes.neighbors(*dummy_start_id).collect();
     assert_eq!(neighbors_start, vec![node_a_id.clone(), node_b_id.clone()]);
 
     // dummy end
     let dummy_end_node = result_dag.map_nodes.get(dummy_end_id).unwrap();
-    assert_eq!(
-        dummy_start_node.definition_type,
-        TaskDefinitionType::Dummy
-    );
+    assert_eq!(dummy_start_node.definition_type, TaskDefinitionType::Dummy);
     assert_eq!(dummy_end_node.id_runner, TaskRunnerType::LocalBlocking);
     let neighbors_end: Vec<NodeId> = result_dag.graph_nodes.neighbors(*dummy_end_id).collect();
     assert_eq!(neighbors_end, vec![]);
 
     // nodeA
     let node_a_node = result_dag.map_nodes.get(node_a_id).unwrap();
-    assert_eq!(
-        node_a_node.definition_type,
-        TaskDefinitionType::Python
-    );
+    assert_eq!(node_a_node.definition_type, TaskDefinitionType::Python);
     assert_eq!(node_a_node.id_runner, TaskRunnerType::LocalBlocking);
     let neighbors_a: Vec<NodeId> = result_dag.graph_nodes.neighbors(*node_a_id).collect();
     assert_eq!(neighbors_a, vec![dummy_end_id.clone()]);

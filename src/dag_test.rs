@@ -1,6 +1,8 @@
 use crate::dag::Dag;
 use crate::runners::TaskRunnerType;
-use crate::task_definition::{generate_task_definition_id, TaskDefinitionType, DefinitionArguments, DefinitionArgumentType};
+use crate::task_definition::{
+    generate_task_definition_id, DefinitionArgumentType, DefinitionArguments, TaskDefinitionType,
+};
 use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {

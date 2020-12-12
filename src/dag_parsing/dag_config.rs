@@ -1,7 +1,10 @@
 use crate::dag::Dag;
 use crate::dag_parsing::{DagConfigParser, DagParsingError, YamlDagConfigParser};
 use crate::runners::string_to_runner_type;
-use crate::task_definition::{string_to_definition_type, BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition, TaskDefinition, TaskDefinitionType, DefinitionArguments};
+use crate::task_definition::{
+    string_to_definition_type, BashTaskDefinition, DefinitionArguments, DummyTaskDefinition,
+    PythonTaskDefinition, TaskDefinition, TaskDefinitionType,
+};
 use crate::task_node::TaskNode;
 use crate::type_definition::{FilePath, NodeId};
 use log::{debug, error, info};
