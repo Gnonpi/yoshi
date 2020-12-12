@@ -20,7 +20,7 @@ before_cache:
   - rm -rf $TRAVIS_HOME/.cargo/registry
 
 before_install:
-  - pyenv versions
+  - pyenv install --list
   - pyenv install 3.7.4
   - pyenv global 3.7.4
 
