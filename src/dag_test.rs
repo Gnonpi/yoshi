@@ -5,7 +5,7 @@ use crate::task_node::TaskNode;
 
 fn _produce_task_node() -> TaskNode {
     let mut da = DefinitionArguments::new();
-    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string());
     TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake)
 }
 

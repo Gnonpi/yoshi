@@ -1,6 +1,6 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{
-    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, DefinitionArgumentType, TaskDefinition,
     TaskDefinitionType,
 };
 use crate::task_output::TaskOutput;
@@ -19,7 +19,7 @@ pub struct BashTaskDefinition {
 
 impl From<DefinitionArguments> for BashTaskDefinition {
     fn from(da: DefinitionArguments) -> Self {
-        if let Some(e) = da.get(&"command".to_string()) {
+        if let Some(e) = da.get(&"command".to_string(), DefinitionArgumentType::VecString) {
             match e {
                 DefinitionArgumentElement::VecString(vs) => BashTaskDefinition::new(vs),
                 _ => {

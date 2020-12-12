@@ -23,12 +23,12 @@ fn can_mount_simple_dag() {
         .unwrap();
     // Create python arguments
     let mut da_py = DefinitionArguments::new();
-    da_py.set(&String::from("script_path"), "script.py".to_string(), DefinitionArgumentType::Filepath);
-    da_py.set(&String::from("args"), "[\"ok\"]".to_string(), DefinitionArgumentType::VecString);
+    da_py.set(&String::from("script_path"), "script.py".to_string());
+    da_py.set(&String::from("args"), "[\"ok\"]".to_string());
 
     // Create bash arguments
     let mut da_ba = DefinitionArguments::new();
-    da_ba.set(&String::from("command"), "[\"cat\", \"/tmp/hello\"]".to_string(), DefinitionArgumentType::VecString);
+    da_ba.set(&String::from("command"), "[\"cat\", \"/tmp/hello\"]".to_string());
 
     // Create a Dag
     let local_id_runner = LocalTaskRunner::new().get_runner_id();

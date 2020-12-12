@@ -10,7 +10,6 @@ fn it_can_create_bash_def() {
     da.set(
         &"command".to_string(),
         command.clone(),
-        DefinitionArgumentType::VecString,
     );
 
     let b_def = create_new_definition(&TaskDefinitionType::Bash, da);
@@ -30,12 +29,10 @@ fn it_can_create_python_def() {
     da.set(
         &"script_path".to_string(),
         script_path.clone(),
-        DefinitionArgumentType::Filepath,
     );
     da.set(
         &"args".to_string(),
         args.clone(),
-        DefinitionArgumentType::VecString,
     );
 
     let p_def = create_new_definition(&TaskDefinitionType::Python, da);

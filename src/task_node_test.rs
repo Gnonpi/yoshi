@@ -8,14 +8,14 @@ use chrono::prelude::*;
 
 fn _produce_task_node() -> TaskNode {
     let mut da = DefinitionArguments::new();
-    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string());
     TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake)
 }
 
 #[test]
 fn it_can_create_new_node() {
     let mut da = DefinitionArguments::new();
-    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string(), DefinitionArgumentType::VecString);
+    da.set(&"command".to_string(), "[\"echo\", \"'Hello'\"".to_string());
     let new_node = TaskNode::new(TaskDefinitionType::Bash, da, TaskRunnerType::Fake);
     assert!(new_node.instance.is_none());
     assert_eq!(new_node.id_runner, TaskRunnerType::Fake);
