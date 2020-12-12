@@ -19,9 +19,12 @@ cache:
 before_cache:
   - rm -rf $TRAVIS_HOME/.cargo/registry
 
+before_install:
+  - pyenv versions
+  - pyenv global 3.6.9
+
 install:
   - rustup component add rustfmt --toolchain $TRAVIS_RUST_VERSION
-  - apt-get install -y python3.6
 
 before_script:
   # show info about bash and python as we use them
