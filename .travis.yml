@@ -16,6 +16,7 @@ git:
 # cargo-update to work
 cache:
   directories:
+    - $TRAVIS_BUILD_DIR/target
     - $TRAVIS_HOME/.cargo
 
 # But don't cache the cargo registry
@@ -42,10 +43,10 @@ script:
   - cargo clippy -- -D warnings
   - cargo fmt -- --check
 
-branches:
-  only:
-    # Push and PR to master branch
-    - master
+# branches:
+#   only:
+#     # Push and PR to master branch
+#     - master
 
 deploy:
   - provider: script
