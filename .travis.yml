@@ -17,6 +17,7 @@ git:
 cache:
   directories:
     - $TRAVIS_HOME/.cargo
+    - /opt/pyenv/versions/3.6.3
 
 # But don't cache the cargo registry
 before_cache:
