@@ -16,6 +16,7 @@ pub enum TaskStatus {
 #[derive(Clone, PartialEq, Debug)]
 pub struct TaskInstance {
     pub id_node: NodeId,
+    // todo: we have to link id to actual data
     pub id_task_definition: TaskId,
     pub id_task_runner: RunnerId,
     pub date_started: DateTimeUtc,
