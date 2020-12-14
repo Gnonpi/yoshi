@@ -9,6 +9,7 @@ use log::{debug, error, info};
 use std::collections::HashMap;
 use std::process::Command;
 use std::str;
+use std::convert::TryFrom;
 
 /// A Python task that runs a Python script
 #[derive(Clone, Debug)]
@@ -19,8 +20,10 @@ pub struct PythonTaskDefinition {
     args: Vec<String>,
 }
 
-impl From<DefinitionArguments> for PythonTaskDefinition {
-    fn from(da: DefinitionArguments) -> Self {
+impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
+    type Error = YoshiError;
+
+    fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
         let mut script_path = FilePath::new();
         let mut args: Vec<String> = vec![];
         if let Some(e) = da.get(&"script_path".to_string()) {
@@ -47,7 +50,7 @@ impl From<DefinitionArguments> for PythonTaskDefinition {
         } else {
             panic!("Not found mandatory argument 'args' for PythonTask");
         }
-        PythonTaskDefinition::new(script_path, args)
+        Ok(PythonTaskDefinition::new(script_path, args))
     }
 }
 
@@ -75,11 +78,8 @@ impl TaskDefinition for PythonTaskDefinition {
                 if !py_result.status.success() {
                     error!("Python started running but crashed");
                     error!("stderr: {:?}", str::from_utf8(&py_result.stderr));
-                    let err = YoshiError {
-                        message: "Python script was not a success".to_owned(),
-                        origin: "PythonTaskDefinition::run".to_owned(),
-                    };
-                    return Err(err);
+                    let msg_err = "Python script was not a success".to_string();
+                    return Err(YoshiError::TaskDefinitionRunFailure(msg_err))
                 }
                 let output = TaskOutput::StandardOutput {
                     stdout: str::from_utf8(&py_result.stdout).unwrap().parse().unwrap(),
@@ -90,11 +90,7 @@ impl TaskDefinition for PythonTaskDefinition {
             Err(err) => {
                 error!("Python script crashed: {}", err);
                 let msg_err = format!("Python script error: {:?}", err);
-                let err = YoshiError {
-                    message: msg_err,
-                    origin: "PythonTaskDefinition::run".to_owned(),
-                };
-                Err(err)
+                Err(YoshiError::TaskDefinitionRunFailure(msg_err))
             }
         }
     }

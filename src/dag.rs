@@ -146,10 +146,7 @@ impl Dag {
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
         if self.start_nodes.is_empty() {
-            return Err(YoshiError {
-                message: "Dag cannot start without source node".to_string(),
-                origin: "Dag.run".to_string(),
-            });
+            return Err(YoshiError::NoStartNode);
         }
         let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];
@@ -186,7 +183,10 @@ impl Dag {
                                     reason,
                                     failure_time,
                                 } => {
-                                    panic!("{:?} failed to run", node);
+                                    return Err(YoshiError::NodeFailedToRun(
+                                        node.id_node, 
+                                        node.label.as_ref().clone().cloned().unwrap_or_default()
+                                    ))
                                 }
                                 _ => {
                                     debug!("lol");
@@ -197,7 +197,7 @@ impl Dag {
                                     debug!("No message in channel yet");
                                 }
                                 _ => {
-                                    panic!("Error while reading from channel: {:?}", err);
+                                    return Err(YoshiError::ErrorWhileReadingFromRunnerChannel(err))
                                 }
                             },
                         };
@@ -210,7 +210,7 @@ impl Dag {
                         bag_of_instances.push(task_instance.clone());
                     }
                     None => {
-                        panic!("Complete node with no instance");
+                        return Err(YoshiError::CompletedNodeWithoutInstance)
                     }
                 }
 

@@ -2,9 +2,11 @@ use crate::task_definition::DefinitionArguments;
 use crate::task_definition::{
     BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition, TaskDefinition,
 };
+use std::convert::TryFrom;
+use crate::errors::YoshiError;
 
 /// Enum identifying the variant of Definition
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TaskDefinitionType {
     Bash,
     Python,
@@ -25,22 +27,23 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
 pub fn create_new_definition(
     tdt: &TaskDefinitionType,
     arguments: DefinitionArguments,
-) -> Box<dyn TaskDefinition> {
+) -> Result<Box<dyn TaskDefinition>, YoshiError> {
     match tdt {
         TaskDefinitionType::Bash => {
-            let b_def = BashTaskDefinition::from(arguments);
-            Box::new(b_def)
+            // todo: raise YoshiError from here?
+            let b_def = BashTaskDefinition::try_from(arguments).unwrap();
+            Ok(Box::new(b_def))
         }
         TaskDefinitionType::Python => {
-            let p_def = PythonTaskDefinition::from(arguments);
-            Box::new(p_def)
+            let p_def = PythonTaskDefinition::try_from(arguments).unwrap();
+            Ok(Box::new(p_def))
         }
         TaskDefinitionType::Dummy => {
-            let d_def = DummyTaskDefinition::from(arguments);
-            Box::new(d_def)
+            let d_def = DummyTaskDefinition::try_from(arguments).unwrap();
+            Ok(Box::new(d_def))
         }
         _ => {
-            panic!("Definition type not linked to TaskDefinition: {:?}", tdt);
+            Err(YoshiError::UnlinkedDefinitionType(tdt.clone()))         
         }
     }
 }
