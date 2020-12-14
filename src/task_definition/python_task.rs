@@ -32,11 +32,11 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
                     script_path = fp;
                 }
                 _ => {
-                    panic!("'script_path' for PythonTask must be a Filepath");
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry("script_path".to_string(), DefinitionArgumentType::Filepath))
                 }
             }
         } else {
-            panic!("Not found mandatory argument 'script_path' for PythonTask");
+            return Err(YoshiError::MissingDefinitionArgumentEntry("script_path".to_string()))
         }
         if let Some(e) = da.get(&"args".to_string(), DefinitionArgumentType::VecString) {
             match e {
@@ -44,11 +44,11 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
                     args = vs;
                 }
                 _ => {
-                    panic!("'args' for PythonTask must be a VecString");
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry("args".to_string(), DefinitionArgumentType::VecString))
                 }
             }
         } else {
-            panic!("Not found mandatory argument 'args' for PythonTask");
+            return Err(YoshiError::MissingDefinitionArgumentEntry("args".to_string()))
         }
         Ok(PythonTaskDefinition::new(script_path, args))
     }
