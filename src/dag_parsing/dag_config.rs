@@ -114,7 +114,7 @@ impl From<DagConfig> for Dag {
             let mut node = TaskNode::new(def_type, da, runner_type);
             node.set_label(node_cfg_id);
             node_cfg_id_to_node_id.insert(node_cfg_id.to_string(), node.id_node);
-            dag.add_task(node, None, None);
+            dag.add_task(node, None, None).unwrap();
         }
         // Adding edges
         // normally all nodes are already inserted
@@ -123,7 +123,7 @@ impl From<DagConfig> for Dag {
             let parent_node_id = node_cfg_id_to_node_id.get(parent_id).unwrap();
             for child_id in children_id.iter() {
                 let child_node_id = node_cfg_id_to_node_id.get(child_id).unwrap();
-                dag.add_edge(*parent_node_id, *child_node_id);
+                dag.add_edge(*parent_node_id, *child_node_id).unwrap();
             }
         }
 

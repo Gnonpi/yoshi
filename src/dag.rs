@@ -71,23 +71,20 @@ impl Dag {
         node: TaskNode,
         parent_ids: Option<Vec<&NodeId>>,
         children_ids: Option<Vec<&NodeId>>,
-    ) {
+    ) -> Result<(), YoshiError> {
         //Checking that parents and children ids are present
         // todo: is there a way to do this better?
         if let Some(some_parent_ids) = parent_ids.clone() {
             for parent_id in some_parent_ids.iter() {
                 if !self.contains_node(parent_id) {
-                    panic!(
-                        "Trying to add node with unexistent parent {}",
-                        parent_id.to_string()
-                    );
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**parent_id))
                 }
             }
         }
         if let Some(some_children_ids) = children_ids.clone() {
             for child_id in some_children_ids.iter() {
                 if !self.contains_node(child_id) {
-                    panic!("Trying to add node with unexistent child {}", child_id);
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**child_id))
                 }
             }
         }
@@ -108,27 +105,23 @@ impl Dag {
                 self.graph_nodes.add_edge(new_node_id, *(*child_id), ());
             }
         }
-        self.verify_dag();
+        self.verify_dag().unwrap();
+        Ok(())
     }
 
     // todo: add custom error (same as add_task)
     // todo: use ref ids instead of move
     /// Add an edge between two existing nodes
-    pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) {
+    pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) -> Result<(), YoshiError> {
         if !self.contains_node(&parent_id) {
-            panic!(
-                "Trying to add edge with unexistent parent {}",
-                parent_id.to_string()
-            );
+            return Err(YoshiError::AddingEdgeWithUnknownParent(parent_id))
         }
         if !self.contains_node(&child_id) {
-            panic!(
-                "Trying to add edge with unexistent child {}",
-                child_id.to_string()
-            );
+            return Err(YoshiError::AddingEdgeWithUnknownChild(child_id))
         }
         self.graph_nodes.add_edge(parent_id, child_id, ());
-        self.verify_dag();
+        self.verify_dag().unwrap();
+        Ok(())
     }
 
     // shitty implementation first
@@ -261,7 +254,7 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
     }
     // check every edge in self is present in other
     debug!("Equal graph nodes: contains_edge");
-    for (origin, dest, dir) in self_graph.all_edges() {
+    for (origin, dest, _dir) in self_graph.all_edges() {
         if !other_graph.contains_edge(origin, dest) {
             return false;
         }

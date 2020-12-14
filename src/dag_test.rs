@@ -24,7 +24,7 @@ fn it_can_create_a_dag() {
 fn it_can_add_one_node() {
     let mut dag = Dag::new();
     let task = _produce_task_node();
-    dag.add_task(task.clone(), None, None);
+    dag.add_task(task.clone(), None, None).unwrap();
     assert_eq!(dag.graph_nodes.node_count(), 1);
     assert!(dag.contains_node(&task.id_node));
     assert!(dag.get_node(&task.id_node).is_some());
@@ -45,9 +45,9 @@ fn it_can_add_node_with_parents() {
     let id_parent_b = parent_b.id_node.clone();
     let id_child = child.id_node.clone();
 
-    dag.add_task(parent_a, None, None);
-    dag.add_task(parent_b, None, None);
-    dag.add_task(child, Some(vec![&id_parent_a, &id_parent_b]), None);
+    dag.add_task(parent_a, None, None).unwrap();
+    dag.add_task(parent_b, None, None).unwrap();
+    dag.add_task(child, Some(vec![&id_parent_a, &id_parent_b]), None).unwrap();
 
     assert_eq!(dag.graph_nodes.node_count(), 3);
     assert_eq!(dag.graph_nodes.edge_count(), 2);
@@ -84,17 +84,17 @@ fn it_can_add_node_with_parents_and_children() {
     child_c  child_d
     */
 
-    dag.add_task(parent_a, None, None);
-    dag.add_task(parent_b, None, None);
+    dag.add_task(parent_a, None, None).unwrap();
+    dag.add_task(parent_b, None, None).unwrap();
 
-    dag.add_task(child_c, None, None);
-    dag.add_task(child_d, None, None);
+    dag.add_task(child_c, None, None).unwrap();
+    dag.add_task(child_d, None, None).unwrap();
 
     dag.add_task(
         middle_node,
         Some(vec![&id_parent_a, &id_parent_b]),
         Some(vec![&id_child_c, &id_child_d]),
-    );
+    ).unwrap();
 
     assert_eq!(dag.graph_nodes.node_count(), 5);
     assert_eq!(dag.graph_nodes.edge_count(), 4);
@@ -124,10 +124,10 @@ fn it_can_add_edge() {
     let mut dag = Dag::new();
     let task_one = _produce_task_node();
     let task_two = _produce_task_node();
-    dag.add_task(task_one.clone(), None, None);
-    dag.add_task(task_two.clone(), None, None);
+    dag.add_task(task_one.clone(), None, None).unwrap();
+    dag.add_task(task_two.clone(), None, None).unwrap();
 
-    dag.add_edge(task_one.id_node, task_two.id_node);
+    dag.add_edge(task_one.id_node, task_two.id_node).unwrap();
     assert!(dag
         .graph_nodes
         .contains_edge(task_one.id_node, task_two.id_node));
@@ -138,7 +138,7 @@ fn it_can_add_edge() {
 fn it_can_get_node() {
     let mut dag = Dag::new();
     let task = _produce_task_node();
-    dag.add_task(task.clone(), None, None);
+    dag.add_task(task.clone(), None, None).unwrap();
 
     let unknown_id_node = generate_task_definition_id();
     let no_node = dag.get_node(&unknown_id_node);
@@ -155,7 +155,7 @@ fn it_can_get_node() {
 fn it_knows_it_contain_node() {
     let mut dag = Dag::new();
     let task = _produce_task_node();
-    dag.add_task(task.clone(), None, None);
+    dag.add_task(task.clone(), None, None).unwrap();
 
     let unknown_node_id = generate_task_definition_id();
     assert!(!dag.contains_node(&unknown_node_id));
