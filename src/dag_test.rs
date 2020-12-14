@@ -1,7 +1,7 @@
 use crate::dag::Dag;
 use crate::runners::TaskRunnerType;
 use crate::task_definition::{
-    generate_task_definition_id, DefinitionArgumentType, DefinitionArguments, TaskDefinitionType,
+    generate_task_definition_id, DefinitionArguments, TaskDefinitionType,
 };
 use crate::task_node::TaskNode;
 

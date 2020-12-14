@@ -1,6 +1,6 @@
 use crate::dag_parsing::dag_config_parser::{DagConfigParser, SupportedFormat};
 use crate::dag_parsing::yaml_parser::YamlDagConfigParser;
-use crate::dag_parsing::DagParsingError;
+use crate::errors::YoshiError;
 use std::fs;
 
 fn init_logger() {
