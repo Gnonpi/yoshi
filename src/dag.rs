@@ -2,6 +2,7 @@ use crate::dag_checker::{check_contains_cycle, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
+use crate::task_definition::create_new_definition;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
 use crossbeam_channel::TryRecvError;
@@ -161,8 +162,12 @@ impl Dag {
 
                     let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
                     let (_, recv_from_runner) = node_runner.get_channels();
+                    let task_definition = create_new_definition(
+                        &node.definition_type,
+                        node.definition_arguments.clone(),
+                    ).unwrap();
                     node_runner
-                        .start_task(id_node, &(*node.definition))
+                        .start_task(id_node, &(*task_definition))
                         .unwrap();
 
                     // todo: replace with true spawning&waiting

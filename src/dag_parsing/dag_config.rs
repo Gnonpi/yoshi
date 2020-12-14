@@ -2,8 +2,7 @@ use crate::dag::Dag;
 use crate::dag_parsing::{DagConfigParser, DagParsingError, YamlDagConfigParser};
 use crate::runners::string_to_runner_type;
 use crate::task_definition::{
-    string_to_definition_type, BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition,
-    TaskDefinition, TaskDefinitionType,
+    string_to_definition_type, DefinitionArguments, TaskDefinition, TaskDefinitionType,
 };
 use crate::task_node::TaskNode;
 use crate::type_definition::{FilePath, NodeId};
@@ -105,32 +104,14 @@ impl From<DagConfig> for Dag {
             let def_type = string_to_definition_type(def_cfg.definition_type.clone()).unwrap();
             let runner_type = string_to_runner_type(runner_cfg.runner_type.clone()).unwrap();
 
-            let definition: Box<dyn TaskDefinition>;
-            match def_type {
-                TaskDefinitionType::Bash => {
-                    let commands = def_cfg.params.get("command").unwrap();
-                    definition = Box::new(BashTaskDefinition::new(vec![commands.to_string()]));
-                }
-                TaskDefinitionType::Python => {
-                    let script_path = def_cfg.params.get("script_path").unwrap();
-                    let args_string = def_cfg.params.get("args").unwrap();
-                    let mut args: Vec<String> = vec![];
-                    if args_string.to_string() == "[]".to_string() {
-                        let args: Vec<String> = vec![];
-                    } else {
-                        let args = vec![args_string.to_string()];
-                    }
-                    definition =
-                        Box::new(PythonTaskDefinition::new(FilePath::from(script_path), args));
-                }
-                TaskDefinitionType::Dummy => {
-                    let dummy = DummyTaskDefinition {};
-                    definition = Box::new(dummy);
-                }
+            // transforming def params to definition arguments
+            let mut da = DefinitionArguments::new();
+            for (key, value) in def_cfg.params.iter() {
+                da.set(key, value.to_string());
             }
 
             // creating node
-            let mut node = TaskNode::new(definition, runner_type);
+            let mut node = TaskNode::new(def_type, da, runner_type);
             node.set_label(node_cfg_id);
             node_cfg_id_to_node_id.insert(node_cfg_id.to_string(), node.id_node);
             dag.add_task(node, None, None);

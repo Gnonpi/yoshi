@@ -1,5 +1,5 @@
 use crate::type_definition::NodeId;
-use crate::task_definition::TaskDefinitionType;
+use crate::task_definition::{TaskDefinitionType, DefinitionArgumentType};
 use crossbeam_channel::TryRecvError;
 
 /// Basic error for the crate
@@ -10,8 +10,8 @@ pub enum YoshiError {
     // dag.run
     NoStartNode,
     // task definition
-    MissingDefinitionArgumentEntry,
-    WrongTypeDefinitionArgumentEntry,
+    MissingDefinitionArgumentEntry(String),
+    WrongTypeDefinitionArgumentEntry(String, DefinitionArgumentType),
     TaskDefinitionRunFailure(String),
     // dag.add_task & dag.add_edge
     AddingNodeWithUnknownParent,

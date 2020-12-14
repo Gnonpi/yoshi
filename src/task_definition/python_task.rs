@@ -1,7 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{
-    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
-    TaskDefinitionType,
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArgumentType,
+    DefinitionArguments, TaskDefinition, TaskDefinitionType,
 };
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
@@ -26,7 +26,7 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
     fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
         let mut script_path = FilePath::new();
         let mut args: Vec<String> = vec![];
-        if let Some(e) = da.get(&"script_path".to_string()) {
+        if let Some(e) = da.get(&"script_path".to_string(), DefinitionArgumentType::Filepath) {
             match e {
                 DefinitionArgumentElement::Filepath(fp) => {
                     script_path = fp;
@@ -38,7 +38,7 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
         } else {
             panic!("Not found mandatory argument 'script_path' for PythonTask");
         }
-        if let Some(e) = da.get(&"args".to_string()) {
+        if let Some(e) = da.get(&"args".to_string(), DefinitionArgumentType::VecString) {
             match e {
                 DefinitionArgumentElement::VecString(vs) => {
                     args = vs;

@@ -1,7 +1,7 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{
-    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
-    TaskDefinitionType,
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArgumentType,
+    DefinitionArguments, TaskDefinition, TaskDefinitionType,
 };
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
@@ -22,15 +22,15 @@ impl TryFrom<DefinitionArguments> for BashTaskDefinition {
     type Error = YoshiError;
 
     fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
-        if let Some(e) = da.get(&"command".to_string()) {
+        if let Some(e) = da.get(&"command".to_string(), DefinitionArgumentType::VecString) {
             match e {
                 DefinitionArgumentElement::VecString(vs) => Ok(BashTaskDefinition::new(vs)),
                 _ => {
-                    panic!("Trying to create BashTask with something other than String");
+                    Err(YoshiError::WrongTypeDefinitionArgumentEntry("command".to_string(), DefinitionArgumentType::VecString))
                 }
             }
         } else {
-            panic!("Could not find parameter 'command' to create BashTask");
+            Err(YoshiError::MissingDefinitionArgumentEntry("command".to_string()))
         }
     }
 }

@@ -7,11 +7,7 @@ use std::collections::HashMap;
 fn it_can_create_bash_def() {
     let mut da = DefinitionArguments::new();
     let command = "[\"echo\", \"'1'\"]".to_string();
-    da.set(
-        &"command".to_string(),
-        command.clone(),
-        DefinitionArgumentType::VecString,
-    );
+    da.set(&"command".to_string(), command.clone());
 
     let b_def = create_new_definition(&TaskDefinitionType::Bash, da).unwrap();
     assert_eq!(b_def.task_type(), TaskDefinitionType::Bash);
@@ -27,16 +23,8 @@ fn it_can_create_python_def() {
     let mut da = DefinitionArguments::new();
     let script_path = String::from("/tmp/script.py");
     let args = String::from("[\"one\"]");
-    da.set(
-        &"script_path".to_string(),
-        script_path.clone(),
-        DefinitionArgumentType::Filepath,
-    );
-    da.set(
-        &"args".to_string(),
-        args.clone(),
-        DefinitionArgumentType::VecString,
-    );
+    da.set(&"script_path".to_string(), script_path.clone());
+    da.set(&"args".to_string(), args.clone());
 
     let p_def = create_new_definition(&TaskDefinitionType::Python, da).unwrap();
     assert_eq!(p_def.task_type(), TaskDefinitionType::Python);
