@@ -77,14 +77,14 @@ impl Dag {
         if let Some(some_parent_ids) = parent_ids.clone() {
             for parent_id in some_parent_ids.iter() {
                 if !self.contains_node(parent_id) {
-                    return Err(YoshiError::AddingNodeWithUnknownParent(**parent_id))
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**parent_id));
                 }
             }
         }
         if let Some(some_children_ids) = children_ids.clone() {
             for child_id in some_children_ids.iter() {
                 if !self.contains_node(child_id) {
-                    return Err(YoshiError::AddingNodeWithUnknownParent(**child_id))
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**child_id));
                 }
             }
         }
@@ -114,10 +114,10 @@ impl Dag {
     /// Add an edge between two existing nodes
     pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) -> Result<(), YoshiError> {
         if !self.contains_node(&parent_id) {
-            return Err(YoshiError::AddingEdgeWithUnknownParent(parent_id))
+            return Err(YoshiError::AddingEdgeWithUnknownParent(parent_id));
         }
         if !self.contains_node(&child_id) {
-            return Err(YoshiError::AddingEdgeWithUnknownChild(child_id))
+            return Err(YoshiError::AddingEdgeWithUnknownChild(child_id));
         }
         self.graph_nodes.add_edge(parent_id, child_id, ());
         self.verify_dag().unwrap();
@@ -158,7 +158,8 @@ impl Dag {
                     let task_definition = create_new_definition(
                         &node.definition_type,
                         node.definition_arguments.clone(),
-                    ).unwrap();
+                    )
+                    .unwrap();
                     node_runner
                         .start_task(id_node, &(*task_definition))
                         .unwrap();
@@ -182,8 +183,8 @@ impl Dag {
                                     failure_time,
                                 } => {
                                     return Err(YoshiError::NodeFailedToRun(
-                                        node.id_node, 
-                                        node.label.as_ref().clone().cloned().unwrap_or_default()
+                                        node.id_node,
+                                        node.label.as_ref().clone().cloned().unwrap_or_default(),
                                     ))
                                 }
                                 _ => {
@@ -207,9 +208,7 @@ impl Dag {
                         debug!("Storing task instance");
                         bag_of_instances.push(task_instance.clone());
                     }
-                    None => {
-                        return Err(YoshiError::CompletedNodeWithoutInstance)
-                    }
+                    None => return Err(YoshiError::CompletedNodeWithoutInstance),
                 }
 
                 // Add the children to next bag

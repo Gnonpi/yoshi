@@ -1,5 +1,5 @@
+use crate::task_definition::{DefinitionArgumentType, TaskDefinitionType};
 use crate::type_definition::NodeId;
-use crate::task_definition::{TaskDefinitionType, DefinitionArgumentType};
 use crossbeam_channel::TryRecvError;
 use std::error::Error;
 use std::fmt;
@@ -10,22 +10,22 @@ pub enum YoshiError {
     // check dag
     DagContainsCycle,
     NoStartNode,
-    
+
     // definition factory
     UnlinkedDefinitionType(TaskDefinitionType),
-    
+
     // creating and running definitions
     MissingDefinitionArgumentEntry(String),
     WrongTypeDefinitionArgumentEntry(String, DefinitionArgumentType),
     TaskDefinitionRunFailure(String),
-    
+
     // adding elements to dag
     AddingNodeWithUnknownParent(NodeId),
     AddingNodeWithUnknownChild(NodeId),
 
     AddingEdgeWithUnknownParent(NodeId),
     AddingEdgeWithUnknownChild(NodeId),
-    
+
     // running dag
     NodeFailedToRun(NodeId, String),
     ErrorWhileReadingFromRunnerChannel(TryRecvError),
@@ -36,26 +36,26 @@ pub enum YoshiError {
     ParsingNodeIncompatibleEntries {
         node_label: String,
         entry_one: String,
-        entry_two: String
+        entry_two: String,
     },
     ParsingNodeUnknownRefDefinition {
         node_label: String,
-        ref_definition: String
+        ref_definition: String,
     },
     ParsingNodeUnknownRefRunner {
         node_label: String,
-        ref_runner: String
+        ref_runner: String,
     },
     ParsingEdgeUnknownParent(String),
     ParsingEdgeOrphanNode {
         parent_id: String,
-        child_id: String
+        child_id: String,
     },
     UnknownConfigSuffix(String),
     CannotValidateConfig,
 
     // dev
-    ToImplementSoon
+    ToImplementSoon,
 }
 
 impl fmt::Display for YoshiError {
@@ -74,4 +74,3 @@ impl Error for YoshiError {
         None
     }
 }
-

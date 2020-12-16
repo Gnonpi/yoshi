@@ -1,9 +1,9 @@
+use crate::errors::YoshiError;
 use crate::task_definition::DefinitionArguments;
 use crate::task_definition::{
     BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition, TaskDefinition,
 };
 use std::convert::TryFrom;
-use crate::errors::YoshiError;
 
 /// Enum identifying the variant of Definition
 #[derive(Debug, Clone, PartialEq)]
@@ -42,9 +42,7 @@ pub fn create_new_definition(
             let d_def = DummyTaskDefinition::try_from(arguments).unwrap();
             Ok(Box::new(d_def))
         }
-        _ => {
-            Err(YoshiError::UnlinkedDefinitionType(tdt.clone()))         
-        }
+        _ => Err(YoshiError::UnlinkedDefinitionType(tdt.clone())),
     }
 }
 

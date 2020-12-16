@@ -47,7 +47,8 @@ fn it_can_add_node_with_parents() {
 
     dag.add_task(parent_a, None, None).unwrap();
     dag.add_task(parent_b, None, None).unwrap();
-    dag.add_task(child, Some(vec![&id_parent_a, &id_parent_b]), None).unwrap();
+    dag.add_task(child, Some(vec![&id_parent_a, &id_parent_b]), None)
+        .unwrap();
 
     assert_eq!(dag.graph_nodes.node_count(), 3);
     assert_eq!(dag.graph_nodes.edge_count(), 2);
@@ -94,7 +95,8 @@ fn it_can_add_node_with_parents_and_children() {
         middle_node,
         Some(vec![&id_parent_a, &id_parent_b]),
         Some(vec![&id_child_c, &id_child_d]),
-    ).unwrap();
+    )
+    .unwrap();
 
     assert_eq!(dag.graph_nodes.node_count(), 5);
     assert_eq!(dag.graph_nodes.edge_count(), 4);

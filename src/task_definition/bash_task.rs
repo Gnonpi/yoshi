@@ -7,9 +7,9 @@ use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::process::Command;
 use std::str;
-use std::convert::TryFrom;
 
 /// A Bash task that runs a Bash command
 #[derive(Clone, Debug)]
@@ -25,12 +25,15 @@ impl TryFrom<DefinitionArguments> for BashTaskDefinition {
         if let Some(e) = da.get(&"command".to_string(), DefinitionArgumentType::VecString) {
             match e {
                 DefinitionArgumentElement::VecString(vs) => Ok(BashTaskDefinition::new(vs)),
-                _ => {
-                    Err(YoshiError::WrongTypeDefinitionArgumentEntry("command".to_string(), DefinitionArgumentType::VecString))
-                }
+                _ => Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                    "command".to_string(),
+                    DefinitionArgumentType::VecString,
+                )),
             }
         } else {
-            Err(YoshiError::MissingDefinitionArgumentEntry("command".to_string()))
+            Err(YoshiError::MissingDefinitionArgumentEntry(
+                "command".to_string(),
+            ))
         }
     }
 }
@@ -55,7 +58,7 @@ impl TaskDefinition for BashTaskDefinition {
                 if !bash_result.status.success() {
                     error!("Bash command crashed");
                     return Err(YoshiError::TaskDefinitionRunFailure(
-                        "Bash command crashed".to_string()
+                        "Bash command crashed".to_string(),
                     ));
                 }
                 let output = TaskOutput::StandardOutput {

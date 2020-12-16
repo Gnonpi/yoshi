@@ -7,9 +7,9 @@ use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::process::Command;
 use std::str;
-use std::convert::TryFrom;
 
 /// A Python task that runs a Python script
 #[derive(Clone, Debug)]
@@ -32,11 +32,16 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
                     script_path = fp;
                 }
                 _ => {
-                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry("script_path".to_string(), DefinitionArgumentType::Filepath))
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                        "script_path".to_string(),
+                        DefinitionArgumentType::Filepath,
+                    ))
                 }
             }
         } else {
-            return Err(YoshiError::MissingDefinitionArgumentEntry("script_path".to_string()))
+            return Err(YoshiError::MissingDefinitionArgumentEntry(
+                "script_path".to_string(),
+            ));
         }
         if let Some(e) = da.get(&"args".to_string(), DefinitionArgumentType::VecString) {
             match e {
@@ -44,11 +49,16 @@ impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
                     args = vs;
                 }
                 _ => {
-                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry("args".to_string(), DefinitionArgumentType::VecString))
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                        "args".to_string(),
+                        DefinitionArgumentType::VecString,
+                    ))
                 }
             }
         } else {
-            return Err(YoshiError::MissingDefinitionArgumentEntry("args".to_string()))
+            return Err(YoshiError::MissingDefinitionArgumentEntry(
+                "args".to_string(),
+            ));
         }
         Ok(PythonTaskDefinition::new(script_path, args))
     }
@@ -79,7 +89,7 @@ impl TaskDefinition for PythonTaskDefinition {
                     error!("Python started running but crashed");
                     error!("stderr: {:?}", str::from_utf8(&py_result.stderr));
                     let msg_err = "Python script was not a success".to_string();
-                    return Err(YoshiError::TaskDefinitionRunFailure(msg_err))
+                    return Err(YoshiError::TaskDefinitionRunFailure(msg_err));
                 }
                 let output = TaskOutput::StandardOutput {
                     stdout: str::from_utf8(&py_result.stdout).unwrap().parse().unwrap(),

@@ -43,7 +43,8 @@ fn can_mount_simple_dag() {
 
     // Adding tasks to dag
     dag.add_task(python_node.clone(), None, None).unwrap();
-    dag.add_task(bash_node.clone(), Some(vec![&python_node_id]), None).unwrap();
+    dag.add_task(bash_node.clone(), Some(vec![&python_node_id]), None)
+        .unwrap();
 
     // Running
     let date_before_run = Utc::now();

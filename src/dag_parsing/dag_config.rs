@@ -1,11 +1,9 @@
 use crate::dag::Dag;
 use crate::dag_parsing::{DagConfigParser, YamlDagConfigParser};
-use crate::runners::string_to_runner_type;
-use crate::task_definition::{
-    string_to_definition_type, DefinitionArguments
-};
-use crate::task_node::TaskNode;
 use crate::errors::YoshiError;
+use crate::runners::string_to_runner_type;
+use crate::task_definition::{string_to_definition_type, DefinitionArguments};
+use crate::task_node::TaskNode;
 use crate::type_definition::{FilePath, NodeId};
 use log::{debug, error, info};
 use std::collections::HashMap;
@@ -160,7 +158,9 @@ pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, YoshiError> {
             parser = YamlDagConfigParser {};
         }
         _ => {
-            return Err(YoshiError::UnknownConfigSuffix(suffix.to_str().unwrap().to_string()))
+            return Err(YoshiError::UnknownConfigSuffix(
+                suffix.to_str().unwrap().to_string(),
+            ))
         }
     }
     // pass parser and filepath to get_dag_config_from_file
