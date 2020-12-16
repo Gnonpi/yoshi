@@ -4,7 +4,7 @@ use std::collections::HashMap;
 // todo: review visibility
 /// Identify what type of argument we're saving.
 /// Allow to parse back a string saved
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub enum DefinitionArgumentType {
     AString, // A-string to differentiate from type
     Filepath,
@@ -25,8 +25,9 @@ pub enum DefinitionArgumentElement {
 }
 
 /// Save the arguments to pass to a definition
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct DefinitionArguments {
-    map: HashMap<String, (String, DefinitionArgumentType)>,
+    map: HashMap<String, String>,
 }
 
 // todo: temporary, use a library or something more efficient and fail-proff
@@ -70,15 +71,19 @@ impl DefinitionArguments {
         }
     }
 
-    pub fn set(&mut self, key: &String, value: String, da_type: DefinitionArgumentType) {
-        self.map.insert(key.to_string(), (value, da_type));
+    pub fn set(&mut self, key: &String, value: String) {
+        self.map.insert(key.to_string(), value);
     }
 
-    pub fn get(&self, key: &String) -> Option<DefinitionArgumentElement> {
+    pub fn get(
+        &self,
+        key: &String,
+        da_type: DefinitionArgumentType,
+    ) -> Option<DefinitionArgumentElement> {
         match self.map.get(key) {
-            Some((v, t)) => {
+            Some(v) => {
                 let value = v.to_string();
-                match t {
+                match da_type {
                     DefinitionArgumentType::AString => {
                         Some(DefinitionArgumentElement::AString(value))
                     }

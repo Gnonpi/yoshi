@@ -72,7 +72,7 @@ fn it_returns_the_task_instance() {
     let mut ltr = LocalTaskRunner::new();
     let node_id = NodeId::new_v4();
     let task_def = _produce_task_def();
-    let (snd_to, rcv_from) = ltr.get_channels();
+    let (_snd_to, _rcv_from) = ltr.get_channels();
     let res = ltr.start_task(node_id.clone(), &task_def);
     assert!(res.is_ok());
     let s_instance = ltr.get_task_instance();

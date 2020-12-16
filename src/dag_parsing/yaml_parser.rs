@@ -3,7 +3,7 @@ use super::dag_config::{
     RunnerConfigId,
 };
 use super::dag_config_parser::{DagConfigParser, SupportedFormat};
-use crate::dag_parsing::DagParsingError;
+use crate::errors::YoshiError;
 use log::{debug, info};
 use serde::Deserialize;
 use serde_yaml;
@@ -118,7 +118,7 @@ fn convert_yaml_value_to_string(value: &Value) -> String {
 }
 
 /// Build a DagConfig from a parsed yaml
-fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingError> {
+fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, YoshiError> {
     debug!("{:#?}", config);
     let mut map_nodes: HashMap<NodeConfigId, NodeConfig> = HashMap::new();
     let mut map_definitions: HashMap<DefinitionConfigId, DefinitionConfig> = HashMap::new();
@@ -162,19 +162,16 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
     info!("Processing node entries");
     if config.nodes.len() == 0 {
         // todo: replace errors in this function by more specific ones
-        return Err(DagParsingError {
-            reason: String::from("Parsed config has no nodes"),
-        });
+        return Err(YoshiError::ParsingNoNodes);
     }
     for (node_name, parsed_node) in config.nodes.iter() {
         // Node--Definition
         // parsed node cannot contain both definition and ref_definition
         if parsed_node.ref_definition.is_some() && parsed_node.definition.is_some() {
-            return Err(DagParsingError {
-                reason: format!(
-                    "Node '{}' cannot have both 'ref_definition' and 'definition' sections",
-                    node_name
-                ),
+            return Err(YoshiError::ParsingNodeIncompatibleEntries {
+                node_label: node_name.to_string(),
+                entry_one: "ref_definition".to_string(),
+                entry_two: "definition".to_string(),
             });
         }
         let used_ref_definition = match &parsed_node.definition {
@@ -200,11 +197,9 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
                 // check that referenced definition is in map
                 let ref_def = parsed_node.ref_definition.as_ref().unwrap().to_string();
                 if !map_definitions.contains_key(&ref_def) {
-                    return Err(DagParsingError {
-                        reason: format!(
-                            "Ref definition '{}' in '{}' not known",
-                            ref_def, node_name
-                        ),
+                    return Err(YoshiError::ParsingNodeUnknownRefDefinition {
+                        node_label: node_name.to_string(),
+                        ref_definition: ref_def.to_string(),
                     });
                 } else {
                     ref_def
@@ -215,11 +210,10 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
         // Node--Runner
         // parsed node cannot contain both runner and ref_runner
         if parsed_node.ref_runner.is_some() && parsed_node.runner.is_some() {
-            return Err(DagParsingError {
-                reason: format!(
-                    "Node '{}' cannot have both 'ref_runner' and 'runner' sections",
-                    node_name
-                ),
+            return Err(YoshiError::ParsingNodeIncompatibleEntries {
+                node_label: node_name.to_string(),
+                entry_one: "ref_runner".to_string(),
+                entry_two: "runner".to_string(),
             });
         }
         // todo: it's the same thing as definition, should be refactored in one function?
@@ -237,8 +231,9 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
             None => {
                 let ref_runner = parsed_node.ref_runner.as_ref().unwrap().to_string();
                 if !map_runners.contains_key(&ref_runner) {
-                    return Err(DagParsingError {
-                        reason: format!("Ref runner '{}' in '{}' not known", ref_runner, node_name),
+                    return Err(YoshiError::ParsingNodeUnknownRefRunner {
+                        node_label: node_name.to_string(),
+                        ref_runner: ref_runner.to_string(),
                     });
                 } else {
                     ref_runner
@@ -270,18 +265,16 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
     if config.dag.is_some() {
         for (parent_node, node_children) in config.dag.unwrap().iter() {
             if !map_nodes.contains_key(parent_node) {
-                return Err(DagParsingError {
-                    reason: format!("Adding children to not known node '{:?}'", parent_node),
-                });
+                return Err(YoshiError::ParsingEdgeUnknownParent(
+                    parent_node.to_string(),
+                ));
             }
             match node_children {
                 ParsedYamlDagEdges::Child(child) => {
                     if !map_nodes.contains_key(child) {
-                        return Err(DagParsingError {
-                            reason: format!(
-                                "Adding not known node '{:?}' to '{:?}'",
-                                child, parent_node
-                            ),
+                        return Err(YoshiError::ParsingEdgeOrphanNode {
+                            parent_id: parent_node.to_string(),
+                            child_id: child.to_string(),
                         });
                     }
                     dag_edges.insert(parent_node.to_string(), vec![child.to_string()]);
@@ -289,11 +282,9 @@ fn build_dag_config(config: ParsedYamlConfig) -> Result<DagConfig, DagParsingErr
                 ParsedYamlDagEdges::Children(children) => {
                     for child in children.iter() {
                         if !map_nodes.contains_key(child) {
-                            return Err(DagParsingError {
-                                reason: format!(
-                                    "Adding not known node '{:?}' to '{:?}'",
-                                    child, parent_node
-                                ),
+                            return Err(YoshiError::ParsingEdgeOrphanNode {
+                                parent_id: parent_node.to_string(),
+                                child_id: child.to_string(),
                             });
                         }
                     }
@@ -328,7 +319,7 @@ impl DagConfigParser for YamlDagConfigParser {
         true
     }
 
-    fn parse_file(&self, content: String) -> Result<DagConfig, DagParsingError> {
+    fn parse_file(&self, content: String) -> Result<DagConfig, YoshiError> {
         info!("Creating DagConfig from YAML");
         let parsed_content = serde_yaml::from_str(&content).unwrap();
         build_dag_config(parsed_content)

@@ -5,15 +5,18 @@ use crate::task_definition::{
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
+use std::convert::TryFrom;
 
 /// A task definition that cannot fail,
 /// use to sync
 #[derive(Clone, Debug)]
 pub struct DummyTaskDefinition {}
 
-impl From<DefinitionArguments> for DummyTaskDefinition {
-    fn from(da: DefinitionArguments) -> Self {
-        DummyTaskDefinition::new()
+impl TryFrom<DefinitionArguments> for DummyTaskDefinition {
+    type Error = YoshiError;
+
+    fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
+        Ok(DummyTaskDefinition::new())
     }
 }
 

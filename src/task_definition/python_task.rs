@@ -1,12 +1,13 @@
 use crate::errors::YoshiError;
 use crate::task_definition::{
-    generate_task_definition_id, DefinitionArgumentElement, DefinitionArguments, TaskDefinition,
-    TaskDefinitionType,
+    generate_task_definition_id, DefinitionArgumentElement, DefinitionArgumentType,
+    DefinitionArguments, TaskDefinition, TaskDefinitionType,
 };
 use crate::task_output::TaskOutput;
 use crate::type_definition::{FilePath, TaskId};
 use log::{debug, error, info};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::process::Command;
 use std::str;
 
@@ -19,35 +20,47 @@ pub struct PythonTaskDefinition {
     args: Vec<String>,
 }
 
-impl From<DefinitionArguments> for PythonTaskDefinition {
-    fn from(da: DefinitionArguments) -> Self {
+impl TryFrom<DefinitionArguments> for PythonTaskDefinition {
+    type Error = YoshiError;
+
+    fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
         let mut script_path = FilePath::new();
         let mut args: Vec<String> = vec![];
-        if let Some(e) = da.get(&"script_path".to_string()) {
+        if let Some(e) = da.get(&"script_path".to_string(), DefinitionArgumentType::Filepath) {
             match e {
                 DefinitionArgumentElement::Filepath(fp) => {
                     script_path = fp;
                 }
                 _ => {
-                    panic!("'script_path' for PythonTask must be a Filepath");
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                        "script_path".to_string(),
+                        DefinitionArgumentType::Filepath,
+                    ))
                 }
             }
         } else {
-            panic!("Not found mandatory argument 'script_path' for PythonTask");
+            return Err(YoshiError::MissingDefinitionArgumentEntry(
+                "script_path".to_string(),
+            ));
         }
-        if let Some(e) = da.get(&"args".to_string()) {
+        if let Some(e) = da.get(&"args".to_string(), DefinitionArgumentType::VecString) {
             match e {
                 DefinitionArgumentElement::VecString(vs) => {
                     args = vs;
                 }
                 _ => {
-                    panic!("'args' for PythonTask must be a VecString");
+                    return Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                        "args".to_string(),
+                        DefinitionArgumentType::VecString,
+                    ))
                 }
             }
         } else {
-            panic!("Not found mandatory argument 'args' for PythonTask");
+            return Err(YoshiError::MissingDefinitionArgumentEntry(
+                "args".to_string(),
+            ));
         }
-        PythonTaskDefinition::new(script_path, args)
+        Ok(PythonTaskDefinition::new(script_path, args))
     }
 }
 
@@ -75,11 +88,8 @@ impl TaskDefinition for PythonTaskDefinition {
                 if !py_result.status.success() {
                     error!("Python started running but crashed");
                     error!("stderr: {:?}", str::from_utf8(&py_result.stderr));
-                    let err = YoshiError {
-                        message: "Python script was not a success".to_owned(),
-                        origin: "PythonTaskDefinition::run".to_owned(),
-                    };
-                    return Err(err);
+                    let msg_err = "Python script was not a success".to_string();
+                    return Err(YoshiError::TaskDefinitionRunFailure(msg_err));
                 }
                 let output = TaskOutput::StandardOutput {
                     stdout: str::from_utf8(&py_result.stdout).unwrap().parse().unwrap(),
@@ -90,11 +100,7 @@ impl TaskDefinition for PythonTaskDefinition {
             Err(err) => {
                 error!("Python script crashed: {}", err);
                 let msg_err = format!("Python script error: {:?}", err);
-                let err = YoshiError {
-                    message: msg_err,
-                    origin: "PythonTaskDefinition::run".to_owned(),
-                };
-                Err(err)
+                Err(YoshiError::TaskDefinitionRunFailure(msg_err))
             }
         }
     }

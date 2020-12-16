@@ -1,6 +1,6 @@
 use crate::dag::Dag;
 use crate::dag_checker::{check_contains_cycle, find_sink_nodes, find_source_nodes};
-use crate::task_definition::DummyTaskDefinition;
+use crate::task_definition::{DefinitionArguments, TaskDefinitionType};
 use crate::task_node::TaskNode;
 use crate::type_definition::RunnerId;
 
@@ -31,16 +31,23 @@ fn it_can_find_sources_nodes() {
     let res = find_source_nodes(&dag);
     assert_eq!(res.len(), 0);
 
-    let t_def = DummyTaskDefinition {};
-    let first_node = TaskNode::new(Box::new(t_def), RunnerId::Fake);
+    let first_node = TaskNode::new(
+        TaskDefinitionType::Dummy,
+        DefinitionArguments::new(),
+        RunnerId::Fake,
+    );
     let first_id = first_node.id_node.clone();
-    dag.add_task(first_node, None, None);
+    dag.add_task(first_node, None, None).unwrap();
     let res = find_source_nodes(&dag);
     assert_eq!(res, vec![first_id]);
 
-    let t_def = DummyTaskDefinition {};
-    let second_node = TaskNode::new(Box::new(t_def), RunnerId::Fake);
-    dag.add_task(second_node, Some(vec![&first_id]), None);
+    let second_node = TaskNode::new(
+        TaskDefinitionType::Dummy,
+        DefinitionArguments::new(),
+        RunnerId::Fake,
+    );
+    dag.add_task(second_node, Some(vec![&first_id]), None)
+        .unwrap();
     let res = find_source_nodes(&dag);
     assert_eq!(res, vec![first_id]);
 }
@@ -51,17 +58,24 @@ fn it_can_find_sink_nodes() {
     let res = find_source_nodes(&dag);
     assert_eq!(res.len(), 0);
 
-    let t_def = DummyTaskDefinition {};
-    let first_node = TaskNode::new(Box::new(t_def), RunnerId::Fake);
+    let first_node = TaskNode::new(
+        TaskDefinitionType::Dummy,
+        DefinitionArguments::new(),
+        RunnerId::Fake,
+    );
     let first_id = first_node.id_node.clone();
-    dag.add_task(first_node, None, None);
+    dag.add_task(first_node, None, None).unwrap();
     let res = find_sink_nodes(&dag);
     assert_eq!(res, vec![first_id]);
 
-    let t_def = DummyTaskDefinition {};
-    let second_node = TaskNode::new(Box::new(t_def), RunnerId::Fake);
+    let second_node = TaskNode::new(
+        TaskDefinitionType::Dummy,
+        DefinitionArguments::new(),
+        RunnerId::Fake,
+    );
     let second_id = second_node.id_node.clone();
-    dag.add_task(second_node, Some(vec![&first_id]), None);
+    dag.add_task(second_node, Some(vec![&first_id]), None)
+        .unwrap();
     let res = find_sink_nodes(&dag);
     assert_eq!(res, vec![second_id]);
 }

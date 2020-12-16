@@ -2,6 +2,7 @@ use crate::dag_checker::{check_contains_cycle, find_source_nodes};
 use crate::errors::YoshiError;
 use crate::runners::MessageFromRunner::{Done, Failure};
 use crate::runners::TaskRunnerFactory;
+use crate::task_definition::create_new_definition;
 use crate::task_node::TaskNode;
 use crate::type_definition::NodeId;
 use crossbeam_channel::TryRecvError;
@@ -70,23 +71,20 @@ impl Dag {
         node: TaskNode,
         parent_ids: Option<Vec<&NodeId>>,
         children_ids: Option<Vec<&NodeId>>,
-    ) {
+    ) -> Result<(), YoshiError> {
         //Checking that parents and children ids are present
         // todo: is there a way to do this better?
         if let Some(some_parent_ids) = parent_ids.clone() {
             for parent_id in some_parent_ids.iter() {
                 if !self.contains_node(parent_id) {
-                    panic!(
-                        "Trying to add node with unexistent parent {}",
-                        parent_id.to_string()
-                    );
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**parent_id));
                 }
             }
         }
         if let Some(some_children_ids) = children_ids.clone() {
             for child_id in some_children_ids.iter() {
                 if !self.contains_node(child_id) {
-                    panic!("Trying to add node with unexistent child {}", child_id);
+                    return Err(YoshiError::AddingNodeWithUnknownParent(**child_id));
                 }
             }
         }
@@ -107,27 +105,23 @@ impl Dag {
                 self.graph_nodes.add_edge(new_node_id, *(*child_id), ());
             }
         }
-        self.verify_dag();
+        self.verify_dag().unwrap();
+        Ok(())
     }
 
     // todo: add custom error (same as add_task)
     // todo: use ref ids instead of move
     /// Add an edge between two existing nodes
-    pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) {
+    pub fn add_edge(&mut self, parent_id: NodeId, child_id: NodeId) -> Result<(), YoshiError> {
         if !self.contains_node(&parent_id) {
-            panic!(
-                "Trying to add edge with unexistent parent {}",
-                parent_id.to_string()
-            );
+            return Err(YoshiError::AddingEdgeWithUnknownParent(parent_id));
         }
         if !self.contains_node(&child_id) {
-            panic!(
-                "Trying to add edge with unexistent child {}",
-                child_id.to_string()
-            );
+            return Err(YoshiError::AddingEdgeWithUnknownChild(child_id));
         }
         self.graph_nodes.add_edge(parent_id, child_id, ());
-        self.verify_dag();
+        self.verify_dag().unwrap();
+        Ok(())
     }
 
     // shitty implementation first
@@ -146,10 +140,7 @@ impl Dag {
     pub fn run(&mut self) -> Result<(), YoshiError> {
         info!("Starting dag");
         if self.start_nodes.is_empty() {
-            return Err(YoshiError {
-                message: "Dag cannot start without source node".to_string(),
-                origin: "Dag.run".to_string(),
-            });
+            return Err(YoshiError::NoStartNode);
         }
         let mut bag_of_nodes = self.start_nodes.clone();
         let mut bag_of_instances = vec![];
@@ -164,8 +155,13 @@ impl Dag {
 
                     let mut node_runner = TaskRunnerFactory::new_runner(&(*node).id_runner);
                     let (_, recv_from_runner) = node_runner.get_channels();
+                    let task_definition = create_new_definition(
+                        &node.definition_type,
+                        node.definition_arguments.clone(),
+                    )
+                    .unwrap();
                     node_runner
-                        .start_task(id_node, &(*node.definition))
+                        .start_task(id_node, &(*task_definition))
                         .unwrap();
 
                     // todo: replace with true spawning&waiting
@@ -186,7 +182,10 @@ impl Dag {
                                     reason,
                                     failure_time,
                                 } => {
-                                    panic!("{:?} failed to run", node);
+                                    return Err(YoshiError::NodeFailedToRun(
+                                        node.id_node,
+                                        node.label.as_ref().clone().cloned().unwrap_or_default(),
+                                    ))
                                 }
                                 _ => {
                                     debug!("lol");
@@ -197,7 +196,7 @@ impl Dag {
                                     debug!("No message in channel yet");
                                 }
                                 _ => {
-                                    panic!("Error while reading from channel: {:?}", err);
+                                    return Err(YoshiError::ErrorWhileReadingFromRunnerChannel(err))
                                 }
                             },
                         };
@@ -209,9 +208,7 @@ impl Dag {
                         debug!("Storing task instance");
                         bag_of_instances.push(task_instance.clone());
                     }
-                    None => {
-                        panic!("Complete node with no instance");
-                    }
+                    None => return Err(YoshiError::CompletedNodeWithoutInstance),
                 }
 
                 // Add the children to next bag
@@ -256,7 +253,7 @@ fn equal_graph_nodes(self_graph: &GraphNodeId, other_graph: &GraphNodeId) -> boo
     }
     // check every edge in self is present in other
     debug!("Equal graph nodes: contains_edge");
-    for (origin, dest, dir) in self_graph.all_edges() {
+    for (origin, dest, _dir) in self_graph.all_edges() {
         if !other_graph.contains_edge(origin, dest) {
             return false;
         }
