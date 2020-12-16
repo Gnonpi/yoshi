@@ -1,6 +1,6 @@
 [package]
 name = "yoshi"
-version = "0.0.4"
+version = "0.0.5"
 authors = ["gnonpi <legnonpi@gmail.com>"]
 edition = "2018"
 description = "Build complex pipelines of batch jobs - inspired by Python's Luigi"
