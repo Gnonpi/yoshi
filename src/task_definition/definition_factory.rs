@@ -11,6 +11,8 @@ pub enum TaskDefinitionType {
     Bash,
     Python,
     Dummy,
+    Postgressql,
+    Sqlite
 }
 
 /// Given a string, return an enum that link to a definition variant

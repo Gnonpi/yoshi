@@ -15,3 +15,9 @@ pub use definition_factory::{
 pub use dummy_task::DummyTaskDefinition;
 pub use python_task::PythonTaskDefinition;
 pub use task_def::{generate_task_definition_id, TaskDefinition};
+
+// #[cfg(feature = "db_task")]
+mod db_task;
+// #[cfg(feature = "db_task")]
+pub use db_task::DbConnector;
+
