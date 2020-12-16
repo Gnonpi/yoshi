@@ -1,5 +1,5 @@
 use super::dag_config::DagConfig;
-use crate::dag_parsing::DagParsingError;
+use crate::errors::YoshiError;
 
 #[derive(Debug, PartialEq)]
 pub enum SupportedFormat {
@@ -16,7 +16,7 @@ pub trait DagConfigParser {
     fn validate(&self, content: &String) -> bool;
 
     /// Parse string and return
-    fn parse_file(&self, content: String) -> Result<DagConfig, DagParsingError>;
+    fn parse_file(&self, content: String) -> Result<DagConfig, YoshiError>;
 }
 
 // i've added the &self in the signatures to quiet the

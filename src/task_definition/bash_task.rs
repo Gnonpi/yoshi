@@ -7,6 +7,7 @@ use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
 use log::{debug, error, info};
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use std::process::Command;
 use std::str;
 
@@ -17,17 +18,22 @@ pub struct BashTaskDefinition {
     command: Vec<String>,
 }
 
-impl From<DefinitionArguments> for BashTaskDefinition {
-    fn from(da: DefinitionArguments) -> Self {
+impl TryFrom<DefinitionArguments> for BashTaskDefinition {
+    type Error = YoshiError;
+
+    fn try_from(da: DefinitionArguments) -> Result<Self, Self::Error> {
         if let Some(e) = da.get(&"command".to_string(), DefinitionArgumentType::VecString) {
             match e {
-                DefinitionArgumentElement::VecString(vs) => BashTaskDefinition::new(vs),
-                _ => {
-                    panic!("Trying to create BashTask with something other than String");
-                }
+                DefinitionArgumentElement::VecString(vs) => Ok(BashTaskDefinition::new(vs)),
+                _ => Err(YoshiError::WrongTypeDefinitionArgumentEntry(
+                    "command".to_string(),
+                    DefinitionArgumentType::VecString,
+                )),
             }
         } else {
-            panic!("Could not find parameter 'command' to create BashTask");
+            Err(YoshiError::MissingDefinitionArgumentEntry(
+                "command".to_string(),
+            ))
         }
     }
 }
@@ -51,11 +57,9 @@ impl TaskDefinition for BashTaskDefinition {
                 debug!("bash stdout: {:?}", bash_result.stdout);
                 if !bash_result.status.success() {
                     error!("Bash command crashed");
-                    let err = YoshiError {
-                        message: "Bash command was not a success".to_owned(),
-                        origin: "BashTaskDefinition::run".to_owned(),
-                    };
-                    return Err(err);
+                    return Err(YoshiError::TaskDefinitionRunFailure(
+                        "Bash command crashed".to_string(),
+                    ));
                 }
                 let output = TaskOutput::StandardOutput {
                     stdout: str::from_utf8(&bash_result.stdout)
@@ -72,10 +76,7 @@ impl TaskDefinition for BashTaskDefinition {
             Err(err) => {
                 error!("Bash command crashed: {:?}", err);
                 let msg_err = format!("Bash cmd error: {:?}", err);
-                let err = YoshiError {
-                    message: msg_err,
-                    origin: "BashTaskDefinition::run".to_owned(),
-                };
+                let err = YoshiError::TaskDefinitionRunFailure(msg_err);
                 Err(err)
             }
         }

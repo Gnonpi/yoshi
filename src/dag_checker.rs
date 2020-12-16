@@ -12,10 +12,7 @@ pub(crate) fn check_contains_cycle(dag: &Dag) -> Result<(), YoshiError> {
     /*
     if is_cyclic_directed(dag.graph_nodes) {
         let err_msg = format!("DAG contains a cycle");
-        return Err(YoshiError {
-            message: err_msg,
-            origin: format!("dag_checker:check_cycle")
-        })
+        return Err(YoshiError::DagContainsCycle)
     }
     */
     Ok(())

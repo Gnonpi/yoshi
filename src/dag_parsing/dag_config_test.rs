@@ -49,7 +49,7 @@ fn it_can_take_config_to_dag() {
     let mut map_node_id_to_label = HashMap::<String, NodeId>::new();
     for (node_id, node) in result_dag.map_nodes.iter() {
         let node_label = node.label.as_ref().unwrap();
-        map_node_id_to_label.insert(node_label.clone(), node.id_node);
+        map_node_id_to_label.insert(node_label.clone(), *node_id);
     }
 
     //

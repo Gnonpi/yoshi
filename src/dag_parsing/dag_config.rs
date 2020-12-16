@@ -1,9 +1,8 @@
 use crate::dag::Dag;
-use crate::dag_parsing::{DagConfigParser, DagParsingError, YamlDagConfigParser};
+use crate::dag_parsing::{DagConfigParser, YamlDagConfigParser};
+use crate::errors::YoshiError;
 use crate::runners::string_to_runner_type;
-use crate::task_definition::{
-    string_to_definition_type, DefinitionArguments, TaskDefinition, TaskDefinitionType,
-};
+use crate::task_definition::{string_to_definition_type, DefinitionArguments};
 use crate::task_node::TaskNode;
 use crate::type_definition::{FilePath, NodeId};
 use log::{debug, error, info};
@@ -114,7 +113,7 @@ impl From<DagConfig> for Dag {
             let mut node = TaskNode::new(def_type, da, runner_type);
             node.set_label(node_cfg_id);
             node_cfg_id_to_node_id.insert(node_cfg_id.to_string(), node.id_node);
-            dag.add_task(node, None, None);
+            dag.add_task(node, None, None).unwrap();
         }
         // Adding edges
         // normally all nodes are already inserted
@@ -123,7 +122,7 @@ impl From<DagConfig> for Dag {
             let parent_node_id = node_cfg_id_to_node_id.get(parent_id).unwrap();
             for child_id in children_id.iter() {
                 let child_node_id = node_cfg_id_to_node_id.get(child_id).unwrap();
-                dag.add_edge(*parent_node_id, *child_node_id);
+                dag.add_edge(*parent_node_id, *child_node_id).unwrap();
             }
         }
 
@@ -136,21 +135,19 @@ impl From<DagConfig> for Dag {
 fn get_dag_config_from_file(
     filepath: FilePath,
     parser: &dyn DagConfigParser,
-) -> Result<DagConfig, DagParsingError> {
+) -> Result<DagConfig, YoshiError> {
     // get content of file
     let content = fs::read_to_string(filepath).expect("failed to read example file");
     // call validate
     let dag_config = parser.parse_file(content).unwrap();
     // call parse_file
     if !dag_config.validate() {
-        return Err(DagParsingError {
-            reason: "failed to validate dag config".to_string(),
-        });
+        return Err(YoshiError::CannotValidateConfig);
     }
     Ok(dag_config)
 }
 
-pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, DagParsingError> {
+pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, YoshiError> {
     // deduce format from suffix (optional format enum parameter?)
     let path = filepath.clone().into_string().unwrap();
     let suffix = Path::new(&path).extension().unwrap();
@@ -161,9 +158,9 @@ pub fn get_dag_from_file(filepath: FilePath) -> Result<Dag, DagParsingError> {
             parser = YamlDagConfigParser {};
         }
         _ => {
-            return Err(DagParsingError {
-                reason: format!("Unknown suffix: {:?}", suffix),
-            })
+            return Err(YoshiError::UnknownConfigSuffix(
+                suffix.to_str().unwrap().to_string(),
+            ))
         }
     }
     // pass parser and filepath to get_dag_config_from_file

@@ -9,7 +9,7 @@ fn it_can_create_bash_def() {
     let command = "[\"echo\", \"'1'\"]".to_string();
     da.set(&"command".to_string(), command.clone());
 
-    let b_def = create_new_definition(&TaskDefinitionType::Bash, da);
+    let b_def = create_new_definition(&TaskDefinitionType::Bash, da).unwrap();
     assert_eq!(b_def.task_type(), TaskDefinitionType::Bash);
 
     let mut expected_params = HashMap::new();
@@ -26,7 +26,7 @@ fn it_can_create_python_def() {
     da.set(&"script_path".to_string(), script_path.clone());
     da.set(&"args".to_string(), args.clone());
 
-    let p_def = create_new_definition(&TaskDefinitionType::Python, da);
+    let p_def = create_new_definition(&TaskDefinitionType::Python, da).unwrap();
     assert_eq!(p_def.task_type(), TaskDefinitionType::Python);
 
     let mut expected_params = HashMap::new();
@@ -39,6 +39,6 @@ fn it_can_create_python_def() {
 #[test]
 fn it_can_create_dummy_def() {
     let da = DefinitionArguments::new();
-    let d_def = create_new_definition(&TaskDefinitionType::Dummy, da);
+    let d_def = create_new_definition(&TaskDefinitionType::Dummy, da).unwrap();
     assert_eq!(d_def.task_type(), TaskDefinitionType::Dummy);
 }
