@@ -90,7 +90,8 @@ def main():
     print('Got {} from Cargo.toml'.format(toml_version))
     
     if len(git_tag_versions) == 0:
-        print('Since we got no git tags, version should be ok')
+        print('Go no git tags, please recheck')
+        raise RuntimeError('Could not find git tags')
     
     if toml_version in git_tag_versions:
         raise RuntimeError("Version in toml '{}' already found in git tags".format(toml_version))
