@@ -14,8 +14,6 @@ readme = "README.md"
 [dependencies]
 # improved datetime
 chrono = "0.4"
-# pass and clone dynamic traits
-dyn-clone = "1.0.2"
 # logging
 log = "0.4.0"
 env_logger = "0.7.1"

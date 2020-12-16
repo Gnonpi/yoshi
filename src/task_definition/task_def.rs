@@ -2,13 +2,12 @@ use crate::errors::YoshiError;
 use crate::task_definition::TaskDefinitionType;
 use crate::task_output::TaskOutput;
 use crate::type_definition::TaskId;
-use dyn_clone::DynClone;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
 /// Trait that define a task that can be started
 /// basically what's to be done
-pub trait TaskDefinition: DynClone + Debug {
+pub trait TaskDefinition: Debug {
     /// Return a unique id for the definition (instance)
     fn task_definition_id(&self) -> TaskId;
     /// Return an enum to identify the kind of definition
@@ -23,6 +22,3 @@ pub trait TaskDefinition: DynClone + Debug {
 pub fn generate_task_definition_id() -> TaskId {
     TaskId::new_v4()
 }
-
-/// Allow for Sized Box<dyn TaskDefinition>
-dyn_clone::clone_trait_object!(TaskDefinition);

@@ -2,7 +2,6 @@ use crate::task_definition::TaskDefinition;
 use crate::task_instance::{TaskInstance, TaskStatus};
 use crate::type_definition::{DateTimeUtc, NodeId, RunnerId};
 use crossbeam_channel::{Receiver, Sender};
-use dyn_clone::DynClone;
 use std::fmt::Debug;
 
 /// Describe the cause of a task stop
@@ -48,7 +47,7 @@ pub struct ChannelsNotAcquiredBeforeStartingError {}
 /// Struct in charge of taking a TaskDefinition
 /// and run it somewhere
 /// and create the TaskInstance when it finishes
-pub trait TaskRunner: DynClone + Debug {
+pub trait TaskRunner: Debug {
     /// Get an identifier of the Runner
     fn get_runner_id(&self) -> RunnerId;
 
@@ -69,5 +68,3 @@ pub trait TaskRunner: DynClone + Debug {
     /// Get the resulting TaskInstance if it's done
     fn get_task_instance(&self) -> Option<TaskInstance>;
 }
-
-dyn_clone::clone_trait_object!(TaskRunner);
