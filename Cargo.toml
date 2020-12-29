@@ -30,9 +30,16 @@ serde = { version = "1.0", features = ["derive"], optional = true }
 serde_yaml = { version = "0.8", optional = true}
 toml = { version = "0.5.7", optional = true}
 
+# SQLite db usage
+rusqlite = { version = "0.24.2", optional = true }
+# Serialize rusqlite rows
+serde_rusqlite = { version = "0.26.0", optional = true}
+serde_json = { version = "1.0.59", optional = true}
+
 [features]
 toml_parse = ["serde", "toml"]
 yaml_parse = ["serde", "serde_yaml"]
+db_sqlite = ["rusqlite", "serde_rusqlite", "serde_json"]
 
 [lib]
 name = "yoshi"
@@ -43,3 +50,5 @@ test = true
 doctest = true
 bench = true
 doc = true
+
+[profile.test]

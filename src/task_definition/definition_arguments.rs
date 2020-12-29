@@ -10,7 +10,7 @@ pub enum DefinitionArgumentType {
     Filepath,
     Integer,
     Float,
-    VecString,
+    VecString
 }
 
 /// One stored argument to create a new definition
@@ -21,7 +21,7 @@ pub enum DefinitionArgumentElement {
     Integer(i64),
     Float(f64),
     /// Vec of string as JSON array
-    VecString(Vec<String>),
+    VecString(Vec<String>)
 }
 
 /// Save the arguments to pass to a definition

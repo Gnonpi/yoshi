@@ -5,6 +5,9 @@ use crate::type_definition::TaskId;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
+// todo: make TaskDefinition bound by TryFrom<DefinitionArguments>
+// the Error associated trait starts popping in stderr
+
 /// Trait that define a task that can be started
 /// basically what's to be done
 pub trait TaskDefinition: Debug {

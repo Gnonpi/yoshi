@@ -12,7 +12,7 @@ pub enum TaskDefinitionType {
     Python,
     Dummy,
     Postgressql,
-    Sqlite
+    Sqlite,
 }
 
 /// Given a string, return an enum that link to a definition variant
@@ -30,6 +30,7 @@ pub fn create_new_definition(
     tdt: &TaskDefinitionType,
     arguments: DefinitionArguments,
 ) -> Result<Box<dyn TaskDefinition>, YoshiError> {
+    // todo: could this match be replaced by const hashmap?
     match tdt {
         TaskDefinitionType::Bash => {
             // todo: raise YoshiError from here?
