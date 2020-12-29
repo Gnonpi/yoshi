@@ -27,7 +27,8 @@ fn check_via_def_args() {
     let mut da = DefinitionArguments::new();
     // we want to be able to store everything
     // let query = "SELECT 1 AS number, 'a' AS letter, 1.0 AS my_float;".to_string();
-    let query = "SELECT 1 AS number;".to_string();
+    // but for the moment, let's focus on things that don't return anything
+    let query = "CREATE TEMP TABLE my_table(id INTEGER, value TEXT);".to_string();
     da.set(&"dsn".to_string(), ":memory:".to_string());
     da.set(&"query".to_string(), query);
     let s = SqliteConnector::try_from(da).unwrap();
@@ -35,15 +36,14 @@ fn check_via_def_args() {
 
     match result {
         TaskOutput::SqlQueryResult { 
-            rows: result_rows
+            nb_rows: result_rows
         } => {
-            println!("{:?}", result_rows);
-            assert_eq!(2, 3);
+            // for now, we create a table, so it's modifying 0 rows
+            println!("nb rows: {:?}", result_rows);
+            assert_eq!(result_rows, 0);
         },
         _ => {
             panic!("Expected SqlQueryResult, got {:?}", result);
         }
     }
-
-    assert_eq!(1, 2);
 }

@@ -18,12 +18,9 @@ use crate::type_definition::FilePath;
 use crate::type_definition::TaskId;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use log::{debug, info};
+use log::{debug, error, info};
 
-use rusqlite::{params, Connection, MappedRows};
-use rusqlite::Result as RQLiteResult;
-use serde_rusqlite;
-use serde_json;
+use rusqlite::{Connection, NO_PARAMS};
 
 /// Connector to a SQLite database
 #[derive(Debug)]
@@ -33,30 +30,31 @@ pub struct SqliteConnector {
     query: String,
 }
 
-/*
-This is going to be dirty
-*/
-fn map_values_to_json() -> {
-    
-}
-
-fn row_to_hashmap(row: &rusqlite::Row<'_>) -> Result<HashMap<String, rusqlite::types::Value>, rusqlite::Error> {
-    let map = HashMap::new();
-    let col_count = row.column_count();
-    for c in 0..col_count {
-        // we take the ValueRef
-        let raw_value = row.get_raw(c);
-        // turn ValueRef into Value
-        let value = rusqlite::types::Value::from(raw_value);
-        let col_name = row.column_name(c).unwrap();
-        map.insert(col_name.to_string(), value);
-    }
-    Ok(map)
-}
-
 impl DbConnector for SqliteConnector {
     fn get_dsn(&self) -> DbConnectionArguments {
         self.db_conn_args.clone()
+    }
+
+    fn check_connection(&self) -> bool {
+        let conn = match self.get_connection() {
+            Ok(c) => c,
+            Err(err) => {
+                return false
+            }
+        };
+        let select_one = "SELECT 1 AS number;";
+        match conn.query_row(&self.query, NO_PARAMS, |row| row.get::<usize, u32>(0)) {
+            Ok(value) => {
+                if value == 1 {
+                    return true
+                }
+                return false
+            },
+            Err(err) => {
+                error!("Could not reach DB: {}", err);
+                return false
+            }
+        }
     }
 
     fn run_query(
@@ -64,42 +62,21 @@ impl DbConnector for SqliteConnector {
         query: &String,
         parameters: Option<&QueryParameters>,
     ) -> Result<QueryResult, YoshiError>{
-        let conn;
-        match &self.db_conn_args {
-            DbConnectionArguments::Memory => {
-                conn = Connection::open_in_memory().unwrap();
+        let conn = self.get_connection().unwrap();
+        info!("Executing query");
+        match conn.execute(query, NO_PARAMS) {
+            Ok(updated) => {
+                debug!("Query modified {:?} rows", updated);
+                return Ok(QueryResult {
+                    nb_rows: updated,
+                })
             },
-            DbConnectionArguments::File(fp) => {
-                conn = Connection::open(fp).unwrap()
-            },
-            _ => {
-                // todo: add variant in YoshiError, is that possible
-                panic!("Can only connect to SQLite via memory or filepath, got {:?}", self.db_conn_args);
+            Err(err) => {
+                error!("Error while running query: {}", err);
+                let err_msg = format!("{}", err);
+                return Err(YoshiError::TaskDefinitionRunFailure(err_msg))
             }
         }
-
-        // https://stackoverflow.com/questions/60396593/how-do-i-use-rusqlites-rowget-method-for-a-type-which-i-dont-know-at-compile
-        debug!("Preparing to run query: {:?}", query);
-        let mut stmt = conn.prepare(query).unwrap();
-        debug!("Executing statement");
-        /*
-        let mut rows = stmt.query_map(params![], |row| Ok( 
-            row.get(0)
-        )).unwrap();
-        */
-        // let rows = serde_rusqlite::from_rows::<BothWaySerde>(stmt.query(params![]).unwrap());
-        let rows = stmt.query_map(params![], |row| row_to_hashmap(row));
-        let mut result = Vec::new();
-        for r in rows {
-            let value = r;
-            let json_value = serde_json::to_string(&value).unwrap();
-            result.push(json_value);
-        }
-
-        Ok(QueryResult {
-            nb_rows: result.len(),
-            rows: result
-        })
     }
 }
 
@@ -183,6 +160,24 @@ impl TaskDefinition for SqliteConnector {
 
     fn get_params(&self) -> HashMap<String, String> {
         HashMap::new()
+    }
+}
+
+impl SqliteConnector {
+    fn get_connection(&self) -> Result<Connection, ()> {
+        let conn = match &self.db_conn_args {
+            DbConnectionArguments::Memory => {
+                Connection::open_in_memory().unwrap()
+            },
+            DbConnectionArguments::File(fp) => {
+                Connection::open(fp).unwrap()
+            },
+            _ => {
+                // todo: add variant in YoshiError, is that possible
+                panic!("Can only connect to SQLite via memory or filepath, got {:?}", self.db_conn_args);
+            }
+        };
+        Ok(conn)
     }
 }
 

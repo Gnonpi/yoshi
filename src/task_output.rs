@@ -7,5 +7,8 @@ pub enum TaskOutput {
     Text(String),
     LocalFile(Box<FilePath>),
     StandardOutput { stdout: String, stderr: String },
-    SqlQueryResult { rows: Vec<String> }   // stored as json
+    SqlQueryResult { 
+        // rows: Vec<String>,   // stored as json
+        nb_rows: usize
+    }
 }
