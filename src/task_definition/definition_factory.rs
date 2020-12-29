@@ -1,7 +1,11 @@
 use crate::errors::YoshiError;
 use crate::task_definition::DefinitionArguments;
 use crate::task_definition::{
-    BashTaskDefinition, DummyTaskDefinition, PythonTaskDefinition, TaskDefinition,
+    BashTaskDefinition, 
+    DummyTaskDefinition, 
+    PythonTaskDefinition, 
+    RustFunctionTaskDefinition, 
+    TaskDefinition,
 };
 use std::convert::TryFrom;
 
@@ -10,6 +14,7 @@ use std::convert::TryFrom;
 pub enum TaskDefinitionType {
     Bash,
     Python,
+    RustFunction,
     Dummy,
 }
 
@@ -18,6 +23,7 @@ pub fn string_to_definition_type(def_name: String) -> Option<TaskDefinitionType>
     match def_name.as_str() {
         "python_task_definition" => Some(TaskDefinitionType::Python),
         "bash_task_definition" => Some(TaskDefinitionType::Bash),
+        "rust_func_task_definition" => Some(TaskDefinitionType::RustFunction),
         "dummy_task_definition" => Some(TaskDefinitionType::Dummy),
         _ => None,
     }
@@ -37,6 +43,10 @@ pub fn create_new_definition(
         TaskDefinitionType::Python => {
             let p_def = PythonTaskDefinition::try_from(arguments).unwrap();
             Ok(Box::new(p_def))
+        }
+        TaskDefinitionType::RustFunction => {
+            let r_def = RustFunctionTaskDefinition::try_from(arguments).unwrap();
+            Ok(Box::new(r_def))
         }
         TaskDefinitionType::Dummy => {
             let d_def = DummyTaskDefinition::try_from(arguments).unwrap();

@@ -3,6 +3,7 @@ mod definition_arguments;
 mod definition_factory;
 mod dummy_task;
 mod python_task;
+mod rust_func_task;
 mod task_def;
 
 pub use bash_task::BashTaskDefinition;
@@ -14,4 +15,5 @@ pub use definition_factory::{
 };
 pub use dummy_task::DummyTaskDefinition;
 pub use python_task::PythonTaskDefinition;
+pub use rust_func_task::RustFunctionTaskDefinition;
 pub use task_def::{generate_task_definition_id, TaskDefinition};
